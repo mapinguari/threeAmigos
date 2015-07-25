@@ -22,7 +22,6 @@ public class Workout {
         this.averageWatts = averageWatts;
         this.totalTime = totalTime;
         this.workoutTime = workoutTime;
-        parseDateTime
     }
 
     //methods
@@ -56,5 +55,9 @@ public class Workout {
 
     public void setTotalTime(Double totalTime) {
         this.totalTime = totalTime;
+    }
+
+    public List<Interval> getIntervalList() {
+        return intervalList;
     }
 }

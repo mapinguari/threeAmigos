@@ -15,11 +15,12 @@ public class Interval {
     private Double restTime;
 
     //constructors
-    
-    public Interval(Double workTime, Double averageWatts, Integer averageSPM){
+
+    public Interval(Double workTime, Double averageWatts, Integer averageSPM, Double restTime) {
         this.workTime = workTime;
         this.averageWatts = averageWatts;
         this.averageSPM = averageSPM;
+        this.restTime = restTime;
     }
 
 

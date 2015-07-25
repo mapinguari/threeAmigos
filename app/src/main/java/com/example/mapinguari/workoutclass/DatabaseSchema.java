@@ -1,6 +1,9 @@
 package com.example.mapinguari.workoutclass;
 
+import android.content.ContentValues;
 import android.provider.BaseColumns;
+
+import java.util.GregorianCalendar;
 
 /**
  * Created by mapinguari on 7/24/15.
@@ -12,13 +15,15 @@ public class DatabaseSchema {
     public static class DataBaseTerms implements BaseColumns {
         //Table names
         //private static final String USER_TABLE_NAME = "users";
-        private static final String INTERVAL_TABLE_NAME +  = "intervals";
-        private static final String WORKOUT_RELATIONS_TABLE_NAME = "workOutRelations";
-        private static final String WORKOUTS_INTERVAL_TABLE_NAME +  = "workouts";
+        public static final String INTERVAL_TABLE_NAME = "intervals";
+        public static final String WORKOUT_RELATIONS_TABLE_NAME = "workOutRelations";
+        public static final String WORKOUTS_TABLE_NAME = "workouts";
         //Column names
         private static final String COLUMN_NAME_DISTANCE = "distance";
         private static final String COLUMN_NAME_TIME = "time";
         private static final String COLUMN_NAME_RESTTIME = "restTime";
+        private static final String COLUMN_NAME_AVERAGE_WATTS = "averageWatts";
+        private static final String COLUMN_NAME_AVERAGE_SPM = "averageSPM";
         //private static final String COLUMN_NAME_NAME = "name";
         //private static final String COLUMN_NAME_WEIGHT = "weight";
         //private static final String COLUMN_NAME_HEIGHT = "height";
@@ -33,19 +38,78 @@ public class DatabaseSchema {
     
     public static final String INTEGER_TYPE = " INTEGER";
     public static final String REAL_TYPE = " REAL";
+    public static final String DATE_TIME = " DATETIME";
+    public static final String NOT_NULL = " NOT NULL";
     public static final String COMMA_SEP = " ,";
     public static final String OPEN_PAREN = " (";
     public static final String CLOSE_PAREN = ") ";
-    
-    public static final String CREATE_INTERVAL_TABLE = "CREATE TABLE" + INTERVAL_TABLE_NAME + OPEN_PAREN 
-    
 
-    public static final String CREATE_INTERVAL_TABLE = "CREATE TABLE Interval (_ID integer NOT NULL PRIMARY KEY AUTOINCREMENT, averageWatts double NOT NULL,time double NOT NULL, averageSPM integer NOT NULL,restTime double NOT NULL)";
-    /*        "CREATE TABLE " + DataBaseTerms.USER_TABLE_NAME +
-            + " (" + DataBaseTerms._ID +
-    */
-    //public static final String CREATE_USER_TABLE = "CREATE TABLE User (_ID integer NOT NULL PRIMARY KEY AUTOINCREMENT,name varchar(20) NOT NULL,weight double NOT NULL,height double NOT NULL,age integer NOT NULL)";
-    public static final String CREATE_WORKOUTREL_TABLE = "CREATE TABLE WorkOutRel (_ID integer NOT NULL  PRIMARY KEY AUTOINCREMENT,workout_ID integer NOT NULL,intervalOrdinal integer NOT NULL,interval_ID integer NOT NULL,FOREIGN KEY (Interval_ID) REFERENCES Interval (_ID),FOREIGN KEY (Workout_ID) REFERENCES Workout (_ID))";
-    public static final String CREATE_WORKOUT_TABLE = "CREATE TABLE Workout (_ID integer NOT NULL  PRIMARY KEY AUTOINCREMENT,completed datetime NOT NULL, user_ID integer NOT NULL,FOREIGN KEY (User_ID) REFERENCES User (_ID))";
+    private static final String buildNNColumn(String title, String type){
+        return (title + type + NOT_NULL + COMMA_SEP);
+    }
+
+    private static final String idCol(){
+        return (DataBaseTerms._ID + INTEGER_TYPE + NOT_NULL + " PRIMARY KEY AUTOINCREMENT" + COMMA_SEP);
+    }
+
+    private static final String foreignKey(String col, String table, String ref){
+        return "FOREIGN KEY (" + col + ") REFERENCES " + table + " (" + ref + ") ";
+    }
+    
+    public static final String CREATE_INTERVAL_TABLE =
+            "CREATE TABLE" + DataBaseTerms.INTERVAL_TABLE_NAME + OPEN_PAREN +
+            DataBaseTerms._ID + INTEGER_TYPE + NOT_NULL + " AUTOINCREMENT" + COMMA_SEP +
+            DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS + REAL_TYPE + NOT_NULL + COMMA_SEP +
+            DataBaseTerms.COLUMN_NAME_TIME + REAL_TYPE + NOT_NULL + COMMA_SEP +
+            DataBaseTerms.COLUMN_NAME_AVERAGE_SPM + INTEGER_TYPE + NOT_NULL + COMMA_SEP +
+            DataBaseTerms.COLUMN_NAME_RESTTIME + REAL_TYPE + NOT_NULL +
+            " PRIMARY KEY (" +
+                    DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS +
+                    DataBaseTerms.COLUMN_NAME_TIME +
+                    DataBaseTerms.COLUMN_NAME_AVERAGE_SPM +
+                    DataBaseTerms.COLUMN_NAME_RESTTIME + CLOSE_PAREN + CLOSE_PAREN;
+
+    public static final String CREATE_WORKOUTREL_TABLE =
+                    "CREATE TABLE" + DataBaseTerms.WORKOUT_RELATIONS_TABLE_NAME + OPEN_PAREN +
+                    idCol() +
+                    buildNNColumn(DataBaseTerms.COLUMN_NAME_WORKOUT_ID,INTEGER_TYPE) +
+                    buildNNColumn(DataBaseTerms.COLUMN_NAME_INTERVAL_ORDINAL, INTEGER_TYPE) +
+                    buildNNColumn(DataBaseTerms.COLUMN_NAME_INTERVAL_ID, INTEGER_TYPE) +
+                    foreignKey(DataBaseTerms.COLUMN_NAME_INTERVAL_ID, DataBaseTerms.INTERVAL_TABLE_NAME,DataBaseTerms._ID) + COMMA_SEP +
+                    foreignKey(DataBaseTerms.COLUMN_NAME_WORKOUT_ID,DataBaseTerms.WORKOUTS_TABLE_NAME,DataBaseTerms._ID) + CLOSE_PAREN;
+
+    public static final String CREATE_WORKOUT_TABLE =
+            "CREATE TABLE" + DataBaseTerms.WORKOUTS_TABLE_NAME + OPEN_PAREN +
+            idCol() + DataBaseTerms.COLUMN_NAME_COMPLETED_TIME + DATE_TIME + NOT_NULL + CLOSE_PAREN;
+
+    public static ContentValues intervalContent(Interval interval){
+        Double watts = interval.getAverageWatts();
+        Double time = interval.getWorkTime();
+        Double restTime = interval.getRestTime();
+        Integer spm = interval.getAverageSPM();
+        ContentValues cv = new ContentValues(4);
+        cv.put(DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS,watts);
+        cv.put(DataBaseTerms.COLUMN_NAME_TIME,time);
+        cv.put(DataBaseTerms.COLUMN_NAME_RESTTIME, restTime);
+        cv.put(DataBaseTerms.COLUMN_NAME_AVERAGE_SPM, spm);
+        return cv;
+    }
+
+    public static ContentValues workoutContent(Workout workout){
+        GregorianCalendar cal = workout.getWorkoutTime();
+        ContentValues cv = new ContentValues(1);
+        cv.put(DataBaseTerms.COLUMN_NAME_COMPLETED_TIME,GregtoString.getDateTime(workout.getWorkoutTime()));
+        return cv;
+    }
+
+    public static final ContentValues workOutRelContent(int workout_ID,int intervalOrdinal, int interval_ID){
+        ContentValues cv = new ContentValues(3);
+        cv.put(DataBaseTerms.COLUMN_NAME_WORKOUT_ID,workout_ID);
+        cv.put(DataBaseTerms.COLUMN_NAME_INTERVAL_ORDINAL,intervalOrdinal);
+        cv.put(DataBaseTerms.COLUMN_NAME_INTERVAL_ID,interval_ID);
+        return cv;
+    }
+
+
 
 }
