@@ -6,13 +6,15 @@ import android.provider.BaseColumns;
  * Created by mapinguari on 7/24/15.
  */
 public class DatabaseSchema {
+    
+    public DatabaseSchema(){}
 
     public static class DataBaseTerms implements BaseColumns {
         //Table names
         //private static final String USER_TABLE_NAME = "users";
-        private static final String INTERVAL_TABLE_NAME = "intervals";
+        private static final String INTERVAL_TABLE_NAME +  = "intervals";
         private static final String WORKOUT_RELATIONS_TABLE_NAME = "workOutRelations";
-        private static final String WORKOUTS_TABLE_NAME = "workouts";
+        private static final String WORKOUTS_INTERVAL_TABLE_NAME +  = "workouts";
         //Column names
         private static final String COLUMN_NAME_DISTANCE = "distance";
         private static final String COLUMN_NAME_TIME = "time";
@@ -28,6 +30,15 @@ public class DatabaseSchema {
         //private static final String COLUMN_NAME_USER_ID = "user_ID";
 
     }
+    
+    public static final String INTEGER_TYPE = " INTEGER";
+    public static final String REAL_TYPE = " REAL";
+    public static final String COMMA_SEP = " ,";
+    public static final String OPEN_PAREN = " (";
+    public static final String CLOSE_PAREN = ") ";
+    
+    public static final String CREATE_INTERVAL_TABLE = "CREATE TABLE" + INTERVAL_TABLE_NAME + OPEN_PAREN 
+    
 
     public static final String CREATE_INTERVAL_TABLE = "CREATE TABLE Interval (_ID integer NOT NULL PRIMARY KEY AUTOINCREMENT, averageWatts double NOT NULL,time double NOT NULL, averageSPM integer NOT NULL,restTime double NOT NULL)";
     /*        "CREATE TABLE " + DataBaseTerms.USER_TABLE_NAME +
