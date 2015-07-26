@@ -58,12 +58,12 @@ public class DatabaseSchema {
     
     public static final String CREATE_INTERVAL_TABLE =
             "CREATE TABLE" + DataBaseTerms.INTERVAL_TABLE_NAME + OPEN_PAREN +
-            DataBaseTerms._ID + INTEGER_TYPE + NOT_NULL + " AUTOINCREMENT" + COMMA_SEP +
+            DataBaseTerms._ID + INTEGER_TYPE + NOT_NULL + " PRIMARY KEY AUTOINCREMENT" + COMMA_SEP +
             DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS + REAL_TYPE + NOT_NULL + COMMA_SEP +
             DataBaseTerms.COLUMN_NAME_TIME + REAL_TYPE + NOT_NULL + COMMA_SEP +
             DataBaseTerms.COLUMN_NAME_AVERAGE_SPM + INTEGER_TYPE + NOT_NULL + COMMA_SEP +
             DataBaseTerms.COLUMN_NAME_RESTTIME + REAL_TYPE + NOT_NULL +
-            " PRIMARY KEY (" +
+            " UNIQUE (" +
                     DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS +
                     DataBaseTerms.COLUMN_NAME_TIME +
                     DataBaseTerms.COLUMN_NAME_AVERAGE_SPM +
@@ -110,6 +110,18 @@ public class DatabaseSchema {
         return cv;
     }
 
+    public static final String QUERY_SINGLE_ID_DATE = "SELECT " + DataBaseTerms.COLUMN_NAME_COMPLETED_TIME + " FROM" + DataBaseTerms.WORKOUTS_TABLE_NAME +
+            " WHERE" + DataBaseTerms._ID + " = '?' ";
 
 
+    public static final String QUERY_WORKOUT_ID_INTERVALS = "SELECT" +
+            " r." + DataBaseTerms.COLUMN_NAME_INTERVAL_ORDINAL + COMMA_SEP +
+            " i." + DataBaseTerms.COLUMN_NAME_AVERAGE_SPM + COMMA_SEP +
+            " i." + DataBaseTerms.COLUMN_NAME_TIME + COMMA_SEP +
+            " i." + DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS + COMMA_SEP +
+            " i." + DataBaseTerms.COLUMN_NAME_RESTTIME +
+            " FROM" + DataBaseTerms.WORKOUT_RELATIONS_TABLE_NAME + " AS r" +
+            " INNER JOIN" + DataBaseTerms.INTERVAL_TABLE_NAME + " AS i" +
+            " ON" + " r." + DataBaseTerms.COLUMN_NAME_INTERVAL_ID + "=" + "i." + DataBaseTerms._ID +
+            " WHERE " + " r." + DataBaseTerms.COLUMN_NAME_WORKOUT_ID + "='?' ";
 }
