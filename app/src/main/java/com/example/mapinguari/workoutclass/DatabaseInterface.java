@@ -26,6 +26,11 @@ public class DatabaseInterface {
 
     public Boolean insertWorkout(Workout workout) {
         //TODO:HANDLE FAILED INSERTS
+        //For efficient updates the transaction will be
+        //transaction start
+        //int row = insertWithConflict() -- row will be with 0 on the end CONFLICT_IGNORE algo
+        //this will need to be a rawSQL exceution update (noOFREF = noOFREF + 1)
+        //end transaction
         int workout_ID = (int) workoutDatabase.insert(DatabaseSchema.DataBaseTerms.WORKOUTS_TABLE_NAME, null, DatabaseSchema.workoutContent(workout));
         int interval_ID;
         int ordin = 0;
