@@ -124,4 +124,12 @@ public class DatabaseSchema {
             " INNER JOIN" + DataBaseTerms.INTERVAL_TABLE_NAME + " AS i" +
             " ON" + " r." + DataBaseTerms.COLUMN_NAME_INTERVAL_ID + "=" + "i." + DataBaseTerms._ID +
             " WHERE " + " r." + DataBaseTerms.COLUMN_NAME_WORKOUT_ID + "='?' ";
+
+    public static final String DELETE_WORKOUT_ROW_WHERE_CLAUSE = DataBaseTerms._ID + "='?'";
+    public static final String DELETE_WORKOUT_REL_ROWS_WHERE_CLAUSE = DataBaseTerms.COLUMN_NAME_WORKOUT_ID + "='?'";
+
+
 }
+
+
+

@@ -45,10 +45,21 @@ public class DatabaseInterface {
         return (workoutDatabase.insert(DatabaseSchema.DataBaseTerms.INTERVAL_TABLE_NAME, null, DatabaseSchema.intervalContent(interval)));
     }
 
-    public void deleteWorkout(Integer Workout_ID) {
-        //TODO: CODE DELETEWORKOUT
-        //TODO: This is a nightmare. To do this I am going to have to add a column to the intervals table which tracks the number of references to the row. As far as I can tell this can not be carried out with a paradigmatic call to update and will require execsql() FUCK.
+    //V0.1
+    public int deleteWorkout(Integer Workout_ID) {
+        String[] args = {Workout_ID.toString()};
+        int nor = workoutDatabase.delete(DatabaseSchema.DataBaseTerms.WORKOUTS_TABLE_NAME, DatabaseSchema.DELETE_WORKOUT_ROW_WHERE_CLAUSE,args);
+        if(nor == 0){
+            throw new SQLiteException("No workout with specified ID");
+        }
+        nor = workoutDatabase.delete(DatabaseSchema.DataBaseTerms.WORKOUTS_TABLE_NAME, DatabaseSchema.DELETE_WORKOUT_REL_ROWS_WHERE_CLAUSE,args);
+        if(nor == 0){
+            throw new SQLiteException("No workout rels with specified ID");
+        }
+        return nor;
     }
+                //TODO: CODE DELETEWORKOUT
+                //TODO: This is a nightmare. To do this I am going to have to add a column to the intervals table which tracks the number of references to the row. As far as I can tell this can not be carried out with a paradigmatic call to update and will require execsql() FUCK
 
     private GregorianCalendar getWorkoutDate(Integer workout_ID) {
         //Change this to use query()
