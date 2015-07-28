@@ -60,4 +60,6 @@ public class Workout {
     public List<Interval> getIntervalList() {
         return intervalList;
     }
+
+    //TODO: write verification function. i.e one that checks that the header workout data matches the intervals workout data
 }

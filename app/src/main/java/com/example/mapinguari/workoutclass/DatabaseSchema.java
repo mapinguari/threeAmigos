@@ -3,6 +3,7 @@ package com.example.mapinguari.workoutclass;
 import android.content.ContentValues;
 import android.provider.BaseColumns;
 
+import java.util.Arrays;
 import java.util.GregorianCalendar;
 
 /**
@@ -34,6 +35,58 @@ public class DatabaseSchema {
         private static final String COLUMN_NAME_COMPLETED_TIME = "completed";
         //private static final String COLUMN_NAME_USER_ID = "user_ID";
 
+
+        public static String getIntervalTableName() {
+            return INTERVAL_TABLE_NAME;
+        }
+
+        public static String getWorkoutRelationsTableName() {
+            return WORKOUT_RELATIONS_TABLE_NAME;
+        }
+
+        public static String getWorkoutsTableName() {
+            return WORKOUTS_TABLE_NAME;
+        }
+
+        public static String getColumnNameDistance() {
+            return COLUMN_NAME_DISTANCE;
+        }
+
+        public static String getColumnNameTime() {
+            return COLUMN_NAME_TIME;
+        }
+
+        public static String getColumnNameResttime() {
+            return COLUMN_NAME_RESTTIME;
+        }
+
+        public static String getColumnNameAverageWatts() {
+            return COLUMN_NAME_AVERAGE_WATTS;
+        }
+
+        public static String getColumnNameAverageSpm() {
+            return COLUMN_NAME_AVERAGE_SPM;
+        }
+
+        public static String getColumnNameWorkoutId() {
+            return COLUMN_NAME_WORKOUT_ID;
+        }
+
+        public static String getColumnNameIntervalOrdinal() {
+            return COLUMN_NAME_INTERVAL_ORDINAL;
+        }
+
+        public static String getColumnNameIntervalId() {
+            return COLUMN_NAME_INTERVAL_ID;
+        }
+
+        public static String getColumnNameCompletedTime() {
+            return COLUMN_NAME_COMPLETED_TIME;
+        }
+
+        public static String getID() {
+            return _ID;
+        }
     }
     
     public static final String INTEGER_TYPE = " INTEGER";
@@ -46,6 +99,10 @@ public class DatabaseSchema {
 
     private static final String buildNNColumn(String title, String type){
         return (title + type + NOT_NULL + COMMA_SEP);
+    }
+
+    private static final String buildfinalNNColumn(String title, String type){
+        return (title + type + NOT_NULL);
     }
 
     private static final String idCol(){
@@ -80,7 +137,13 @@ public class DatabaseSchema {
 
     public static final String CREATE_WORKOUT_TABLE =
             "CREATE TABLE" + DataBaseTerms.WORKOUTS_TABLE_NAME + OPEN_PAREN +
-            idCol() + DataBaseTerms.COLUMN_NAME_COMPLETED_TIME + DATE_TIME + NOT_NULL + CLOSE_PAREN;
+            idCol() +
+            DataBaseTerms.COLUMN_NAME_COMPLETED_TIME + DATE_TIME + NOT_NULL + COMMA_SEP +
+            buildNNColumn(DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS, REAL_TYPE) +
+            buildNNColumn(DataBaseTerms.COLUMN_NAME_TIME, REAL_TYPE) +
+            buildNNColumn(DataBaseTerms.COLUMN_NAME_DISTANCE,INTEGER_TYPE) +
+            buildfinalNNColumn(DataBaseTerms.COLUMN_NAME_AVERAGE_SPM, INTEGER_TYPE) +
+            CLOSE_PAREN;
 
     public static ContentValues intervalContent(Interval interval){
         Double watts = interval.getAverageWatts();
@@ -97,8 +160,11 @@ public class DatabaseSchema {
 
     public static ContentValues workoutContent(Workout workout){
         GregorianCalendar cal = workout.getWorkoutTime();
-        ContentValues cv = new ContentValues(1);
+        ContentValues cv = new ContentValues(4);
         cv.put(DataBaseTerms.COLUMN_NAME_COMPLETED_TIME,GregtoString.getDateTime(workout.getWorkoutTime()));
+        cv.put(DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS,workout.getAverageWatts());
+        cv.put(DataBaseTerms.COLUMN_NAME_TIME,workout.getTotalTime());
+        cv.put(DataBaseTerms.COLUMN_NAME_AVERAGE_SPM,workout.getAverageSPM());
         return cv;
     }
 
@@ -127,6 +193,11 @@ public class DatabaseSchema {
 
     public static final String DELETE_WORKOUT_ROW_WHERE_CLAUSE = DataBaseTerms._ID + "='?'";
     public static final String DELETE_WORKOUT_REL_ROWS_WHERE_CLAUSE = DataBaseTerms.COLUMN_NAME_WORKOUT_ID + "='?'";
+
+
+
+
+
 
 
 }

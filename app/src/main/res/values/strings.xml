@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">WorkOutClass</string>
+    <string name="title_activity_workout_list">Previous Workouts</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 </resources>

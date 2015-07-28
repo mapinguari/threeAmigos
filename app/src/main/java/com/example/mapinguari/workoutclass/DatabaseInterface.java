@@ -117,6 +117,13 @@ public class DatabaseInterface {
 
     }
 
+    //This call is SUPER LAZY and needs to be optimized
+    Cursor getAllWorkoutsCursor(){
+        return (workoutDatabase.query(DatabaseSchema.DataBaseTerms.WORKOUTS_TABLE_NAME,null,null,null,null,null,null));
+    }
+
+    //Consider moving the next three functions to the workout class
+
     private Double getAvgWatts(List<Interval> intervals){
         double sum = 0;
         for(Interval i : intervals){
@@ -138,7 +145,9 @@ public class DatabaseInterface {
         for(Interval i : intervals){
             sum = sum + i.getAverageWatts();
         }
-        return (int) Math.floor(sum / intervals.size());
+        return (int) Math.floor(sum / intervals.size()
+
+    );
     }
 
 }
