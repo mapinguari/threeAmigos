@@ -60,14 +60,14 @@ public class WorkoutListAdapter extends CursorAdapter {
         dateField.setText(date);
         distanceField.setText(dist);
         splitField.setText(split);
-        /*
+        
         if(cursor.getPosition()%2==1) {
-            view.setBackgroundColor(context.getResources().getColor(R.color.background_odd));
+            view.setBackgroundColor(context.getResources().getColor(R.color.odd_list_item));
         }
         else {
-            view.setBackgroundColor(context.getResources().getColor(R.color.background_even));
+            view.setBackgroundColor(context.getResources().getColor(R.color.even_list_item));
         }
-        */
+        
     }
 
     private Integer getColumn(String[] columnNames, String name) {
