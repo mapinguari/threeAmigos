@@ -1,9 +1,12 @@
 package com.example.mapinguari.workoutclass;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by mapinguari on 7/24/15.
  */
-public class Interval {
+public class Interval implements Parcelable {
 
     // fields
     // active work fields
@@ -21,6 +24,10 @@ public class Interval {
         this.averageWatts = averageWatts;
         this.averageSPM = averageSPM;
         this.restTime = restTime;
+    }
+
+    public Interval(Parcel parcel){
+        readFromParcel(parcel);
     }
 
     public String getSplit(){
@@ -82,4 +89,38 @@ public class Interval {
     }
 
 
+    //Parcelable code
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeDouble(workTime);
+        dest.writeDouble(averageWatts);
+        dest.writeInt(averageSPM);
+        dest.writeDouble(restTime);
+    }
+
+    public void readFromParcel(Parcel in){
+        workTime = in.readDouble();
+        averageWatts = in.readDouble();
+        averageSPM = in.readInt();
+        restTime = in.readDouble();
+    }
+
+    public static final Creator<Interval> CREATOR = new Parcelable.Creator<Interval>(){
+        @Override
+        public Interval createFromParcel(Parcel source) {
+            return new Interval(source);
+        }
+
+        @Override
+        public Interval[] newArray(int size) {
+            return new Interval[size];
+        }
+    };
 }

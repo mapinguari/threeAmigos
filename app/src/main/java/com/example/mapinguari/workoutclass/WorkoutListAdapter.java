@@ -21,6 +21,8 @@ public class WorkoutListAdapter extends CursorAdapter {
     private LayoutInflater mInflater;
 
 
+
+
     public WorkoutListAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
