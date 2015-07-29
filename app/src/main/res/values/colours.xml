@@ -1,0 +1,8 @@
+<resources>
+    <color
+        name="odd_list_item"
+        >#FF0000</color>
+    <color
+        name="even_list_item"
+        >#00FF00</color>
+</resources>
