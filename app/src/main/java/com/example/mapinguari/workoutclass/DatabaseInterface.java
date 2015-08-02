@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class DatabaseInterface {
 
-    private SQLiteDatabase workoutDatabase;
+    public SQLiteDatabase workoutDatabase;
 
     public DatabaseInterface(SQLiteDatabase workoutDatabase) {
         this.workoutDatabase = workoutDatabase;
@@ -38,22 +38,24 @@ public class DatabaseInterface {
         //this will need to be a rawSQL exceution update (noOFREF = noOFREF + 1)
         //end transaction
         int workout_ID = (int) workoutDatabase.insert(DatabaseSchema.DataBaseTerms.WORKOUTS_TABLE_NAME, null, DatabaseSchema.workoutContent(workout));
+        boolean workoutInserted = workout_ID >= 0;
         int interval_ID;
         int ordin = 0;
         ContentValues cv;
+        boolean intervalsInserted = true;
         for (Interval i : workout.getIntervalList()) {
             interval_ID = (int) insertInterval(i);
+            intervalsInserted = interval_ID >= 0 && intervalsInserted;
             cv = DatabaseSchema.workOutRelContent(workout_ID, ordin, interval_ID);
             workoutDatabase.insert(DatabaseSchema.DataBaseTerms.WORKOUT_RELATIONS_TABLE_NAME, null, cv);
             ordin++;
         }
-        //Obviously this is not safe
-        return true;
+        return intervalsInserted && workoutInserted;
     }
 
     private long insertInterval(Interval interval) {
         //TODO: This will need to be re-written to handle deletes efficiently
-        return (workoutDatabase.insert(DatabaseSchema.DataBaseTerms.INTERVAL_TABLE_NAME, null, DatabaseSchema.intervalContent(interval)));
+        return (workoutDatabase.insertWithOnConflict(DatabaseSchema.DataBaseTerms.INTERVAL_TABLE_NAME, null, DatabaseSchema.intervalContent(interval),SQLiteDatabase.CONFLICT_IGNORE));
     }
 
     //V0.1

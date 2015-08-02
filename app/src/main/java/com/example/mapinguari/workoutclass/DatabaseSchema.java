@@ -114,20 +114,20 @@ public class DatabaseSchema {
     }
     
     public static final String CREATE_INTERVAL_TABLE =
-            "CREATE TABLE" + DataBaseTerms.INTERVAL_TABLE_NAME + OPEN_PAREN +
+            "CREATE TABLE " + DataBaseTerms.INTERVAL_TABLE_NAME + OPEN_PAREN +
             DataBaseTerms._ID + INTEGER_TYPE + NOT_NULL + " PRIMARY KEY AUTOINCREMENT" + COMMA_SEP +
             DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS + REAL_TYPE + NOT_NULL + COMMA_SEP +
             DataBaseTerms.COLUMN_NAME_TIME + REAL_TYPE + NOT_NULL + COMMA_SEP +
             DataBaseTerms.COLUMN_NAME_AVERAGE_SPM + INTEGER_TYPE + NOT_NULL + COMMA_SEP +
-            DataBaseTerms.COLUMN_NAME_RESTTIME + REAL_TYPE + NOT_NULL +
+            DataBaseTerms.COLUMN_NAME_RESTTIME + REAL_TYPE + NOT_NULL + COMMA_SEP +
             " UNIQUE (" +
-                    DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS +
-                    DataBaseTerms.COLUMN_NAME_TIME +
-                    DataBaseTerms.COLUMN_NAME_AVERAGE_SPM +
+                    DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS + COMMA_SEP +
+                    DataBaseTerms.COLUMN_NAME_TIME + COMMA_SEP +
+                    DataBaseTerms.COLUMN_NAME_AVERAGE_SPM + COMMA_SEP +
                     DataBaseTerms.COLUMN_NAME_RESTTIME + CLOSE_PAREN + CLOSE_PAREN;
 
     public static final String CREATE_WORKOUTREL_TABLE =
-                    "CREATE TABLE" + DataBaseTerms.WORKOUT_RELATIONS_TABLE_NAME + OPEN_PAREN +
+                    "CREATE TABLE " + DataBaseTerms.WORKOUT_RELATIONS_TABLE_NAME + OPEN_PAREN +
                     idCol() +
                     buildNNColumn(DataBaseTerms.COLUMN_NAME_WORKOUT_ID,INTEGER_TYPE) +
                     buildNNColumn(DataBaseTerms.COLUMN_NAME_INTERVAL_ORDINAL, INTEGER_TYPE) +
@@ -136,7 +136,7 @@ public class DatabaseSchema {
                     foreignKey(DataBaseTerms.COLUMN_NAME_WORKOUT_ID,DataBaseTerms.WORKOUTS_TABLE_NAME,DataBaseTerms._ID) + CLOSE_PAREN;
 
     public static final String CREATE_WORKOUT_TABLE =
-            "CREATE TABLE" + DataBaseTerms.WORKOUTS_TABLE_NAME + OPEN_PAREN +
+            "CREATE TABLE " + DataBaseTerms.WORKOUTS_TABLE_NAME + OPEN_PAREN +
             idCol() +
             DataBaseTerms.COLUMN_NAME_COMPLETED_TIME + DATE_TIME + NOT_NULL + COMMA_SEP +
             buildNNColumn(DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS, REAL_TYPE) +

@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.EventLog;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,17 +18,20 @@ import android.widget.CursorAdapter;
 import android.widget.ListView;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 
-public class WorkoutListActivity extends ActionBarActivity {
+public class WorkoutListActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
 
     DatabaseInterface db;
     String INVESTIGATE_WORKOUT_ACTION_NAME = "/*NAME OF ACTION CLASS GOES HERE*/";
-    String EXTRA_WORKOUT = getPackageName() + ".";
-    ComponentName investigateWorkoutAction = new ComponentName(getPackageName(),INVESTIGATE_WORKOUT_ACTION_NAME);
+    String EXTRA_WORKOUT;
+    ComponentName investigateWorkoutAction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        EXTRA_WORKOUT =  getPackageName() + ".";
+        investigateWorkoutAction = new ComponentName(getPackageName(),INVESTIGATE_WORKOUT_ACTION_NAME);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workout_list);
         DatabaseHelper dbH = new DatabaseHelper(this);
@@ -36,19 +41,22 @@ public class WorkoutListActivity extends ActionBarActivity {
         SQLiteDatabase dbB = null;
         try{
             dbB = (SQLiteDatabase) dbT.get();
-        } catch(Throwable tr){}
-        db = new DatabaseInterface(dbB);
-        Cursor cursor = db.getAllWorkoutsCursor();
-        //TODO: danger here, not sure what the last parameter does, 0 doesnt seem to be a flag. null is not acceptable apparently
-        WorkoutListAdapter adapter = new WorkoutListAdapter(this,cursor,0);
-        ListView listView = (ListView) findViewById(R.id.databaseListView);
-        listView.setAdapter(adapter);
-        WorkoutClick wc = new WorkoutClick();
-        listView.setOnItemClickListener(wc);
-
+        } catch(Throwable tr){
+            Log.w("DAtabase", "did not initialise");
+        }
+        if(dbB != null){
+            db = new DatabaseInterface(dbB);
+            Cursor cursor = db.getAllWorkoutsCursor();
+            //TODO: danger here, not sure what the last parameter does, 0 doesnt seem to be a flag. null is not acceptable apparently
+            WorkoutListAdapter adapter = new WorkoutListAdapter(this, cursor, 0);
+            ListView listView = (ListView) findViewById(R.id.databaseListView);
+            listView.setAdapter(adapter);
+            listView.setOnItemClickListener(this);
+        }
     }
 
-    class WorkoutClick implements AdapterView.OnItemClickListener{
+
+
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
@@ -60,7 +68,7 @@ public class WorkoutListActivity extends ActionBarActivity {
             inspectIntent.setComponent(investigateWorkoutAction);
             startActivity(inspectIntent);
         }
-    }
+
 
 
     @Override
