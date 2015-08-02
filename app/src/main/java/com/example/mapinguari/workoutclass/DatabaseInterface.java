@@ -23,6 +23,12 @@ public class DatabaseInterface {
         this.workoutDatabase = workoutDatabase;
     }
 
+    public Boolean dropTables(){
+        workoutDatabase.execSQL(DatabaseSchema.DROP_REL_TABLE);
+        workoutDatabase.execSQL(DatabaseSchema.DROP_INTERVALS_TABLE);
+        workoutDatabase.execSQL(DatabaseSchema.DROP_WORKOUT_TABLE);
+        return true;
+    }
 
     public Boolean insertWorkout(Workout workout) {
         //TODO:HANDLE FAILED INSERTS
