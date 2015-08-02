@@ -69,6 +69,45 @@ public class Workout implements Parcelable {
     }
 
     //TODO: write verification function. i.e one that checks that the header workout data matches the intervals workout data
+    static public double totalTime(List<Interval> iL){
+
+        double sum = 0;
+
+        for(Interval i : iL){
+            sum += i.getWorkTime();
+        }
+        return sum;
+    }
+
+    static public double averageWatts(List<Interval> iL){
+        double sum = 0;
+
+        for(Interval i : iL){
+            sum += i.getAverageWatts();
+        }
+        return (sum / iL.size());
+    }
+
+    static public int averageSPM(List<Interval> iL){
+        int sum = 0;
+
+        for(Interval i : iL){
+            sum += i.getAverageSPM();
+        }
+        return (int) Math.floor(sum / iL.size());
+    }
+
+    static public double totalRestTime(List<Interval> iL){
+
+        double sum = 0;
+
+        for(Interval i : iL){
+            sum += i.getRestTime();
+        }
+        return sum;
+    }
+
+
 
     // Parcelable code here
 

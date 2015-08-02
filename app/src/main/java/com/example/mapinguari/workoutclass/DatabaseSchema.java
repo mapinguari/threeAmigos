@@ -145,6 +145,15 @@ public class DatabaseSchema {
             buildfinalNNColumn(DataBaseTerms.COLUMN_NAME_AVERAGE_SPM, INTEGER_TYPE) +
             CLOSE_PAREN;
 
+    public static final String DROP_WORKOUT_TABLE =
+            "DROP TABLE " + DataBaseTerms.WORKOUTS_TABLE_NAME;
+
+    public static final String DROP_INTERVALS_TABLE =
+            "DROP TABLE " + DataBaseTerms.INTERVAL_TABLE_NAME;
+
+    public static final String DROP_REL_TABLE =
+            "DROP TABLE " + DataBaseTerms.WORKOUT_RELATIONS_TABLE_NAME;
+
     public static ContentValues intervalContent(Interval interval){
         Double watts = interval.getAverageWatts();
         Double time = interval.getWorkTime();
