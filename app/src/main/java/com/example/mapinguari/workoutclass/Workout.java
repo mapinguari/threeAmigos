@@ -26,12 +26,20 @@ public class Workout implements Parcelable {
         this.totalTime = totalTime;
         this.workoutTime = workoutTime;
     }
-
     public Workout(Parcel workout){
         this.readFromParcel(workout);
     }
 
     //methods
+
+    public Integer getDistance(){
+        double split = Interval.getExtSplit(this.averageWatts);
+        double speed = 500/split;
+        //TODO: NOT SURE WHAT THE ERGO DOES HERE FOR THE ACTUAL METERS (ie Math.Floor, Math.Round etc etc)
+        return (int) (totalTime*speed);
+    }
+
+
     public GregorianCalendar getWorkoutTime() {
         return workoutTime;
     }
@@ -146,4 +154,15 @@ public class Workout implements Parcelable {
             return new Workout[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "Workout{" +
+                "workoutTime=" + workoutTime +
+                ", averageWatts=" + averageWatts +
+                ", totalTime=" + totalTime +
+                ", averageSPM=" + averageSPM +
+                ", intervalList=" + intervalList +
+                '}';
+    }
 }

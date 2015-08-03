@@ -28,6 +28,8 @@ public class WorkoutListActivity extends ActionBarActivity implements AdapterVie
     String EXTRA_WORKOUT;
     ComponentName investigateWorkoutAction;
 
+    List<Workout> workouts;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         EXTRA_WORKOUT =  getPackageName() + ".";
@@ -39,6 +41,11 @@ public class WorkoutListActivity extends ActionBarActivity implements AdapterVie
         //TODO: Exception handling
         //databaseBacker
         SQLiteDatabase dbB = null;
+
+        //LOW TECH TESTING
+        WorkoutGen wg = new WorkoutGen();
+        workouts = wg.workoutsGen(20, 6);
+        //TESTING ENDS HERE
         try{
             dbB = (SQLiteDatabase) dbT.get();
         } catch(Throwable tr){
@@ -46,6 +53,11 @@ public class WorkoutListActivity extends ActionBarActivity implements AdapterVie
         }
         if(dbB != null){
             db = new DatabaseInterface(dbB);
+            //More low tech testing
+            for(Workout w : workouts){
+                db.insertWorkout(w);
+            }
+            //TESTING ENDS HERE
             Cursor cursor = db.getAllWorkoutsCursor();
             //TODO: danger here, not sure what the last parameter does, 0 doesnt seem to be a flag. null is not acceptable apparently
             WorkoutListAdapter adapter = new WorkoutListAdapter(this, cursor, 0);

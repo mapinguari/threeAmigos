@@ -1,5 +1,7 @@
 package com.example.mapinguari.workoutclass;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -32,7 +34,7 @@ public class WorkoutGen {
         Workout temp;
         int noOfInt;
         for(int i = 0; i < numberofWorkouts; i++){
-            noOfInt = r.nextInt(maxNumberIntervals);
+            noOfInt = r.nextInt(maxNumberIntervals - 1) + 1;
             temp = consistentWorkoutGen(noOfInt);
             workouts.add(i,temp);
         }

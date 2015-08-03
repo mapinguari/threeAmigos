@@ -23,7 +23,20 @@ public class DatabaseInterface {
         this.workoutDatabase = workoutDatabase;
     }
 
-    public Boolean dropTables(){
+    public Boolean clearData(){
+        dropTables();
+        makeTables();
+        return true;
+    }
+
+    private Boolean makeTables(){
+        workoutDatabase.execSQL(DatabaseSchema.CREATE_WORKOUT_TABLE);
+        workoutDatabase.execSQL(DatabaseSchema.CREATE_INTERVAL_TABLE);
+        workoutDatabase.execSQL(DatabaseSchema.CREATE_WORKOUTREL_TABLE);
+        return true;
+    }
+
+    private Boolean dropTables(){
         workoutDatabase.execSQL(DatabaseSchema.DROP_REL_TABLE);
         workoutDatabase.execSQL(DatabaseSchema.DROP_INTERVALS_TABLE);
         workoutDatabase.execSQL(DatabaseSchema.DROP_WORKOUT_TABLE);

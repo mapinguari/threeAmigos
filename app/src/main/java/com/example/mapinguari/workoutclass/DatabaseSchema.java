@@ -169,11 +169,12 @@ public class DatabaseSchema {
 
     public static ContentValues workoutContent(Workout workout){
         GregorianCalendar cal = workout.getWorkoutTime();
-        ContentValues cv = new ContentValues(4);
+        ContentValues cv = new ContentValues(5);
         cv.put(DataBaseTerms.COLUMN_NAME_COMPLETED_TIME,GregtoString.getDateTime(workout.getWorkoutTime()));
         cv.put(DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS,workout.getAverageWatts());
         cv.put(DataBaseTerms.COLUMN_NAME_TIME,workout.getTotalTime());
         cv.put(DataBaseTerms.COLUMN_NAME_AVERAGE_SPM,workout.getAverageSPM());
+        cv.put(DataBaseTerms.COLUMN_NAME_DISTANCE, workout.getDistance());
         return cv;
     }
 

@@ -1,6 +1,10 @@
 package com.example.mapinguari.workoutclass;
 
 
+import android.util.Log;
+
+import com.example.mapinguari.workoutclass.Interval;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;

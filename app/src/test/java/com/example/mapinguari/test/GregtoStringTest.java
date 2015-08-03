@@ -1,4 +1,6 @@
-package com.example.mapinguari.workoutclass;
+package com.example.mapinguari.test;
+
+import com.example.mapinguari.workoutclass.GregtoString;
 
 import junit.framework.TestCase;
 
@@ -25,7 +27,11 @@ public class GregtoStringTest extends TestCase {
     public void testGetDateTime() throws Exception {
         String str1 = GregtoString.getDateTime(gc);
         String str2 = GregtoString.getDateTime(GregtoString.getGregCal(str1));
-        assertEquals(str1,str2);
+        assertEquals(str1, str2);
+    }
+
+    public void testSomething() throws Exception{
+        assertEquals(1,1);
     }
 
 }

@@ -2,6 +2,7 @@ package com.example.mapinguari.workoutclass;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +47,8 @@ public class WorkoutListAdapter extends CursorAdapter {
         int distC = getColumn(columnNames, DatabaseSchema.DataBaseTerms.getColumnNameDistance());
 
         int id = cursor.getInt(idC);
-        String split = Interval.calcSplit(cursor.getDouble(wattsC));
+        Double check = cursor.getDouble(wattsC);
+        String split = Interval.calcSplit(check);
         String date = cursor.getString(dateC);
         String time = secsToErgoString(cursor.getDouble(timeC));
         String SPM = Integer.toString(cursor.getInt(SPMC));

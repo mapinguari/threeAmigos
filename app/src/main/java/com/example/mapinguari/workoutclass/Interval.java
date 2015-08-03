@@ -2,6 +2,7 @@ package com.example.mapinguari.workoutclass;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 /**
  * Created by mapinguari on 7/24/15.
@@ -30,29 +31,36 @@ public class Interval implements Parcelable {
         readFromParcel(parcel);
     }
 
+    //this gets the current interval's split
     public String getSplit(){
-        Double a = calculateSplit(this.averageWatts);
+        Double a = getExtSplit(this.averageWatts);
         String str = secondsToSplit(a);
         return str;
     }
 
+    //this returns the human representation of the split given watts
     public static String calcSplit(Double watts){
-        Double a = calculateSplit(watts);
+        Double a = getExtSplit(watts);
         String str = secondsToSplit(a);
         return str;
     }
 
-    private static Double calculateSplit(double watts){
+    //Given watts this returns the speed (m/s).
+    public static Double getExtSplit(double watts){
         double a = 2.8/watts;
-        double split = Math.cbrt(a);
-        return split;
+        double speed = 500 / Math.cbrt(a);
+        return speed;
     }
 
     private static String secondsToSplit(double secondsT){
-        double mins = Math.floor(secondsT / 60);
-        double secs = Math.floor(secondsT % 60);
-        double milli = Math.round((secs % 1) * 10);
-        return (Double.toString(mins) + ":" + Double.toString(secs) + "." + Double.toString(milli));
+        //TODO: Change these doubles to ints
+        int mins = (int) Math.floor(secondsT / 60);
+        double secsRem = secondsT % 60;
+        int secs = (int) Math.floor(secsRem);
+        //TODO:milli calculator is broken.Log.w("sec", Double.toString(secs));
+        Log.w("secRem % 1", Double.toString(secsRem%1));
+        int milli = (int) Math.round((secsRem % 1) * 10);
+        return (Integer.toString(mins) + ":" + Integer.toString(secs) + "." + Integer.toString(milli));
     }
     //public methods
 
@@ -123,4 +131,14 @@ public class Interval implements Parcelable {
             return new Interval[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "Interval{" +
+                "workTime=" + workTime +
+                ", averageWatts=" + averageWatts +
+                ", averageSPM=" + averageSPM +
+                ", restTime=" + restTime +
+                '}';
+    }
 }
