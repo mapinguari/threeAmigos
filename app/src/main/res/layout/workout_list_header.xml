@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.example.mapinguari.workoutclass.WorkoutListItemLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="50dp"
     android:paddingBottom="10dp"
@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:id="@+id/List_date"
+        android:text="@string/workoutListTimeHeader"
         android:paddingLeft="2dp"
         android:paddingRight="2dp"
         />
@@ -17,7 +17,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:id="@+id/List_distance"
+        android:text="@string/workoutListDistanceHeader"
         android:paddingLeft="2dp"
         android:paddingRight="2dp"
         />
@@ -25,9 +25,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:id="@+id/List_split"
+        android:text="@string/workoutListSplitheader"
         android:paddingLeft="2dp"
         android:paddingRight="2dp"
         />
 
-</com.example.mapinguari.workoutclass.WorkoutListItemLayout>
+</LinearLayout>

@@ -62,7 +62,9 @@ public class WorkoutListActivity extends ActionBarActivity implements AdapterVie
             //TODO: danger here, not sure what the last parameter does, 0 doesnt seem to be a flag. null is not acceptable apparently
             WorkoutListAdapter adapter = new WorkoutListAdapter(this, cursor, 0);
             ListView listView = (ListView) findViewById(R.id.databaseListView);
+            View header = getLayoutInflater().inflate(R.layout.workout_list_header,null);
             listView.setAdapter(adapter);
+            listView.addHeaderView(header);
             listView.setOnItemClickListener(this);
         }
     }

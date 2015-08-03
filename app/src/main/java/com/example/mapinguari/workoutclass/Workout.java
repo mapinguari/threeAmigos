@@ -139,8 +139,7 @@ public class Workout implements Parcelable {
         averageWatts = in.readDouble();
         totalTime = in.readDouble();
         averageSPM = in.readInt();
-        //TODO: Not sure here if this class loader (null) is acceptable
-        in.readList(this.intervalList,null );
+        in.readList(this.intervalList,Interval.class.getClassLoader());
     }
 
     public static final Creator<Workout> CREATOR = new Parcelable.Creator<Workout>(){

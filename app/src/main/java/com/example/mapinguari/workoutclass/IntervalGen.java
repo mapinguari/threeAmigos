@@ -25,8 +25,8 @@ public class IntervalGen {
     }
 
     public Interval generateInterval(){
-        double time = r.nextDouble()*600;
-        double watts = r.nextDouble()*10000;
+        double time = r.nextDouble()*7200;
+        double watts = r.nextDouble()*1000;
         double rTime = r.nextDouble()*600;
         int spm = r.nextInt(100);
         return new Interval(time,watts,spm,rTime);

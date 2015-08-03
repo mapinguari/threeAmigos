@@ -2,6 +2,7 @@ package com.example.mapinguari.workoutclass;
 
 import android.content.ContentValues;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 import java.util.Arrays;
 import java.util.GregorianCalendar;
@@ -175,6 +176,7 @@ public class DatabaseSchema {
         cv.put(DataBaseTerms.COLUMN_NAME_TIME,workout.getTotalTime());
         cv.put(DataBaseTerms.COLUMN_NAME_AVERAGE_SPM,workout.getAverageSPM());
         cv.put(DataBaseTerms.COLUMN_NAME_DISTANCE, workout.getDistance());
+        Log.w("workoutDistance", Integer.toString(workout.getDistance()));
         return cv;
     }
 

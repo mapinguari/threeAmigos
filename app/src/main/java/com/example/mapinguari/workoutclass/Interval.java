@@ -57,8 +57,6 @@ public class Interval implements Parcelable {
         int mins = (int) Math.floor(secondsT / 60);
         double secsRem = secondsT % 60;
         int secs = (int) Math.floor(secsRem);
-        //TODO:milli calculator is broken.Log.w("sec", Double.toString(secs));
-        Log.w("secRem % 1", Double.toString(secsRem%1));
         int milli = (int) Math.round((secsRem % 1) * 10);
         return (Integer.toString(mins) + ":" + Integer.toString(secs) + "." + Integer.toString(milli));
     }

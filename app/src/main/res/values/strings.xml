@@ -4,4 +4,8 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+
+    <string name="workoutListTimeHeader">Date</string>
+    <string name="workoutListDistanceHeader">Distance</string>
+    <string name="workoutListSplitheader">Split</string>
 </resources>
