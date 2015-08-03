@@ -8,4 +8,58 @@
     <string name="workoutListTimeHeader">Date</string>
     <string name="workoutListDistanceHeader">Distance</string>
     <string name="workoutListSplitheader">Split</string>
+
+
+
+
+    <string name="Welcome">Main Menu Options</string>
+    <string name="Input">Manual Score Input</string>
+    <string name="Database">View Scores</string>
+    <string name="Exit">Exit</string>
+
+    <string name="title_activity_input">Input Ergo Score</string>
+    <string name="date">Date</string>
+    <string name="intervals">Intervals</string>
+    <string name="interval">Interval</string>
+    <string name="Average_Scores_Title">Average Scores</string>
+    <string name="time">Time</string>
+    <string name="power">Watts</string>
+    <string name="spm">SPM</string>
+
+    <string-array name="Months">
+        <item>Jan</item>
+        <item>Feb</item>
+        <item>Mar</item>
+        <item>Apr</item>
+        <item>May</item>
+        <item>Jun</item>
+        <item>Jul</item>
+        <item>Aug</item>
+        <item>Sep</item>
+        <item>Oct</item>
+        <item>Nov</item>
+        <item>Dec</item>
+    </string-array>
+    <string-array name="Years">
+        <item>2014</item>
+        <item>2015</item>
+        <item>2016</item>
+        <item>2017</item>
+        <item>2018</item>
+    </string-array>
+    <string-array name="Days">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+    <string name="title_activity_score_input">ScoreInput</string>
+
+    <string name="title_activity_testinput">Testinput</string>
+    <string name="title_activity_inspect">Inspect</string>
+    <string name="title_activity_inout_test">InoutTest</string>
+    <string name="title_activity_manual_input">ManualInput</string>
+
 </resources>
