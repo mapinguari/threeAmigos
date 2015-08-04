@@ -1,10 +1,13 @@
-package com.example.mapinguari.workoutclass;
+package com.example.mapinguari.workoutclass.database;
 
 import android.content.ContentValues;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-import java.util.Arrays;
+import com.example.mapinguari.workoutclass.GregtoString;
+import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
+import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
+
 import java.util.GregorianCalendar;
 
 /**
@@ -171,7 +174,7 @@ public class DatabaseSchema {
     public static ContentValues workoutContent(Workout workout){
         GregorianCalendar cal = workout.getWorkoutTime();
         ContentValues cv = new ContentValues(5);
-        cv.put(DataBaseTerms.COLUMN_NAME_COMPLETED_TIME,GregtoString.getDateTime(workout.getWorkoutTime()));
+        cv.put(DataBaseTerms.COLUMN_NAME_COMPLETED_TIME, GregtoString.getDateTime(workout.getWorkoutTime()));
         cv.put(DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS,workout.getAverageWatts());
         cv.put(DataBaseTerms.COLUMN_NAME_TIME,workout.getTotalTime());
         cv.put(DataBaseTerms.COLUMN_NAME_AVERAGE_SPM,workout.getAverageSPM());
@@ -188,8 +191,8 @@ public class DatabaseSchema {
         return cv;
     }
 
-    public static final String QUERY_SINGLE_ID_DATE = "SELECT " + DataBaseTerms.COLUMN_NAME_COMPLETED_TIME + " FROM" + DataBaseTerms.WORKOUTS_TABLE_NAME +
-            " WHERE" + DataBaseTerms._ID + " = '?' ";
+    public static final String QUERY_SINGLE_ID_DATE = "SELECT " + DataBaseTerms.COLUMN_NAME_COMPLETED_TIME + " FROM " + DataBaseTerms.WORKOUTS_TABLE_NAME +
+            " WHERE " + DataBaseTerms._ID + " = ? ";
 
 
     public static final String QUERY_WORKOUT_ID_INTERVALS = "SELECT" +
@@ -198,10 +201,10 @@ public class DatabaseSchema {
             " i." + DataBaseTerms.COLUMN_NAME_TIME + COMMA_SEP +
             " i." + DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS + COMMA_SEP +
             " i." + DataBaseTerms.COLUMN_NAME_RESTTIME +
-            " FROM" + DataBaseTerms.WORKOUT_RELATIONS_TABLE_NAME + " AS r" +
-            " INNER JOIN" + DataBaseTerms.INTERVAL_TABLE_NAME + " AS i" +
+            " FROM " + DataBaseTerms.WORKOUT_RELATIONS_TABLE_NAME + " AS r" +
+            " INNER JOIN " + DataBaseTerms.INTERVAL_TABLE_NAME + " AS i" +
             " ON" + " r." + DataBaseTerms.COLUMN_NAME_INTERVAL_ID + "=" + "i." + DataBaseTerms._ID +
-            " WHERE " + " r." + DataBaseTerms.COLUMN_NAME_WORKOUT_ID + "='?' ";
+            " WHERE " + " r." + DataBaseTerms.COLUMN_NAME_WORKOUT_ID + "=? ";
 
     public static final String DELETE_WORKOUT_ROW_WHERE_CLAUSE = DataBaseTerms._ID + "='?'";
     public static final String DELETE_WORKOUT_REL_ROWS_WHERE_CLAUSE = DataBaseTerms.COLUMN_NAME_WORKOUT_ID + "='?'";

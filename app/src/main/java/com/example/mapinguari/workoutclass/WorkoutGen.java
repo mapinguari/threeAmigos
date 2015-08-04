@@ -1,6 +1,7 @@
 package com.example.mapinguari.workoutclass;
 
-import android.util.Log;
+import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
+import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;

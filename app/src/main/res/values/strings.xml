@@ -61,5 +61,6 @@
     <string name="title_activity_inspect">Inspect</string>
     <string name="title_activity_inout_test">InoutTest</string>
     <string name="title_activity_manual_input">ManualInput</string>
+    <string name="previous_workouts_button_text">Previous Workouts</string>
 
 </resources>

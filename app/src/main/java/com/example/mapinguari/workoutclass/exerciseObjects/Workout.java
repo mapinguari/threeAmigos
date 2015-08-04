@@ -1,7 +1,8 @@
-package com.example.mapinguari.workoutclass;
+package com.example.mapinguari.workoutclass.exerciseObjects;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -89,8 +90,9 @@ public class Workout implements Parcelable {
 
     static public double averageWatts(List<Interval> iL){
         double sum = 0;
-
+        Log.w("last element", iL.get(iL.size() -1).toString());
         for(Interval i : iL){
+            Log.w("iL is null?", Boolean.toString(i == null));
             sum += i.getAverageWatts();
         }
         return (sum / iL.size());

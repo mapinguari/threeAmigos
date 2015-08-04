@@ -1,14 +1,16 @@
-package com.example.mapinguari.workoutclass;
+package com.example.mapinguari.workoutclass.database;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.provider.ContactsContract;
+import android.util.Log;
 
-import java.util.ArrayList;
+import com.example.mapinguari.workoutclass.GregtoString;
+import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
+import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
+
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -90,11 +92,13 @@ public class DatabaseInterface {
     private GregorianCalendar getWorkoutDate(Integer workout_ID) {
         //Change this to use query()
         String[] args = {workout_ID.toString()};
+
         Cursor firstC = workoutDatabase.rawQuery(DatabaseSchema.QUERY_SINGLE_ID_DATE, args);
         if (firstC.getCount() == 0) {
             throw new SQLiteException("No workout with that ID");
         }
-        String datetime = firstC.getString(0);
+        firstC.moveToFirst();
+        String datetime = firstC.getString(firstC.getColumnIndex(DatabaseSchema.DataBaseTerms.getColumnNameCompletedTime()));
         return GregtoString.getGregCal(datetime);
     }
 
@@ -112,7 +116,8 @@ public class DatabaseInterface {
         double resttime;
         Interval curInt;
         Interval[] intervals = new Interval[nOI];
-        do {
+        firstC.moveToFirst();
+        for(int i = 0;i < nOI;i++){
             ordinal = firstC.getInt(0);
             SPM = firstC.getInt(1);
             time = firstC.getDouble(2);
@@ -120,8 +125,8 @@ public class DatabaseInterface {
             resttime = firstC.getDouble(4);
             curInt = new Interval(time, watts, SPM, resttime);
             intervals[ordinal] = curInt;
-
-        } while (!(firstC.isLast()));
+            firstC.moveToNext();
+        }
         List<Interval> intervalsList = Arrays.asList(intervals);
         return intervalsList;
 
@@ -130,45 +135,18 @@ public class DatabaseInterface {
     public Workout getWorkOut(Integer workout_ID){
         GregorianCalendar date = getWorkoutDate(workout_ID);
         List<Interval> intervals = getIntervals(workout_ID);
-        Double watts = getAvgWatts(intervals);
-        Double totalTime = getTotalTime(intervals);
-        Integer SPM = getSPM(intervals);
+
+        Double watts = Workout.averageWatts(intervals);
+        Double totalTime = Workout.totalTime(intervals);
+        Integer SPM = Workout.averageSPM(intervals);
         Workout workout = new Workout(intervals,SPM,watts,totalTime,date);
         return workout;
 
     }
 
     //This call is SUPER LAZY and needs to be optimized
-    Cursor getAllWorkoutsCursor(){
+    public Cursor getAllWorkoutsCursor(){
         return (workoutDatabase.query(DatabaseSchema.DataBaseTerms.WORKOUTS_TABLE_NAME,null,null,null,null,null,null));
-    }
-
-    //Consider moving the next three functions to the workout class
-
-    private Double getAvgWatts(List<Interval> intervals){
-        double sum = 0;
-        for(Interval i : intervals){
-            sum = sum + i.getAverageWatts();
-        }
-        return (sum / intervals.size());
-    }
-
-    private Double getTotalTime(List<Interval> intervals) {
-        double sum = 0;
-        for (Interval i : intervals) {
-            sum = sum + i.getWorkTime();
-        }
-        return sum;
-    }
-
-    private Integer getSPM(List<Interval> intervals){
-        double sum = 0;
-        for(Interval i : intervals){
-            sum = sum + i.getAverageWatts();
-        }
-        return (int) Math.floor(sum / intervals.size()
-
-    );
     }
 
 }

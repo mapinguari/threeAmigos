@@ -1,4 +1,4 @@
-package com.example.mapinguari.workoutclass;
+package com.example.mapinguari.workoutclass.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,6 +6,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import com.example.mapinguari.workoutclass.R;
 
 
 public class MainMenuActivity extends ActionBarActivity {
@@ -22,7 +24,7 @@ public class MainMenuActivity extends ActionBarActivity {
     }
 
     public void GoToInspect (View v){
-        startActivity(new Intent(getApplicationContext(), InspectActivity.class));
+        startActivity(new Intent(getApplicationContext(), WorkoutListActivity.class));
     }
 
     @Override

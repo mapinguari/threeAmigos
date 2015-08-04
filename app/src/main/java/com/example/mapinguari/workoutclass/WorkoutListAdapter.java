@@ -2,14 +2,14 @@ package com.example.mapinguari.workoutclass;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
+import com.example.mapinguari.workoutclass.database.DatabaseSchema;
+import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
 
 import java.util.Arrays;
 

@@ -8,13 +8,13 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".WorkoutListActivity"
+            android:name=".activities.WorkoutListActivity"
             android:label="@string/title_activity_workout_list"
             android:exported="true">
         </activity>
 
         <activity
-            android:name=".MainMenuActivity"
+            android:name=".activities.MainMenuActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,12 +22,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".InspectActivity"
+            android:name=".activities.InspectActivity"
             android:label="@string/title_activity_inspect" >
         </activity>
 
         <activity
-            android:name=".ManualInputActivity"
+            android:name=".activities.ManualInputActivity"
             android:label="@string/title_activity_manual_input" >
         </activity>
 

@@ -1,39 +1,40 @@
-package com.example.mapinguari.workoutclass;
+package com.example.mapinguari.workoutclass.activities;
 
 import android.content.ComponentName;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.EventLog;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.CursorAdapter;
 import android.widget.ListView;
 
+import com.example.mapinguari.workoutclass.database.DatabaseHelper;
+import com.example.mapinguari.workoutclass.database.DatabaseInterface;
+import com.example.mapinguari.workoutclass.database.DatabaseOpenTask;
+import com.example.mapinguari.workoutclass.R;
+import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
+import com.example.mapinguari.workoutclass.WorkoutGen;
+import com.example.mapinguari.workoutclass.WorkoutListAdapter;
+import com.example.mapinguari.workoutclass.WorkoutListItemLayout;
+
 import java.util.List;
-import java.util.logging.Logger;
 
 
 public class WorkoutListActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
 
     DatabaseInterface db;
-    String INVESTIGATE_WORKOUT_ACTION_NAME = "/*NAME OF ACTION CLASS GOES HERE*/";
-    String EXTRA_WORKOUT;
-    ComponentName investigateWorkoutAction;
+    String EXTRA_WORKOUT = "com.example.mapinguari.workoutclass.activities.WORKOUT";
 
     List<Workout> workouts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        EXTRA_WORKOUT =  getPackageName() + ".";
-        investigateWorkoutAction = new ComponentName(getPackageName(),INVESTIGATE_WORKOUT_ACTION_NAME);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workout_list);
         DatabaseHelper dbH = new DatabaseHelper(this);
@@ -43,8 +44,8 @@ public class WorkoutListActivity extends ActionBarActivity implements AdapterVie
         SQLiteDatabase dbB = null;
 
         //LOW TECH TESTING
-        WorkoutGen wg = new WorkoutGen();
-        workouts = wg.workoutsGen(20, 6);
+        //WorkoutGen wg = new WorkoutGen();
+        //workouts = wg.workoutsGen(20, 6);
         //TESTING ENDS HERE
         try{
             dbB = (SQLiteDatabase) dbT.get();
@@ -54,9 +55,9 @@ public class WorkoutListActivity extends ActionBarActivity implements AdapterVie
         if(dbB != null){
             db = new DatabaseInterface(dbB);
             //More low tech testing
-            for(Workout w : workouts){
-                db.insertWorkout(w);
-            }
+            //for(Workout w : workouts){
+            //    db.insertWorkout(w);
+            //}
             //TESTING ENDS HERE
             Cursor cursor = db.getAllWorkoutsCursor();
             //TODO: danger here, not sure what the last parameter does, 0 doesnt seem to be a flag. null is not acceptable apparently
@@ -76,10 +77,10 @@ public class WorkoutListActivity extends ActionBarActivity implements AdapterVie
 
             WorkoutListItemLayout itemView = (WorkoutListItemLayout) view;
             int workout_ID = itemView.workout_ID;
+            Log.w("workout_ID", Integer.toString(workout_ID));
             Workout workout = db.getWorkOut(workout_ID);
-            Intent inspectIntent = new Intent();
+            Intent inspectIntent = new Intent(getApplicationContext(),InspectActivity.class);
             inspectIntent.putExtra(EXTRA_WORKOUT,workout);
-            inspectIntent.setComponent(investigateWorkoutAction);
             startActivity(inspectIntent);
         }
 

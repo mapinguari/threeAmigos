@@ -1,4 +1,4 @@
-package com.example.mapinguari.workoutclass;
+package com.example.mapinguari.workoutclass.activities;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -11,6 +11,10 @@ import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+
+import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
+import com.example.mapinguari.workoutclass.R;
+import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
 
 import java.util.Arrays;
 import java.util.GregorianCalendar;

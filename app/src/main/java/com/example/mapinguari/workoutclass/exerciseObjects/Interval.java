@@ -1,8 +1,7 @@
-package com.example.mapinguari.workoutclass;
+package com.example.mapinguari.workoutclass.exerciseObjects;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 /**
  * Created by mapinguari on 7/24/15.

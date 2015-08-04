@@ -1,7 +1,9 @@
-package com.example.mapinguari.workoutclass;
+package com.example.mapinguari.workoutclass.database;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+
+import com.example.mapinguari.workoutclass.database.DatabaseHelper;
 
 /**
  * Created by mapinguari on 7/29/15.
