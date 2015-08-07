@@ -14,6 +14,7 @@ import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.mapinguari.workoutclass.R;
@@ -26,6 +27,7 @@ import com.example.mapinguari.workoutclass.exerciseObjects.PowerUnit;
 import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -65,8 +67,14 @@ public final class WorkoutView extends LinearLayout {
         this.setOrientation(VERTICAL);
         dateView = new TextView(context);
 
+        LinearLayout datebuttons = new LinearLayout(context);
+        datebuttons.setOrientation(HORIZONTAL);
+
         datePickerButton = new Button(context);
         timePickerButton = new Button(context);
+
+        datebuttons.addView(datePickerButton);
+        datebuttons.addView(timePickerButton);
 
         if(workout == null){
             currentCal = new GregorianCalendar();
@@ -75,8 +83,12 @@ public final class WorkoutView extends LinearLayout {
             currentCal = workout.getWorkoutTime();
         }
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog();
-        TimePickerDialog timePickerDialog = new TimePickerDialog();
+        datePickerButton.setText(getNewDate());
+        timePickerButton.setText(getNewTime());
+
+
+        final DatePickerDialog datePickerDialog = new DatePickerDialog(context,new dateGet(),currentCal.get(Calendar.YEAR),currentCal.get(Calendar.MONTH),currentCal.get(Calendar.DAY_OF_MONTH));
+        final TimePickerDialog timePickerDialog = new TimePickerDialog(context,new getTime(),currentCal.get(Calendar.HOUR_OF_DAY), currentCal.get(Calendar.MINUTE),true);
 
 
         headerView = new HeaderView(context);
@@ -87,10 +99,25 @@ public final class WorkoutView extends LinearLayout {
         intervalsView.setOrientation(VERTICAL);
         intervalsViewCont.addView(intervalsView);
 
+        datePickerButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                datePickerDialog.show();
+            }
+        });
+
+        timePickerButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                timePickerDialog.show();
+            }
+        });
+
 
         powerUnitDisplayed = new PowerUnit(PowerUnit.CurrentUnit.SPLIT);
 
-        this.addView(dateView);
+        //this.addView(dateView);
+        this.addView(datebuttons);
         this.addView(headerView);
         headerView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         this.addView(totalsView);
@@ -98,6 +125,33 @@ public final class WorkoutView extends LinearLayout {
         setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
+    class dateGet implements DatePickerDialog.OnDateSetListener{
+        @Override
+        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+            currentCal.set(Calendar.YEAR,year);
+            currentCal.set(Calendar.MONTH,monthOfYear);
+            currentCal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            datePickerButton.setText(getNewDate());
+        }
+    }
+
+    //TODO: REFORMAT USING SIMPLEDATEFORMAT
+    private String getNewDate(){
+        return (currentCal.get(Calendar.DAY_OF_MONTH) + "/" + currentCal.get(Calendar.MONTH) + "/" + currentCal.get(Calendar.YEAR));
+    }
+
+    class getTime implements TimePickerDialog.OnTimeSetListener{
+        @Override
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            currentCal.set(Calendar.HOUR_OF_DAY,hourOfDay);
+            currentCal.set(Calendar.MINUTE,minute);
+            timePickerButton.setText(getNewTime());
+        }
+    }
+
+    private String getNewTime(){
+        return (currentCal.get(Calendar.HOUR_OF_DAY) + ":" + currentCal.get(Calendar.MINUTE));
+    }
 
     private IntervalView intervalViewToAdd(@Nullable Interval interval){
         IntervalView intervalView = new IntervalView(context,interval);
