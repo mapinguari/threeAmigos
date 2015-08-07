@@ -62,5 +62,17 @@
     <string name="title_activity_inout_test">InoutTest</string>
     <string name="title_activity_manual_input">ManualInput</string>
     <string name="previous_workouts_button_text">Previous Workouts</string>
+    <string name="workout_view_header_time">Time</string>
+    <string name="workout_view_header_distance">Distance</string>
+    <string name="workout_view_header_spm">SPM</string>
+    <string name="workout_view_header_watts">Watts</string>
+    <string name="workout_view_header_split">s/500m</string>
+    <string name="title_activity_workout_view">WorkoutViewActivity</string>
 
+    <string name="EXTRA_WORKOUT_PASSED">com.example.mapinguari.workoutclass.EXTRA_WORKOUT_PASSED</string>
+    <string name="EXTRA_WORKOUT">com.example.mapinguari.workoutclass.WORKOUT</string>
+    <string name="workout_view_header_energy_per_stroke">J/Str</string>
+    <string name="workout_view_header_distance_per_stroke">m/Str</string>
+    <string name="save_button_text">Save Workout</string>
+    <string name="interval_view_rest_time_title">RestTime (s)</string>
 </resources>

@@ -4,26 +4,27 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
  * Created by mapinguari on 7/24/15.
  */
-public class Workout implements Parcelable {
+public class Workout extends PerformanceMeasure implements Parcelable {
 
     //fields
     private GregorianCalendar workoutTime;
-    private Double averageWatts;
+    private Double distance;
     private Double totalTime;
     private Integer averageSPM;
     private List<Interval> intervalList;
 
     //constructors
-    public Workout(List<Interval> intervalList, Integer averageSPM, Double averageWatts, Double totalTime, GregorianCalendar workoutTime) {
+    public Workout(List<Interval> intervalList, Integer averageSPM, Double distance, Double totalTime, GregorianCalendar workoutTime) {
         this.intervalList = intervalList;
         this.averageSPM = averageSPM;
-        this.averageWatts = averageWatts;
+        this.distance = distance;
         this.totalTime = totalTime;
         this.workoutTime = workoutTime;
     }
@@ -33,11 +34,19 @@ public class Workout implements Parcelable {
 
     //methods
 
-    public Integer getDistance(){
-        double split = Interval.getExtSplit(this.averageWatts);
-        double speed = 500/split;
-        //TODO: NOT SURE WHAT THE ERGO DOES HERE FOR THE ACTUAL METERS (ie Math.Floor, Math.Round etc etc)
-        return (int) (totalTime*speed);
+
+    @Override
+    public Double getTime() {
+        return totalTime;
+    }
+
+    @Override
+    public Integer getSPM() {
+        return averageSPM;
+    }
+
+    public Double getDistance(){
+        return distance;
     }
 
 
@@ -49,24 +58,14 @@ public class Workout implements Parcelable {
         this.workoutTime = workoutTime;
     }
 
-    public Integer getAverageSPM() {
-        return averageSPM;
-    }
 
-    public void setAverageSPM(Integer averageSPM) {
+    public void setSPM(Integer averageSPM) {
         this.averageSPM = averageSPM;
     }
 
-    public Double getAverageWatts() {
-        return averageWatts;
-    }
 
-    public void setAverageWatts(Double averageWatts) {
-        this.averageWatts = averageWatts;
-    }
-
-    public Double getTotalTime() {
-        return totalTime;
+    public void setdistance(Double distance) {
+        this.distance = distance;
     }
 
     public void setTotalTime(Double totalTime) {
@@ -77,32 +76,34 @@ public class Workout implements Parcelable {
         return intervalList;
     }
 
+    public Double getTotalRest(){
+        return totalRestTime(this.intervalList);
+    }
+
     //TODO: write verification function. i.e one that checks that the header workout data matches the intervals workout data
     static public double totalTime(List<Interval> iL){
 
         double sum = 0;
 
         for(Interval i : iL){
-            sum += i.getWorkTime();
+            sum += i.getTime();
         }
         return sum;
     }
 
-    static public double averageWatts(List<Interval> iL){
+    static public double totalDistance(List<Interval> iL){
         double sum = 0;
-        Log.w("last element", iL.get(iL.size() -1).toString());
         for(Interval i : iL){
-            Log.w("iL is null?", Boolean.toString(i == null));
-            sum += i.getAverageWatts();
+            sum += i.getDistance();
         }
-        return (sum / iL.size());
+        return sum;
     }
 
     static public int averageSPM(List<Interval> iL){
         int sum = 0;
 
         for(Interval i : iL){
-            sum += i.getAverageSPM();
+            sum += i.getSPM();
         }
         return (int) Math.floor(sum / iL.size());
     }
@@ -130,7 +131,7 @@ public class Workout implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeSerializable(workoutTime);
-        dest.writeDouble(averageWatts);
+        dest.writeDouble(distance);
         dest.writeDouble(totalTime);
         dest.writeInt(averageSPM);
         dest.writeList(intervalList);
@@ -138,10 +139,12 @@ public class Workout implements Parcelable {
 
     public void readFromParcel(Parcel in){
         workoutTime = (GregorianCalendar) in.readSerializable();
-        averageWatts = in.readDouble();
+        distance = in.readDouble();
         totalTime = in.readDouble();
         averageSPM = in.readInt();
-        in.readList(this.intervalList,Interval.class.getClassLoader());
+        this.intervalList = new ArrayList<Interval>();
+        in.readList(this.intervalList, Interval.class.getClassLoader());
+
     }
 
     public static final Creator<Workout> CREATOR = new Parcelable.Creator<Workout>(){
@@ -160,7 +163,7 @@ public class Workout implements Parcelable {
     public String toString() {
         return "Workout{" +
                 "workoutTime=" + workoutTime +
-                ", averageWatts=" + averageWatts +
+                ", distance=" + distance +
                 ", totalTime=" + totalTime +
                 ", averageSPM=" + averageSPM +
                 ", intervalList=" + intervalList +

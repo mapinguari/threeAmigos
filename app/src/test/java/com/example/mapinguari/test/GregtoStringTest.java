@@ -1,6 +1,6 @@
 package com.example.mapinguari.test;
 
-import com.example.mapinguari.workoutclass.GregtoString;
+import com.example.mapinguari.workoutclass.exerciseObjects.GregtoString;
 
 import junit.framework.TestCase;
 

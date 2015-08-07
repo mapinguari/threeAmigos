@@ -1,7 +1,10 @@
 package com.example.mapinguari.workoutclass.activities;
 
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,7 +15,9 @@ import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.mapinguari.workoutclass.database.DatabaseInterface;
 import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
 import com.example.mapinguari.workoutclass.R;
 import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
@@ -130,7 +135,7 @@ public class ManualInputActivity extends ActionBarActivity {
                 //Double DRest = 1.222;
 
                 Interval RowInterval = new Interval(DTime, DPower, DSPM, DRest);
-                inputintervals.add(i-2 ,RowInterval);
+                inputintervals.add(i - 2, RowInterval);
 
             }
 
@@ -154,7 +159,8 @@ public class ManualInputActivity extends ActionBarActivity {
 
             GregorianCalendar date = new GregorianCalendar();
 
-            newworkout = new Workout(inputintervals,DSPM,DPower,DTime, date);
+            newworkout = new Workout(inputintervals, DSPM, DPower, DTime, date);
+            DatabaseInterface db = new DatabaseInterface(ManualInputActivity.this);
 
         }
     };

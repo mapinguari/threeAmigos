@@ -3,6 +3,7 @@ package com.example.mapinguari.workoutclass.activities;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,13 +22,15 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 
-public class InspectActivity extends ActionBarActivity {
+public class InspectActivity extends AppCompatActivity {
 
     Workout TrialW = trialworkout() ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Workout workout = getIntent().getParcelableExtra(getResources().getString(R.string.EXTRA_WORKOUT));
 
         String[] column = {"Interval  ", "  Time  ", "  Power  ", "  SPM  ", "  Rest  "};
         int rl= 1+ TrialW.getIntervalList().size();
@@ -66,13 +69,13 @@ public class InspectActivity extends ActionBarActivity {
                         textView.setText("Average");
                     }
                     else if(j==1){
-                        textView.setText("" + TrialW.getTotalTime());
+                        textView.setText("" + TrialW.getHumanTime());
                     }
                     else if(j==2){
-                        textView.setText("" + TrialW.getAverageWatts());
+                        textView.setText("" + TrialW.getWatts().toString());
                     }
                     else if(j==3) {
-                        textView.setText("" + TrialW.getAverageSPM());
+                        textView.setText("" + TrialW.getSPM().toString());
                     }
                 } else if(i > 1){
                     Interval RowInterval = IntervalList.get(i-2);
@@ -80,11 +83,11 @@ public class InspectActivity extends ActionBarActivity {
                         int IntNumber = i-1;
                         textView.setText("" + IntNumber);
                     } else if (j == 1) {
-                        textView.setText("" + RowInterval.getWorkTime());
+                        textView.setText("" + RowInterval.getHumanTime());
                     } else if (j == 2) {
-                        textView.setText("" + RowInterval.getAverageWatts());
+                        textView.setText("" + RowInterval.getWatts().toString());
                     } else if (j == 3) {
-                        textView.setText("" + RowInterval.getAverageSPM());
+                        textView.setText("" + RowInterval.getSPM().toString());
                     } else if (j == 4) {
                         textView.setText("" + RowInterval.getRestTime());
                     }

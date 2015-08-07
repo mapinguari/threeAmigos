@@ -20,7 +20,7 @@ public class MainMenuActivity extends ActionBarActivity {
     }
 
     public void GoToInputActivity (View v){
-        startActivity(new Intent(getApplicationContext(), ManualInputActivity.class));
+        startActivity(new Intent(getApplicationContext(), WorkoutViewActivity.class));
     }
 
     public void GoToInspect (View v){

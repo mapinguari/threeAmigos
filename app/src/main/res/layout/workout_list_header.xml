@@ -7,27 +7,24 @@
     android:orientation="horizontal">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:text="@string/workoutListTimeHeader"
-        android:paddingLeft="2dp"
-        android:paddingRight="2dp"
+        android:layout_weight="1"
         />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:text="@string/workoutListDistanceHeader"
-        android:paddingLeft="2dp"
-        android:paddingRight="2dp"
+        android:layout_weight="1"
         />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:text="@string/workoutListSplitheader"
-        android:paddingLeft="2dp"
-        android:paddingRight="2dp"
+        android:layout_weight="1"
         />
 
 </LinearLayout>

@@ -2,9 +2,8 @@ package com.example.mapinguari.workoutclass.database;
 
 import android.content.ContentValues;
 import android.provider.BaseColumns;
-import android.util.Log;
 
-import com.example.mapinguari.workoutclass.GregtoString;
+import com.example.mapinguari.workoutclass.exerciseObjects.GregtoString;
 import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
 import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
 
@@ -24,10 +23,9 @@ public class DatabaseSchema {
         public static final String WORKOUT_RELATIONS_TABLE_NAME = "workOutRelations";
         public static final String WORKOUTS_TABLE_NAME = "workouts";
         //Column names
-        private static final String COLUMN_NAME_DISTANCE = "distance";
         private static final String COLUMN_NAME_TIME = "time";
         private static final String COLUMN_NAME_RESTTIME = "restTime";
-        private static final String COLUMN_NAME_AVERAGE_WATTS = "averageWatts";
+        private static final String COLUMN_NAME_DISTANCE = "distance";
         private static final String COLUMN_NAME_AVERAGE_SPM = "averageSPM";
         //private static final String COLUMN_NAME_NAME = "name";
         //private static final String COLUMN_NAME_WEIGHT = "weight";
@@ -52,10 +50,6 @@ public class DatabaseSchema {
             return WORKOUTS_TABLE_NAME;
         }
 
-        public static String getColumnNameDistance() {
-            return COLUMN_NAME_DISTANCE;
-        }
-
         public static String getColumnNameTime() {
             return COLUMN_NAME_TIME;
         }
@@ -64,8 +58,8 @@ public class DatabaseSchema {
             return COLUMN_NAME_RESTTIME;
         }
 
-        public static String getColumnNameAverageWatts() {
-            return COLUMN_NAME_AVERAGE_WATTS;
+        public static String getColumnNameDistance() {
+            return COLUMN_NAME_DISTANCE;
         }
 
         public static String getColumnNameAverageSpm() {
@@ -120,12 +114,12 @@ public class DatabaseSchema {
     public static final String CREATE_INTERVAL_TABLE =
             "CREATE TABLE " + DataBaseTerms.INTERVAL_TABLE_NAME + OPEN_PAREN +
             DataBaseTerms._ID + INTEGER_TYPE + NOT_NULL + " PRIMARY KEY AUTOINCREMENT" + COMMA_SEP +
-            DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS + REAL_TYPE + NOT_NULL + COMMA_SEP +
+            DataBaseTerms.COLUMN_NAME_DISTANCE + REAL_TYPE + NOT_NULL + COMMA_SEP +
             DataBaseTerms.COLUMN_NAME_TIME + REAL_TYPE + NOT_NULL + COMMA_SEP +
             DataBaseTerms.COLUMN_NAME_AVERAGE_SPM + INTEGER_TYPE + NOT_NULL + COMMA_SEP +
             DataBaseTerms.COLUMN_NAME_RESTTIME + REAL_TYPE + NOT_NULL + COMMA_SEP +
             " UNIQUE (" +
-                    DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS + COMMA_SEP +
+                    DataBaseTerms.COLUMN_NAME_DISTANCE + COMMA_SEP +
                     DataBaseTerms.COLUMN_NAME_TIME + COMMA_SEP +
                     DataBaseTerms.COLUMN_NAME_AVERAGE_SPM + COMMA_SEP +
                     DataBaseTerms.COLUMN_NAME_RESTTIME + CLOSE_PAREN + CLOSE_PAREN;
@@ -143,9 +137,8 @@ public class DatabaseSchema {
             "CREATE TABLE " + DataBaseTerms.WORKOUTS_TABLE_NAME + OPEN_PAREN +
             idCol() +
             DataBaseTerms.COLUMN_NAME_COMPLETED_TIME + DATE_TIME + NOT_NULL + COMMA_SEP +
-            buildNNColumn(DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS, REAL_TYPE) +
+            buildNNColumn(DataBaseTerms.COLUMN_NAME_DISTANCE, REAL_TYPE) +
             buildNNColumn(DataBaseTerms.COLUMN_NAME_TIME, REAL_TYPE) +
-            buildNNColumn(DataBaseTerms.COLUMN_NAME_DISTANCE,INTEGER_TYPE) +
             buildfinalNNColumn(DataBaseTerms.COLUMN_NAME_AVERAGE_SPM, INTEGER_TYPE) +
             CLOSE_PAREN;
 
@@ -159,12 +152,12 @@ public class DatabaseSchema {
             "DROP TABLE " + DataBaseTerms.WORKOUT_RELATIONS_TABLE_NAME;
 
     public static ContentValues intervalContent(Interval interval){
-        Double watts = interval.getAverageWatts();
-        Double time = interval.getWorkTime();
+        Double distance = interval.getDistance();
+        Double time = interval.getTime();
         Double restTime = interval.getRestTime();
-        Integer spm = interval.getAverageSPM();
+        Integer spm = interval.getSPM();
         ContentValues cv = new ContentValues(4);
-        cv.put(DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS,watts);
+        cv.put(DataBaseTerms.COLUMN_NAME_DISTANCE,distance);
         cv.put(DataBaseTerms.COLUMN_NAME_TIME,time);
         cv.put(DataBaseTerms.COLUMN_NAME_RESTTIME, restTime);
         cv.put(DataBaseTerms.COLUMN_NAME_AVERAGE_SPM, spm);
@@ -173,13 +166,11 @@ public class DatabaseSchema {
 
     public static ContentValues workoutContent(Workout workout){
         GregorianCalendar cal = workout.getWorkoutTime();
-        ContentValues cv = new ContentValues(5);
+        ContentValues cv = new ContentValues(4);
         cv.put(DataBaseTerms.COLUMN_NAME_COMPLETED_TIME, GregtoString.getDateTime(workout.getWorkoutTime()));
-        cv.put(DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS,workout.getAverageWatts());
-        cv.put(DataBaseTerms.COLUMN_NAME_TIME,workout.getTotalTime());
-        cv.put(DataBaseTerms.COLUMN_NAME_AVERAGE_SPM,workout.getAverageSPM());
-        cv.put(DataBaseTerms.COLUMN_NAME_DISTANCE, workout.getDistance());
-        Log.w("workoutDistance", Integer.toString(workout.getDistance()));
+        cv.put(DataBaseTerms.COLUMN_NAME_DISTANCE,workout.getDistance());
+        cv.put(DataBaseTerms.COLUMN_NAME_TIME,workout.getTime());
+        cv.put(DataBaseTerms.COLUMN_NAME_AVERAGE_SPM,workout.getSPM());
         return cv;
     }
 
@@ -199,7 +190,7 @@ public class DatabaseSchema {
             " r." + DataBaseTerms.COLUMN_NAME_INTERVAL_ORDINAL + COMMA_SEP +
             " i." + DataBaseTerms.COLUMN_NAME_AVERAGE_SPM + COMMA_SEP +
             " i." + DataBaseTerms.COLUMN_NAME_TIME + COMMA_SEP +
-            " i." + DataBaseTerms.COLUMN_NAME_AVERAGE_WATTS + COMMA_SEP +
+            " i." + DataBaseTerms.COLUMN_NAME_DISTANCE + COMMA_SEP +
             " i." + DataBaseTerms.COLUMN_NAME_RESTTIME +
             " FROM " + DataBaseTerms.WORKOUT_RELATIONS_TABLE_NAME + " AS r" +
             " INNER JOIN " + DataBaseTerms.INTERVAL_TABLE_NAME + " AS i" +

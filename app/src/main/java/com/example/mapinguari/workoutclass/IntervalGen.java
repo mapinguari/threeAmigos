@@ -24,10 +24,10 @@ public class IntervalGen {
 
     public Interval generateInterval(){
         double time = r.nextDouble()*7200;
-        double watts = r.nextDouble()*1000;
+        double distance = r.nextDouble()*100000;
         double rTime = r.nextDouble()*600;
         int spm = r.nextInt(100);
-        return new Interval(time,watts,spm,rTime);
+        return new Interval(time,distance,spm,rTime);
     }
 
     public List<Interval> generateIntevals(int n){

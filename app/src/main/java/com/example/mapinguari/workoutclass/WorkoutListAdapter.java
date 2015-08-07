@@ -21,9 +21,6 @@ public class WorkoutListAdapter extends CursorAdapter {
 
     private LayoutInflater mInflater;
 
-
-
-
     public WorkoutListAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -41,18 +38,17 @@ public class WorkoutListAdapter extends CursorAdapter {
         String[] columnNames = cursor.getColumnNames();
         int idC = getColumn(columnNames, DatabaseSchema.DataBaseTerms.getID());
         int dateC = getColumn(columnNames, DatabaseSchema.DataBaseTerms.getColumnNameCompletedTime());
-        int wattsC = getColumn(columnNames, DatabaseSchema.DataBaseTerms.getColumnNameAverageWatts());
+        int distanceC = getColumn(columnNames, DatabaseSchema.DataBaseTerms.getColumnNameDistance());
         int timeC = getColumn(columnNames, DatabaseSchema.DataBaseTerms.getColumnNameTime());
         int SPMC = getColumn(columnNames, DatabaseSchema.DataBaseTerms.getColumnNameAverageSpm());
-        int distC = getColumn(columnNames, DatabaseSchema.DataBaseTerms.getColumnNameDistance());
 
         int id = cursor.getInt(idC);
-        Double check = cursor.getDouble(wattsC);
-        String split = Interval.calcSplit(check);
+        Interval tempInter;
+        Double dist = cursor.getDouble(distanceC);
         String date = cursor.getString(dateC);
-        String time = secsToErgoString(cursor.getDouble(timeC));
-        String SPM = Integer.toString(cursor.getInt(SPMC));
-        String dist = Integer.toString(cursor.getInt(distC));
+        Double time = cursor.getDouble(timeC);
+        Integer SPM = cursor.getInt(SPMC);
+        tempInter = new Interval(time,dist,SPM,0.0);
 
         TextView dateField = (TextView) iv.findViewById(R.id.List_date);
         TextView distanceField = (TextView) iv.findViewById(R.id.List_distance);
@@ -60,8 +56,8 @@ public class WorkoutListAdapter extends CursorAdapter {
 
         iv.workout_ID = id;
         dateField.setText(date);
-        distanceField.setText(dist);
-        splitField.setText(split);
+        distanceField.setText(Integer.toString(tempInter.getDistance().intValue()));
+        splitField.setText(tempInter.getHumanSplit());
         
         if(cursor.getPosition()%2==1) {
             view.setBackgroundColor(context.getResources().getColor(R.color.odd_list_item));
@@ -78,23 +74,5 @@ public class WorkoutListAdapter extends CursorAdapter {
 
     //h:m.s
     //m:s.ms
-    String secsToErgoString(Double time) {
-        double hours = time / 3600;
-        double hoursRem = time % 3600;
-        double mins = hoursRem / 60;
-        double minsRem = hoursRem % 60;
-        double secs = Math.floor(minsRem);
-        double a,b,c;
-        if (hours > 0) {
-            a = hours;
-            b = mins;
-            c = secs;
-        }
-        else {
-            a = mins;
-            b = secs;
-            c = Math.round((secs % 1) * 10);
-        }
-        return ( a + ":" + b + "." + c);
-    }
+
 }

@@ -1,4 +1,4 @@
-package com.example.mapinguari.workoutclass;
+package com.example.mapinguari.workoutclass.exerciseObjects;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;

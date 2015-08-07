@@ -1,12 +1,15 @@
 package com.example.mapinguari.workoutclass.database;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.os.AsyncTask;
 import android.util.Log;
 
-import com.example.mapinguari.workoutclass.GregtoString;
+import com.example.mapinguari.workoutclass.exerciseObjects.GregtoString;
 import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
 import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
 
@@ -23,6 +26,20 @@ public class DatabaseInterface {
 
     public DatabaseInterface(SQLiteDatabase workoutDatabase) {
         this.workoutDatabase = workoutDatabase;
+    }
+
+    public DatabaseInterface(Context context){
+        DatabaseHelper dbH = new DatabaseHelper(context);
+        AsyncTask dbT = new DatabaseOpenTask().execute(dbH);
+        //TODO: Exception handling
+        //databaseBacker
+        SQLiteDatabase dbB;
+        try{
+            dbB = (SQLiteDatabase) dbT.get();
+            workoutDatabase = dbB;
+        } catch(Throwable tr){
+            Log.w("DAtabase", "did not initialise");
+        }
     }
 
     public Boolean clearData(){
@@ -47,6 +64,7 @@ public class DatabaseInterface {
 
     public Boolean insertWorkout(Workout workout) {
         //TODO:HANDLE FAILED INSERTS
+        //TODO: THE RETURN VALUE IS NOT CORRECT FIX THIS
         //For efficient updates the transaction will be
         //transaction start
         //int row = insertWithConflict() -- row will be with 0 on the end CONFLICT_IGNORE algo
@@ -60,17 +78,35 @@ public class DatabaseInterface {
         boolean intervalsInserted = true;
         for (Interval i : workout.getIntervalList()) {
             interval_ID = (int) insertInterval(i);
-            intervalsInserted = interval_ID >= 0 && intervalsInserted;
+            Boolean intervalinsertedTest = interval_ID >= 0;
+            intervalsInserted = (intervalinsertedTest) && intervalsInserted;
             cv = DatabaseSchema.workOutRelContent(workout_ID, ordin, interval_ID);
             workoutDatabase.insert(DatabaseSchema.DataBaseTerms.WORKOUT_RELATIONS_TABLE_NAME, null, cv);
             ordin++;
         }
+        Log.w("result",Boolean.toString(intervalsInserted && workoutInserted));
         return intervalsInserted && workoutInserted;
     }
 
     private long insertInterval(Interval interval) {
         //TODO: This will need to be re-written to handle deletes efficiently
-        return (workoutDatabase.insertWithOnConflict(DatabaseSchema.DataBaseTerms.INTERVAL_TABLE_NAME, null, DatabaseSchema.intervalContent(interval),SQLiteDatabase.CONFLICT_IGNORE));
+        long rowId;
+        try {
+            rowId = workoutDatabase.insertOrThrow(DatabaseSchema.DataBaseTerms.INTERVAL_TABLE_NAME, null, DatabaseSchema.intervalContent(interval));
+        } catch(SQLException e){
+            Cursor resp;
+            String[] cols = {DatabaseSchema.DataBaseTerms._ID};
+            StringBuilder where = new StringBuilder();
+            where.append(DatabaseSchema.DataBaseTerms.getColumnNameTime() + " =? AND ");
+            where.append(DatabaseSchema.DataBaseTerms.getColumnNameDistance() + " =? AND ");
+            where.append(DatabaseSchema.DataBaseTerms.getColumnNameAverageSpm() + " =? AND ");
+            where.append(DatabaseSchema.DataBaseTerms.getColumnNameResttime() + " =?");
+            String[] test = {Integer.toString(1)};
+            resp = workoutDatabase.query(DatabaseSchema.DataBaseTerms.getIntervalTableName(),cols,where.toString(),interval.toStringArr(),null,null,null);
+            resp.moveToFirst();
+            rowId = resp.getLong(0);
+        }
+        return rowId;
     }
 
     //V0.1
@@ -112,7 +148,7 @@ public class DatabaseInterface {
         int ordinal;
         int SPM;
         double time;
-        double watts;
+        double distance;
         double resttime;
         Interval curInt;
         Interval[] intervals = new Interval[nOI];
@@ -121,9 +157,9 @@ public class DatabaseInterface {
             ordinal = firstC.getInt(0);
             SPM = firstC.getInt(1);
             time = firstC.getDouble(2);
-            watts = firstC.getDouble(3);
+            distance = firstC.getDouble(3);
             resttime = firstC.getDouble(4);
-            curInt = new Interval(time, watts, SPM, resttime);
+            curInt = new Interval(time, distance, SPM, resttime);
             intervals[ordinal] = curInt;
             firstC.moveToNext();
         }
@@ -136,10 +172,10 @@ public class DatabaseInterface {
         GregorianCalendar date = getWorkoutDate(workout_ID);
         List<Interval> intervals = getIntervals(workout_ID);
 
-        Double watts = Workout.averageWatts(intervals);
+        Double distance = Workout.totalDistance(intervals);
         Double totalTime = Workout.totalTime(intervals);
         Integer SPM = Workout.averageSPM(intervals);
-        Workout workout = new Workout(intervals,SPM,watts,totalTime,date);
+        Workout workout = new Workout(intervals,SPM,distance,totalTime,date);
         return workout;
 
     }

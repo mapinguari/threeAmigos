@@ -23,11 +23,11 @@ public class WorkoutGen {
 
     public Workout consistentWorkoutGen(int numberOfInt){
         List<Interval> iL = iG.generateIntevals(numberOfInt);
-        double watts = Workout.averageWatts(iL);
+        double distance = Workout.totalDistance(iL);
         double time = Workout.totalTime(iL);
         int spm = Workout.averageSPM(iL);
         GregorianCalendar g = new GregorianCalendar(r.nextInt(3000),r.nextInt(11),r.nextInt(28),r.nextInt(23),r.nextInt(59),r.nextInt(59));
-        return new Workout(iL,spm,watts,time,g);
+        return new Workout(iL,spm,distance,time,g);
     }
 
     public List<Workout> workoutsGen(int numberofWorkouts,int maxNumberIntervals){

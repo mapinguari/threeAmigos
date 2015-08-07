@@ -22,6 +22,7 @@ import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
 import com.example.mapinguari.workoutclass.WorkoutGen;
 import com.example.mapinguari.workoutclass.WorkoutListAdapter;
 import com.example.mapinguari.workoutclass.WorkoutListItemLayout;
+import com.example.mapinguari.workoutclass.exerciseObjectsViews.WorkoutView;
 
 import java.util.List;
 
@@ -29,7 +30,6 @@ import java.util.List;
 public class WorkoutListActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
 
     DatabaseInterface db;
-    String EXTRA_WORKOUT = "com.example.mapinguari.workoutclass.activities.WORKOUT";
 
     List<Workout> workouts;
 
@@ -44,8 +44,8 @@ public class WorkoutListActivity extends ActionBarActivity implements AdapterVie
         SQLiteDatabase dbB = null;
 
         //LOW TECH TESTING
-        //WorkoutGen wg = new WorkoutGen();
-        //workouts = wg.workoutsGen(20, 6);
+        WorkoutGen wg = new WorkoutGen();
+        workouts = wg.workoutsGen(20, 6);
         //TESTING ENDS HERE
         try{
             dbB = (SQLiteDatabase) dbT.get();
@@ -55,9 +55,10 @@ public class WorkoutListActivity extends ActionBarActivity implements AdapterVie
         if(dbB != null){
             db = new DatabaseInterface(dbB);
             //More low tech testing
-            //for(Workout w : workouts){
-            //    db.insertWorkout(w);
-            //}
+            db.clearData();
+           for(Workout w : workouts){
+                db.insertWorkout(w);
+            }
             //TESTING ENDS HERE
             Cursor cursor = db.getAllWorkoutsCursor();
             //TODO: danger here, not sure what the last parameter does, 0 doesnt seem to be a flag. null is not acceptable apparently
@@ -77,10 +78,10 @@ public class WorkoutListActivity extends ActionBarActivity implements AdapterVie
 
             WorkoutListItemLayout itemView = (WorkoutListItemLayout) view;
             int workout_ID = itemView.workout_ID;
-            Log.w("workout_ID", Integer.toString(workout_ID));
             Workout workout = db.getWorkOut(workout_ID);
-            Intent inspectIntent = new Intent(getApplicationContext(),InspectActivity.class);
-            inspectIntent.putExtra(EXTRA_WORKOUT,workout);
+            Intent inspectIntent = new Intent(getApplicationContext(),WorkoutViewActivity.class);
+            inspectIntent.putExtra(getResources().getString(R.string.EXTRA_WORKOUT_PASSED),true);
+            inspectIntent.putExtra(getResources().getString(R.string.EXTRA_WORKOUT),workout);
             startActivity(inspectIntent);
         }
 

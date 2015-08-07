@@ -5,4 +5,11 @@
     <color
         name="even_list_item"
         >#00FF00</color>
+
+    <color name="sepia">
+        #EEECE3</color>
+
+    <color name="white">
+        #FFFFFF
+    </color>
 </resources>

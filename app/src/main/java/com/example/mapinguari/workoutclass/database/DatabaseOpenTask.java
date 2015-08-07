@@ -13,7 +13,7 @@ public class DatabaseOpenTask extends AsyncTask<DatabaseHelper,Integer,SQLiteDat
     @Override
     protected SQLiteDatabase doInBackground(DatabaseHelper... params) {
         DatabaseHelper dbH = params[0];
-        return dbH.getReadableDatabase();
+        return dbH.getWritableDatabase();
     }
 
 }

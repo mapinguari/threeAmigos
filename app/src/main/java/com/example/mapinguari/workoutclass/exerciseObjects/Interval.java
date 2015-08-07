@@ -6,12 +6,12 @@ import android.os.Parcelable;
 /**
  * Created by mapinguari on 7/24/15.
  */
-public class Interval implements Parcelable {
+public class Interval extends PerformanceMeasure implements Parcelable {
 
     // fields
     // active work fields
     private Double workTime;
-    private Double averageWatts;
+    private Double distance;
     private Integer averageSPM;
 
     //rest fields
@@ -19,9 +19,20 @@ public class Interval implements Parcelable {
 
     //constructors
 
-    public Interval(Double workTime, Double averageWatts, Integer averageSPM, Double restTime) {
+
+    @Override
+    public Double getTime() {
+        return workTime;
+    }
+
+    @Override
+    public Integer getSPM() {
+        return averageSPM;
+    }
+
+    public Interval(Double workTime, Double distance, Integer averageSPM, Double restTime) {
         this.workTime = workTime;
-        this.averageWatts = averageWatts;
+        this.distance = distance;
         this.averageSPM = averageSPM;
         this.restTime = restTime;
     }
@@ -30,27 +41,12 @@ public class Interval implements Parcelable {
         readFromParcel(parcel);
     }
 
-    //this gets the current interval's split
-    public String getSplit(){
-        Double a = getExtSplit(this.averageWatts);
-        String str = secondsToSplit(a);
-        return str;
+
+    public Double getDistance() {
+        return distance;
     }
 
-    //this returns the human representation of the split given watts
-    public static String calcSplit(Double watts){
-        Double a = getExtSplit(watts);
-        String str = secondsToSplit(a);
-        return str;
-    }
-
-    //Given watts this returns the speed (m/s).
-    public static Double getExtSplit(double watts){
-        double a = 2.8/watts;
-        double speed = 500 / Math.cbrt(a);
-        return speed;
-    }
-
+    //Takes seconds and turns it into human readable string
     private static String secondsToSplit(double secondsT){
         //TODO: Change these doubles to ints
         int mins = (int) Math.floor(secondsT / 60);
@@ -61,28 +57,20 @@ public class Interval implements Parcelable {
     }
     //public methods
 
-    public Double getWorkTime() {
-        return workTime;
-    }
 
-    public void setWorkTime(Double workTime) {
-        this.workTime = workTime;
-    }
-
-    public Integer getAverageSPM() {
-        return averageSPM;
-    }
-
-    public void setAverageSPM(Integer averageSPM) {
-        this.averageSPM = averageSPM;
-    }
-
-    public Double getAverageWatts() {
-        return averageWatts;
-    }
-
-    public void setAverageWatts(Double averageWatts) {
-        this.averageWatts = averageWatts;
+    public String getUnits(PowerUnit pu){
+        String result;
+        switch (pu.currentUnit){
+            case SPLIT:
+                result = getHumanSplit();
+                break;
+            case WATTS:
+                result = getWatts().toString();
+                break;
+            default: result = "NOT YET DEFINED INTERVAL.GETUNITS RESPOSE";
+                break;
+        }
+        return result;
     }
 
     public Double getRestTime() {
@@ -93,6 +81,17 @@ public class Interval implements Parcelable {
         this.restTime = restTime;
     }
 
+    public void setWorkTime(Double workTime) {
+        this.workTime = workTime;
+    }
+
+    public void setDistance(Double distance) {
+        this.distance = distance;
+    }
+
+    public void setAverageSPM(Integer averageSPM) {
+        this.averageSPM = averageSPM;
+    }
 
     //Parcelable code
 
@@ -105,14 +104,14 @@ public class Interval implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeDouble(workTime);
-        dest.writeDouble(averageWatts);
+        dest.writeDouble(distance);
         dest.writeInt(averageSPM);
         dest.writeDouble(restTime);
     }
 
     public void readFromParcel(Parcel in){
         workTime = in.readDouble();
-        averageWatts = in.readDouble();
+        distance = in.readDouble();
         averageSPM = in.readInt();
         restTime = in.readDouble();
     }
@@ -133,9 +132,14 @@ public class Interval implements Parcelable {
     public String toString() {
         return "Interval{" +
                 "workTime=" + workTime +
-                ", averageWatts=" + averageWatts +
+                ", distance=" + distance +
                 ", averageSPM=" + averageSPM +
                 ", restTime=" + restTime +
                 '}';
     }
+    public String[] toStringArr(){
+        String[] resp = {Double.toString(workTime),Double.toString(distance),Integer.toString(averageSPM),Double.toString(restTime)};
+        return resp;
+    }
+
 }
