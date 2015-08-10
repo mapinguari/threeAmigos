@@ -191,7 +191,7 @@ public final class WorkoutView extends LinearLayout {
     private Workout getNewWorkout(){
         Workout result;
         Interval totalsInterval = totalsView.getNewInterval();
-        List<Interval> intervals = new ArrayList<Interval>(intervalsView.getChildCount()-1);
+        List<Interval> intervals = new ArrayList<Interval>(intervalsView.getChildCount()-2);
         for(int i = 0; i < intervalsView.getChildCount() - 2; i++){
             intervals.add(i,((IntervalView) intervalsView.getChildAt(i)).getNewInterval());
         }
