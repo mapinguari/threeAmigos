@@ -43,9 +43,10 @@ public class WorkoutListActivity extends ActionBarActivity implements AdapterVie
         //databaseBacker
         SQLiteDatabase dbB = null;
 
-        //LOW TECH TESTING
+        /*LOW TECH TESTING
         WorkoutGen wg = new WorkoutGen();
         workouts = wg.workoutsGen(20, 6);
+        */
         //TESTING ENDS HERE
         try{
             dbB = (SQLiteDatabase) dbT.get();
@@ -54,11 +55,12 @@ public class WorkoutListActivity extends ActionBarActivity implements AdapterVie
         }
         if(dbB != null){
             db = new DatabaseInterface(dbB);
-            //More low tech testing
+            /*More low tech testing
             db.clearData();
-           for(Workout w : workouts){
+            for(Workout w : workouts){
                 db.insertWorkout(w);
-            }
+            }*/
+
             //TESTING ENDS HERE
             Cursor cursor = db.getAllWorkoutsCursor();
             //TODO: danger here, not sure what the last parameter does, 0 doesnt seem to be a flag. null is not acceptable apparently

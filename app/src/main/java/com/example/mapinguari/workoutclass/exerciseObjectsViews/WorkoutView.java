@@ -1,18 +1,26 @@
 package com.example.mapinguari.workoutclass.exerciseObjectsViews;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.Nullable;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -26,6 +34,9 @@ import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
 import com.example.mapinguari.workoutclass.exerciseObjects.PowerUnit;
 import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
 
+import org.w3c.dom.Text;
+
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -40,10 +51,11 @@ public final class WorkoutView extends LinearLayout {
     Context context;
     GregorianCalendar currentCal;
 
-    TextView dateView;
 
     Button datePickerButton;
     Button timePickerButton;
+    DatePickerDialog datePickerDialog;
+    TimePickerDialog timePickerDialog;
 
 
     HeaderView headerView;
@@ -65,7 +77,6 @@ public final class WorkoutView extends LinearLayout {
 
     private void buildView(Context context){
         this.setOrientation(VERTICAL);
-        dateView = new TextView(context);
 
         LinearLayout datebuttons = new LinearLayout(context);
         datebuttons.setOrientation(HORIZONTAL);
@@ -87,8 +98,8 @@ public final class WorkoutView extends LinearLayout {
         timePickerButton.setText(getNewTime());
 
 
-        final DatePickerDialog datePickerDialog = new DatePickerDialog(context,new dateGet(),currentCal.get(Calendar.YEAR),currentCal.get(Calendar.MONTH),currentCal.get(Calendar.DAY_OF_MONTH));
-        final TimePickerDialog timePickerDialog = new TimePickerDialog(context,new getTime(),currentCal.get(Calendar.HOUR_OF_DAY), currentCal.get(Calendar.MINUTE),true);
+        datePickerDialog = new DatePickerDialog(context,new dateGet(),currentCal.get(Calendar.YEAR),currentCal.get(Calendar.MONTH),currentCal.get(Calendar.DAY_OF_MONTH));
+        timePickerDialog = new TimePickerDialog(context,new getTime(),currentCal.get(Calendar.HOUR_OF_DAY), currentCal.get(Calendar.MINUTE),true);
 
 
         headerView = new HeaderView(context);
@@ -99,24 +110,10 @@ public final class WorkoutView extends LinearLayout {
         intervalsView.setOrientation(VERTICAL);
         intervalsViewCont.addView(intervalsView);
 
-        datePickerButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                datePickerDialog.show();
-            }
-        });
-
-        timePickerButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                timePickerDialog.show();
-            }
-        });
 
 
         powerUnitDisplayed = new PowerUnit(PowerUnit.CurrentUnit.SPLIT);
 
-        //this.addView(dateView);
         this.addView(datebuttons);
         this.addView(headerView);
         headerView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
@@ -135,9 +132,10 @@ public final class WorkoutView extends LinearLayout {
         }
     }
 
-    //TODO: REFORMAT USING SIMPLEDATEFORMAT
+
     private String getNewDate(){
-        return (currentCal.get(Calendar.DAY_OF_MONTH) + "/" + currentCal.get(Calendar.MONTH) + "/" + currentCal.get(Calendar.YEAR));
+        DateFormat df = android.text.format.DateFormat.getDateFormat(context);
+        return df.format(currentCal.getTime());
     }
 
     class getTime implements TimePickerDialog.OnTimeSetListener{
@@ -150,7 +148,8 @@ public final class WorkoutView extends LinearLayout {
     }
 
     private String getNewTime(){
-        return (currentCal.get(Calendar.HOUR_OF_DAY) + ":" + currentCal.get(Calendar.MINUTE));
+        DateFormat df = android.text.format.DateFormat.getTimeFormat(context);
+        return df.format(currentCal.getTime());
     }
 
     private IntervalView intervalViewToAdd(@Nullable Interval interval){
@@ -159,6 +158,18 @@ public final class WorkoutView extends LinearLayout {
             intervalView.makeEditable(true);
         }
         return intervalView;
+    }
+
+    void addInterval(Interval interval){
+        IntervalView intervalView = intervalViewToAdd(interval);
+        int pos = intervalsView.getChildCount() - 2;
+        if(pos % 2 ==0){
+            intervalView.setBackgroundColor(getResources().getColor(R.color.even_list_item));
+        }
+        else{
+            intervalView.setBackgroundColor(getResources().getColor(R.color.odd_list_item));
+        }
+        intervalsView.addView(intervalView,pos);
     }
 
     private void addIntervals(List<Interval> intervals){
@@ -179,13 +190,12 @@ public final class WorkoutView extends LinearLayout {
 
     private Workout getNewWorkout(){
         Workout result;
-        String date = dateView.getText().toString();
         Interval totalsInterval = totalsView.getNewInterval();
         List<Interval> intervals = new ArrayList<Interval>(intervalsView.getChildCount()-1);
-        for(int i = 0; i < intervalsView.getChildCount() - 1; i++){
+        for(int i = 0; i < intervalsView.getChildCount() - 2; i++){
             intervals.add(i,((IntervalView) intervalsView.getChildAt(i)).getNewInterval());
         }
-        result = new Workout(intervals,totalsInterval.getSPM(),totalsInterval.getDistance(),totalsInterval.getTime(),GregtoString.getGregCal(date));
+        result = new Workout(intervals,totalsInterval.getSPM(),totalsInterval.getDistance(),totalsInterval.getTime(),currentCal);
         return result;
     }
 
@@ -195,6 +205,18 @@ public final class WorkoutView extends LinearLayout {
         intervalsView.addView(saveButton);
         SaveClick sc = new SaveClick();
         saveButton.setOnClickListener(sc);
+    }
+
+    private void addAddIntervalButton(){
+        final Button addIntervalButton = new Button(context);
+        addIntervalButton.setText(getResources().getText(R.string.add_interval_button_text));
+        intervalsView.addView(addIntervalButton);
+        addIntervalButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addInterval(null);
+            }
+        });
     }
 
     private class SaveClick implements View.OnClickListener{
@@ -229,14 +251,32 @@ public final class WorkoutView extends LinearLayout {
             for(Interval i : intervals){
             }
         }
-        dateView.setText(dateString);
+
         totalsView.setInterval(totalsInterval);
         addIntervals(intervals);
         if(workout == null){
+            addAddIntervalButton();
             addSaveButton();
             totalsView.makeEditable(true);
         }
+
+        if(workout == null){
+            datePickerButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    datePickerDialog.show();
+                }
+            });
+            timePickerButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    timePickerDialog.show();
+                }
+            });
+        }
     }
+
+
 
 
 

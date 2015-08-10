@@ -9,6 +9,7 @@ import android.os.Parcelable;
 public class Interval extends PerformanceMeasure implements Parcelable {
 
     // fields
+
     // active work fields
     private Double workTime;
     private Double distance;
@@ -41,10 +42,10 @@ public class Interval extends PerformanceMeasure implements Parcelable {
         readFromParcel(parcel);
     }
 
-
     public Double getDistance() {
         return distance;
     }
+
 
     //Takes seconds and turns it into human readable string
     private static String secondsToSplit(double secondsT){
@@ -56,6 +57,7 @@ public class Interval extends PerformanceMeasure implements Parcelable {
         return (Integer.toString(mins) + ":" + Integer.toString(secs) + "." + Integer.toString(milli));
     }
     //public methods
+
 
 
     public String getUnits(PowerUnit pu){

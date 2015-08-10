@@ -75,4 +75,10 @@
     <string name="workout_view_header_distance_per_stroke">m/Str</string>
     <string name="save_button_text">Save Workout</string>
     <string name="interval_view_rest_time_title">RestTime (s)</string>
+    <string name="min_sec_delim">.</string>
+    <string name="dialog_split_title">Set your split</string>
+    <string name="split_dialog_positive">Input</string>
+    <string name="split_dialog_negative">Cancel</string>
+    <string name="dialog_time_title">Set Time</string>
+    <string name="add_interval_button_text">Add Interval</string>
 </resources>

@@ -1,10 +1,15 @@
 package com.example.mapinguari.workoutclass.exerciseObjects;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.format.DateFormat;
 import android.util.Log;
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -33,7 +38,17 @@ public class Workout extends PerformanceMeasure implements Parcelable {
     }
 
     //methods
+    public String getHumanDate(Context context){
+        java.text.DateFormat df = DateFormat.getDateFormat(context);
+        String out = df.format(workoutTime.getTime());
+        return out;
+    }
 
+    public String getHumanTime(Context context){
+        java.text.DateFormat tf = DateFormat.getTimeFormat(context);
+        String out = tf.format(workoutTime.getTime());
+        return  out;
+    }
 
     @Override
     public Double getTime() {

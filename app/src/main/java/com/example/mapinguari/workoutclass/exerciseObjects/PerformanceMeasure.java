@@ -10,8 +10,34 @@ public abstract class PerformanceMeasure {
     abstract public Integer getSPM();
 
     //Default methods
+        /*
+    public Integer getWorkMins(){
+        return (int) Math.floor(workTime / 60);
+    }
 
+    public Integer getWorkSecs(){
+        double secsRem = workTime % 60;
+        int secs = (int) Math.floor(secsRem);
+        return secs;
+    }
 
+    public Integer getWorkCenti(){
+        double secsRem = workTime % 60;
+        int milli = (int) Math.round((secsRem % 1) * 10);
+    }
+
+    public void setWorkMins(Integer x){
+        this.workTime = workTime - getWorkMins()*60 + x;
+    }
+
+    public void setWorkSecs(Integer x){
+        this.workTime = workTime - getWorkSecs() + x;
+    }
+
+    public void setWorkCenti(Integer x){
+        this.workTime = workTime - (getWorkCenti() / 10) + x;
+    }
+        */
     //POWER MEASURES
 
     //s/500m

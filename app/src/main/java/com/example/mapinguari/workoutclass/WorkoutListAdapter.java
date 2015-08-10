@@ -9,9 +9,12 @@ import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 import com.example.mapinguari.workoutclass.database.DatabaseSchema;
+import com.example.mapinguari.workoutclass.exerciseObjects.GregtoString;
 import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
+import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
 
 import java.util.Arrays;
+import java.util.GregorianCalendar;
 
 /**
  * Created by mapinguari on 7/28/15.
@@ -43,21 +46,20 @@ public class WorkoutListAdapter extends CursorAdapter {
         int SPMC = getColumn(columnNames, DatabaseSchema.DataBaseTerms.getColumnNameAverageSpm());
 
         int id = cursor.getInt(idC);
-        Interval tempInter;
         Double dist = cursor.getDouble(distanceC);
         String date = cursor.getString(dateC);
         Double time = cursor.getDouble(timeC);
         Integer SPM = cursor.getInt(SPMC);
-        tempInter = new Interval(time,dist,SPM,0.0);
+        Workout pretend = new Workout(null,SPM,dist,time,GregtoString.getGregCal(date));
 
         TextView dateField = (TextView) iv.findViewById(R.id.List_date);
         TextView distanceField = (TextView) iv.findViewById(R.id.List_distance);
         TextView splitField = (TextView) iv.findViewById(R.id.List_split);
 
         iv.workout_ID = id;
-        dateField.setText(date);
-        distanceField.setText(Integer.toString(tempInter.getDistance().intValue()));
-        splitField.setText(tempInter.getHumanSplit());
+        dateField.setText(pretend.getHumanDate(context));
+        distanceField.setText(Integer.toString(pretend.getDistance().intValue()));
+        splitField.setText(pretend.getHumanSplit());
         
         if(cursor.getPosition()%2==1) {
             view.setBackgroundColor(context.getResources().getColor(R.color.odd_list_item));
