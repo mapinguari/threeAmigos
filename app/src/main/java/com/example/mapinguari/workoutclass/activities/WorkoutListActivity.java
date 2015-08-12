@@ -1,6 +1,6 @@
 package com.example.mapinguari.workoutclass.activities;
 
-import android.content.ComponentName;
+
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;

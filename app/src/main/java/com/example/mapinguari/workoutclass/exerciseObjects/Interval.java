@@ -31,6 +31,10 @@ public class Interval extends PerformanceMeasure implements Parcelable {
         return averageSPM;
     }
 
+    public Double getRest(){
+        return restTime;
+    }
+
     public Interval(Double workTime, Double distance, Integer averageSPM, Double restTime) {
         this.workTime = workTime;
         this.distance = distance;

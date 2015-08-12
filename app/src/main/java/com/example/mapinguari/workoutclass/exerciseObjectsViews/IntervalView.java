@@ -18,6 +18,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.mapinguari.workoutclass.R;
+import com.example.mapinguari.workoutclass.exceptions.IncompleteIntervalException;
+import com.example.mapinguari.workoutclass.exceptions.NotHumanStringException;
+import com.example.mapinguari.workoutclass.exerciseObjects.ErgoFormatter;
 import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
 import com.example.mapinguari.workoutclass.exerciseObjects.PowerUnit;
 
@@ -91,7 +94,7 @@ public final class IntervalView extends LinearLayout {
         view.setTextIsSelectable(true);
         view.setOnFocusChangeListener(new KeyboardShow());
         if (editable) {
-            view.setTextColor(getResources().getColor(R.color.sepia));
+            //view.setTextColor(getResources().getColor(R.color.sepia));
             //view.setBackgroundColor(getResources().getColor(R.color.sepia));
         } else {
             view.setBackgroundColor(getResources().getColor(R.color.white));
@@ -182,12 +185,12 @@ public final class IntervalView extends LinearLayout {
         String restTime = "";
         int restTimeVal = 0;
         if (interval != null){
-            humanTime = interval.getHumanTime();
+            humanTime = interval.showHumanTime();
             distance = Integer.toString(interval.getDistance().intValue());
-            variable = interval.getHumanSplit();
+            variable = interval.showHumanSplit();
             SPM = interval.getSPM().toString();
             restTimeVal = interval.getRestTime().intValue();
-            restTime = Integer.toString(restTimeVal);
+            restTime = interval.showHumanRestTime();
         }
         if(restTimeVal == 0 && interval != null){
             bottomRow.setVisibility(GONE);
@@ -217,21 +220,32 @@ public final class IntervalView extends LinearLayout {
         }
     }
 
-    public Interval getNewInterval(){
-        return new Interval(parseTime(timeView.getText().toString()),
-                            Double.parseDouble(distanceView.getText().toString()),
-                            Integer.parseInt(SPMView.getText().toString()),
-                            parseTime(restView.getText().toString()));
-    }
+    public Interval getNewInterval() throws IncompleteIntervalException {
+        Interval interval;
+        Double workSecs;
+        Double distance;
+        Integer SPM;
+        Double restSeconds;
+        try {
+            workSecs = ErgoFormatter.parseSeconds(timeView.getText().toString());
+            distance = Double.parseDouble(distanceView.getText().toString());
+            SPM = Integer.parseInt(SPMView.getText().toString());
 
-    private Double parseTime(String string){
-        String current = string;
-        String[] firstS = current.split("\\.");
-        String[] secondS = firstS[1].split(":");
-        String minsText = firstS[0];
-        String secsText = secondS[0];
-        String centText = secondS[1];
-        return (Double.parseDouble(minsText)*60 + Double.parseDouble(secsText) + (Double.parseDouble(centText)/10));
+        }catch(NumberFormatException e){
+
+            throw new IncompleteIntervalException();
+        } catch(NotHumanStringException e){
+            throw new IncompleteIntervalException();
+        }
+        try {
+            restSeconds = ErgoFormatter.parseSeconds(restView.getText().toString());
+        }catch(NotHumanStringException e){
+            restSeconds = 0.0;
+            interval = new Interval(workSecs,distance,SPM,restSeconds);
+            return interval;
+        }
+        interval = new Interval(workSecs,distance,SPM,restSeconds);
+        return interval;
     }
 
     private void newSplitSpinnerDialog() {
@@ -254,9 +268,9 @@ public final class IntervalView extends LinearLayout {
             switch (which){
                 case(DialogInterface.BUTTON_POSITIVE):
                     textView.setText(((TextView) ad.findViewById(R.id.min_editText)).getText() +
-                            "." +
-                            ((TextView) ad.findViewById(R.id.sec_editText)).getText() +
                             ":" +
+                            ((TextView) ad.findViewById(R.id.sec_editText)).getText() +
+                            "." +
                             ((TextView) ad.findViewById(R.id.centi_editText)).getText());
 
                     ad.dismiss();
@@ -301,8 +315,8 @@ public final class IntervalView extends LinearLayout {
         }
         else{
             String current = (String) textView.getText();
-            String[] firstS = current.split("\\.");
-            String[] secondS = firstS[1].split(":");
+            String[] firstS = current.split(":");
+            String[] secondS = firstS[1].split("\\.");
             minsText = firstS[0];
             secsText = secondS[0];
             centText = secondS[1];

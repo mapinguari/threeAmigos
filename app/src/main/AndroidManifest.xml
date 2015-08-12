@@ -22,14 +22,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.InspectActivity"
-            android:label="@string/title_activity_inspect" >
-        </activity>
-        <activity
-            android:name=".activities.ManualInputActivity"
-            android:label="@string/title_activity_manual_input" >
-        </activity>
-        <activity
             android:name=".activities.WorkoutViewActivity"
             android:label="@string/title_activity_workout_view" >
         </activity>

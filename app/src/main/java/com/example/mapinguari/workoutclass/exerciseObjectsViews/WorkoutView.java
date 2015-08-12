@@ -1,40 +1,28 @@
 package com.example.mapinguari.workoutclass.exerciseObjectsViews;
 
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.Nullable;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.mapinguari.workoutclass.R;
 import com.example.mapinguari.workoutclass.activities.MainMenuActivity;
-import com.example.mapinguari.workoutclass.activities.ManualInputActivity;
 import com.example.mapinguari.workoutclass.database.DatabaseInterface;
+import com.example.mapinguari.workoutclass.exceptions.IncompleteIntervalException;
+import com.example.mapinguari.workoutclass.exceptions.IncompleteWorkoutException;
 import com.example.mapinguari.workoutclass.exerciseObjects.GregtoString;
 import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
 import com.example.mapinguari.workoutclass.exerciseObjects.PowerUnit;
 import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
-
-import org.w3c.dom.Text;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -188,15 +176,30 @@ public final class WorkoutView extends LinearLayout {
         }
     }
 
-    private Workout getNewWorkout(){
+    private Workout getNewWorkout() throws IncompleteWorkoutException {
         Workout result;
-        Interval totalsInterval = totalsView.getNewInterval();
+        IncompleteWorkoutException  exception = new IncompleteWorkoutException();
+        Interval totalsInterval = null;
+        try {
+             totalsInterval = totalsView.getNewInterval();
+        }catch(IncompleteIntervalException e){
+            exception.setTotalsComplete();
+        }
         List<Interval> intervals = new ArrayList<Interval>(intervalsView.getChildCount()-2);
         for(int i = 0; i < intervalsView.getChildCount() - 2; i++){
-            intervals.add(i,((IntervalView) intervalsView.getChildAt(i)).getNewInterval());
+            try {
+                intervals.add(i, ((IntervalView) intervalsView.getChildAt(i)).getNewInterval());
+            }catch(IncompleteIntervalException e){
+                exception.setIncompleteIntervals(i+1);
+            }
         }
-        result = new Workout(intervals,totalsInterval.getSPM(),totalsInterval.getDistance(),totalsInterval.getTime(),currentCal);
-        return result;
+        if(exception.beenTouched()){
+            throw exception;
+        }
+        else {
+            result = new Workout(intervals, totalsInterval.getSPM(), totalsInterval.getDistance(), totalsInterval.getTime(), currentCal);
+            return result;
+        }
     }
 
     private void addSaveButton(){
@@ -222,18 +225,28 @@ public final class WorkoutView extends LinearLayout {
     private class SaveClick implements View.OnClickListener{
         @Override
         public void onClick(View v) {
-            Workout newWorkout = getNewWorkout();
-            if(newWorkout != workout){
-                DatabaseInterface db = new DatabaseInterface(context);
-                boolean successdb = db.insertWorkout(newWorkout);
-                String dbMessage = successdb ? "The workout was added" : "The workout was not added";
-                Toast tellsuccess = Toast.makeText(context, dbMessage, Toast.LENGTH_SHORT);
-                tellsuccess.show();
-                if (successdb) {
-                    Intent intent = new Intent(context, MainMenuActivity.class);
-                    context.startActivity(intent);
+            Workout newWorkout = null;
+            try {
+                newWorkout = getNewWorkout();
+                if(newWorkout != workout){
+                    DatabaseInterface db = new DatabaseInterface(context);
+                    boolean successdb = db.insertWorkout(newWorkout);
+                    String dbMessage = successdb ? "The workout was added" : "The workout was not added";
+                    Toast tellsuccess = Toast.makeText(context, dbMessage, Toast.LENGTH_SHORT);
+                    tellsuccess.show();
+                    if (successdb) {
+                        Intent intent = new Intent(context, MainMenuActivity.class);
+                        context.startActivity(intent);
+                    }
+                } else {
+                    Toast sameWorkoutToast = Toast.makeText(context, "This workout has not altered", Toast.LENGTH_SHORT);
+                    sameWorkoutToast.show();
                 }
+            } catch (IncompleteWorkoutException e){
+                Toast tellIncomp = Toast.makeText(context,"Please complete all Intervals before saving", Toast.LENGTH_SHORT);
+                tellIncomp.show();
             }
+
         }
     }
 

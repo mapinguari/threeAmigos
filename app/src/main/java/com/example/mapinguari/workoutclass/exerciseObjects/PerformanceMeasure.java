@@ -1,5 +1,7 @@
 package com.example.mapinguari.workoutclass.exerciseObjects;
 
+import android.util.Log;
+
 /**
  * Created by mapinguari on 8/6/15.
  */
@@ -8,36 +10,31 @@ public abstract class PerformanceMeasure {
     abstract public Double getDistance();
     abstract public Double getTime();
     abstract public Integer getSPM();
+    abstract public Double getRest();
 
+
+    public String showHumanTime(){
+        return ErgoFormatter.formatSeconds(getTime());
+    }
+
+    public String showHumanRestTime(){
+        return ErgoFormatter.formatSeconds(getRest());
+    }
+
+    public String showHumanSplit(){
+        Log.w("coming out ", getSplit().toString());
+        return ErgoFormatter.formatSeconds(getSplit());
+    }
+
+    public String showHumanDistance(){
+        return Integer.toString(getDistance().intValue());
+    }
+
+    public String showHumanSPM(){
+        return Integer.toString(getSPM());
+    }
     //Default methods
-        /*
-    public Integer getWorkMins(){
-        return (int) Math.floor(workTime / 60);
-    }
 
-    public Integer getWorkSecs(){
-        double secsRem = workTime % 60;
-        int secs = (int) Math.floor(secsRem);
-        return secs;
-    }
-
-    public Integer getWorkCenti(){
-        double secsRem = workTime % 60;
-        int milli = (int) Math.round((secsRem % 1) * 10);
-    }
-
-    public void setWorkMins(Integer x){
-        this.workTime = workTime - getWorkMins()*60 + x;
-    }
-
-    public void setWorkSecs(Integer x){
-        this.workTime = workTime - getWorkSecs() + x;
-    }
-
-    public void setWorkCenti(Integer x){
-        this.workTime = workTime - (getWorkCenti() / 10) + x;
-    }
-        */
     //POWER MEASURES
 
     //s/500m

@@ -58,8 +58,8 @@ public class WorkoutListAdapter extends CursorAdapter {
 
         iv.workout_ID = id;
         dateField.setText(pretend.getHumanDate(context));
-        distanceField.setText(Integer.toString(pretend.getDistance().intValue()));
-        splitField.setText(pretend.getHumanSplit());
+        distanceField.setText(pretend.showHumanDistance());
+        splitField.setText(pretend.showHumanSplit());
         
         if(cursor.getPosition()%2==1) {
             view.setBackgroundColor(context.getResources().getColor(R.color.odd_list_item));

@@ -64,6 +64,7 @@ public class Workout extends PerformanceMeasure implements Parcelable {
         return distance;
     }
 
+    public Double getRest(){ return getTotalRest();}
 
     public GregorianCalendar getWorkoutTime() {
         return workoutTime;
