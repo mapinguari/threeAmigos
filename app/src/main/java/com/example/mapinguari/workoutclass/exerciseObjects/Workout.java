@@ -39,7 +39,7 @@ public class Workout extends PerformanceMeasure implements Parcelable {
 
     //methods
     public String getHumanDate(Context context){
-        java.text.DateFormat df = DateFormat.getDateFormat(context);
+        java.text.DateFormat df = DateFormat.getMediumDateFormat(context);
         String out = df.format(workoutTime.getTime());
         return out;
     }

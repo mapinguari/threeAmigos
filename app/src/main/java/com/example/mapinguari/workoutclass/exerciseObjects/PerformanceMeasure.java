@@ -2,6 +2,8 @@ package com.example.mapinguari.workoutclass.exerciseObjects;
 
 import android.util.Log;
 
+import java.util.Formatter;
+
 /**
  * Created by mapinguari on 8/6/15.
  */
@@ -22,7 +24,6 @@ public abstract class PerformanceMeasure {
     }
 
     public String showHumanSplit(){
-        Log.w("coming out ", getSplit().toString());
         return ErgoFormatter.formatSeconds(getSplit());
     }
 
@@ -33,6 +34,23 @@ public abstract class PerformanceMeasure {
     public String showHumanSPM(){
         return Integer.toString(getSPM());
     }
+
+    public String showHumanDistancePerStroke(){
+        String out = String.format("%.1f",getDistancePerStroke());
+        return out;
+    }
+
+    public String showHumanEnergyPerStroke() {
+        String out = String.format("%.1f", energyPerStroke());
+        return out;
+    }
+
+    public String showHumanWatts(){
+        String out = String.format("%.1f", getWatts());
+        return out;
+    }
+
+
     //Default methods
 
     //POWER MEASURES
@@ -64,42 +82,24 @@ public abstract class PerformanceMeasure {
     //HUMAN INTERFACE STUFF
 
     public String getHumanSplit(){
-        return PerformanceMeasure.splitToString(getSplit());
+        return ErgoFormatter.formatSeconds(getSplit());
     }
 
-    public String getHumanTime(){
-        return PerformanceMeasure.timeToString(getTime());
+    /*
+    static public Double splitToWatts(Double split){
+
     }
 
-    public static String timeToString(Double time){
-        double hours = time / 3600;
-        double hoursRem = time % 3600;
-        double mins = hoursRem / 60;
-        double minsRem = hoursRem % 60;
-        double secs = Math.floor(minsRem);
-        double a,b,c;
-        if (hours > 0) {
-            a = hours;
-            b = mins;
-            c = secs;
-        }
-        else {
-            a = mins;
-            b = secs;
-            c = Math.round((secs % 1) * 10);
-        }
-        return ((int) a + ":" + (int) b + "." + (int) c);
+    static public Double wattsToEpStr(Double watts){
+
     }
 
+    static public Double EpStrToDps(Double epStr){
 
-    public static String splitToString(Double split){
-        int mins = (int) Math.floor(split / 60);
-        double secsRem = split % 60;
-        int secs = (int) Math.floor(secsRem);
-        int milli = (int) Math.round((secsRem % 1) * 10);
-        return (Integer.toString(mins) + ":" + Integer.toString(secs) + "." + Integer.toString(milli));
     }
 
+    static public Double dpsTosplit(Double dps){
 
-
+    }
+*/
 }

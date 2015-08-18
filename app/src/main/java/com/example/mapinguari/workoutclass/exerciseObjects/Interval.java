@@ -50,16 +50,6 @@ public class Interval extends PerformanceMeasure implements Parcelable {
         return distance;
     }
 
-
-    //Takes seconds and turns it into human readable string
-    private static String secondsToSplit(double secondsT){
-        //TODO: Change these doubles to ints
-        int mins = (int) Math.floor(secondsT / 60);
-        double secsRem = secondsT % 60;
-        int secs = (int) Math.floor(secsRem);
-        int milli = (int) Math.round((secsRem % 1) * 10);
-        return (Integer.toString(mins) + ":" + Integer.toString(secs) + "." + Integer.toString(milli));
-    }
     //public methods
 
 

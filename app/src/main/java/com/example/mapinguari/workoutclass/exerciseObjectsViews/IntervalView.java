@@ -204,19 +204,21 @@ public final class IntervalView extends LinearLayout {
 
 
     public void changeUnit(PowerUnit.CurrentUnit cu){
-        switch(cu){
-            case WATTS:
-                variableView.setText(interval.getWatts().toString());
-                break;
-            case SPLIT:
-                variableView.setText(interval.getHumanSplit());
-                break;
-            case JpStr:
-                variableView.setText(interval.energyPerStroke().toString());
-                break;
-            case mpStr:
-                variableView.setText(interval.getDistancePerStroke().toString());
-                break;
+        if(interval != null) {
+            switch (cu) {
+                case WATTS:
+                    variableView.setText(interval.showHumanWatts());
+                    break;
+                case SPLIT:
+                    variableView.setText(interval.showHumanSplit());
+                    break;
+                case JpStr:
+                    variableView.setText(interval.showHumanEnergyPerStroke());
+                    break;
+                case mpStr:
+                    variableView.setText(interval.showHumanDistancePerStroke());
+                    break;
+            }
         }
     }
 
@@ -299,7 +301,6 @@ public final class IntervalView extends LinearLayout {
         EditText secSpin = (EditText) ad.findViewById(R.id.sec_editText);
         EditText centSpin = (EditText) ad.findViewById(R.id.centi_editText);
 
-
         minSpin.setInputType(InputType.TYPE_CLASS_NUMBER);
         secSpin.setInputType(InputType.TYPE_CLASS_NUMBER);
         centSpin.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -308,30 +309,59 @@ public final class IntervalView extends LinearLayout {
         String secsText;
         String centText;
 
-        if(textView.getText() == "") {
-            minsText = "2";
-            secsText = "00";
-            centText = "0";
-        }
-        else{
-            String current = (String) textView.getText();
-            String[] firstS = current.split(":");
-            String[] secondS = firstS[1].split("\\.");
-            minsText = firstS[0];
-            secsText = secondS[0];
-            centText = secondS[1];
+
+        NDigitWatcher singleDigit = new NDigitWatcher(1);
+        NDigitWatcher doubleDigit = new NDigitWatcher(2);
+
+        if(titleId == R.string.dialog_split_title){
+
+            ad.findViewById(R.id.hour_min_dialog_sep).setVisibility(GONE);
+            ad.findViewById(R.id.hour_editText).setVisibility(GONE);
+
+            if(textView.getText() == "") {
+                minsText = "2";
+                secsText = "00";
+                centText = "0";
+            }
+            else{
+                String current = (String) textView.getText();
+                String[] firstS = current.split(":");
+                String[] secondS = firstS[1].split("\\.");
+                minsText = firstS[0];
+                secsText = secondS[0];
+                centText = secondS[1];
+            }
+
+            minSpin.addTextChangedListener(singleDigit);
+            centSpin.addTextChangedListener(singleDigit);
+            secSpin.addTextChangedListener(doubleDigit);
+        } else{
+            EditText hourSpin = (EditText) findViewById(R.id.hour_editText);
+            hourSpin.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+            String hourText;
+
+            if(textView.getText() == "") {
+                hourText = "1";
+                minsText = "00";
+                secsText = "00";
+                centText = "0";
+            }
+            else{
+                String current = (String) textView.getText();
+                String[] firstS = current.split(":");
+                String[] secondS = firstS[2].split("\\.");
+                hourText = firstS[0];
+                minsText = firstS[1];
+                secsText = secondS[0];
+                centText = secondS[1];
+            }
+            hourSpin.setText(hourText);
         }
 
         minSpin.setText(minsText);
         secSpin.setText(secsText);
         centSpin.setText(centText);
-
-        NDigitWatcher singleDigit = new NDigitWatcher(1);
-        NDigitWatcher doubleDigit = new NDigitWatcher(2);
-
-        minSpin.addTextChangedListener(singleDigit);
-        centSpin.addTextChangedListener(singleDigit);
-        secSpin.addTextChangedListener(doubleDigit);
     }
 
     class NDigitWatcher implements TextWatcher {

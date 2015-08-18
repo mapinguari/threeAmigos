@@ -5,6 +5,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -287,9 +288,38 @@ public final class WorkoutView extends LinearLayout {
                 }
             });
         }
+        headerView.setOnClickListener(new updateUnitsClick());
+        totalsView.setOnClickListener(new updateUnitsClick());
+        View tempInt;
+        for(int i = 0; i < intervalsView.getChildCount(); i++){
+            tempInt = intervalsView.getChildAt(i);
+            if(tempInt instanceof IntervalView){
+                tempInt.setOnClickListener(new updateUnitsClick());
+            }
+        }
+
     }
 
+    class updateUnitsClick implements OnClickListener{
+        @Override
+        public void onClick(View v) {
+            changeUnits();
 
+        }
+    }
+
+    public void changeUnits(){
+        headerView.changeUnits(powerUnitDisplayed.currentUnit);
+        totalsView.changeUnit(powerUnitDisplayed.currentUnit);
+        View tempInt;
+        for(int i = 0; i < intervalsView.getChildCount(); i++){
+            tempInt = intervalsView.getChildAt(i);
+            if(tempInt instanceof IntervalView){
+                ((IntervalView) tempInt).changeUnit(powerUnitDisplayed.currentUnit);
+            }
+        }
+        powerUnitDisplayed.update();
+    }
 
 
 
