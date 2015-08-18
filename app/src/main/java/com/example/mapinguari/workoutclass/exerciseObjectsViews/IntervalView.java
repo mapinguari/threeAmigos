@@ -45,12 +45,14 @@ public final class IntervalView extends LinearLayout {
     WorkoutView workoutView;
 
     AlertDialog.Builder splitDialogBuilder;
+    AlertDialog.Builder timeDialogBuilder;
 
     public IntervalView(Context context){
         super(context);
         this.context = context;
         buildIntervalView(context, null);
         newSplitSpinnerDialog();
+        newTimeDialog();
     }
 
 
@@ -61,6 +63,8 @@ public final class IntervalView extends LinearLayout {
         buildIntervalView(context, null);
         setIntervalView();
         newSplitSpinnerDialog();
+        newTimeDialog();
+
     }
 
     public IntervalView(Context context, AttributeSet attrs, Interval interval) {
@@ -69,6 +73,8 @@ public final class IntervalView extends LinearLayout {
         this.context = context;
         buildIntervalView(context, attrs);
         setIntervalView();
+        newTimeDialog();
+
     }
 
 
@@ -78,13 +84,13 @@ public final class IntervalView extends LinearLayout {
     }
 
     public void makeEditable(Boolean makeEditable){
-        makeViewDialogEditable(timeView, R.string.dialog_time_title, makeEditable);
+        makeViewTimeEditable(timeView, R.string.dialog_time_title, makeEditable);
         makeViewEditable(distanceView, makeEditable);
         //TODO: NEED TO WORK OUT WHAT TO DO WHEN CHANGING EDITABLE MODE HERE
         makeViewDialogEditable(variableView, R.string.dialog_split_title, makeEditable);
         //
         makeViewEditable(SPMView, makeEditable);
-        makeViewDialogEditable(restView, R.string.dialog_time_title, makeEditable);
+        makeViewTimeEditable(restView, R.string.dialog_time_title, makeEditable);
     }
 
     private void makeViewEditable(TextView view, Boolean editable) {
@@ -100,6 +106,20 @@ public final class IntervalView extends LinearLayout {
             view.setBackgroundColor(getResources().getColor(R.color.white));
         }
 
+    }
+
+    class TimeEditDialogClick implements OnClickListener{
+
+        int titleId;
+
+        public TimeEditDialogClick(int dialogTitleId){
+            titleId = dialogTitleId;
+        }
+
+        @Override
+        public void onClick(View v) {
+            instanciateTimeDialog(titleId, (TextView) v);
+        }
     }
 
     class DialogEditableClick implements OnClickListener{
@@ -122,6 +142,14 @@ public final class IntervalView extends LinearLayout {
         } else {
             textView.setOnClickListener(null);
         }
+    }
+
+    private void makeViewTimeEditable(TextView textView, int titleId, Boolean editable) {
+            if (editable) {
+                textView.setOnClickListener(new TimeEditDialogClick(titleId));
+            } else {
+                textView.setOnClickListener(null);
+            }
     }
 
     class KeyboardShow implements View.OnFocusChangeListener{
@@ -254,6 +282,11 @@ public final class IntervalView extends LinearLayout {
 
     }
 
+    private void newTimeDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        timeDialogBuilder = builder;
+    }
+
     class DialogButtonResponse implements DialogInterface.OnClickListener{
 
         private TextView textView;
@@ -267,12 +300,22 @@ public final class IntervalView extends LinearLayout {
             AlertDialog ad = (AlertDialog) dialog;
             switch (which){
                 case(DialogInterface.BUTTON_POSITIVE):
-                    textView.setText(((TextView) ad.findViewById(R.id.min_editText)).getText() +
-                            ":" +
-                            ((TextView) ad.findViewById(R.id.sec_editText)).getText() +
-                            "." +
-                            ((TextView) ad.findViewById(R.id.centi_editText)).getText());
-
+                    Double hours;
+                    Double mins;
+                    Double secs;
+                    Double centi;
+                    View hourView = ad.findViewById(R.id.hour_editText);
+                    if(hourView == null){
+                        hours = 0.0;
+                    } else {
+                        hours = Double.parseDouble(((TextView) hourView).getText().toString());
+                    }
+                    mins =  Double.parseDouble(((TextView) ad.findViewById(R.id.min_editText)).getText().toString());
+                    secs = Double.parseDouble(((TextView) ad.findViewById(R.id.sec_editText)).getText().toString());
+                    centi = Double.parseDouble(((TextView) ad.findViewById(R.id.centi_editText)).getText().toString());
+                    Double total = hours*3600 + mins*60 + secs + (centi/10);
+                    String out = ErgoFormatter.formatSeconds(total);
+                    textView.setText(out);
                     ad.dismiss();
                     break;
                 case(DialogInterface.BUTTON_NEGATIVE):
@@ -280,6 +323,64 @@ public final class IntervalView extends LinearLayout {
                     break;
             }
         }
+    }
+
+    private void instanciateTimeDialog(int titleId, TextView textView) {
+        timeDialogBuilder.setTitle(getResources().getText(titleId));
+        timeDialogBuilder.setView(inflate(context, R.layout.dialog_time_input, null));
+
+
+        DialogButtonResponse dbr = new DialogButtonResponse(textView);
+
+        timeDialogBuilder.setPositiveButton(R.string.split_dialog_positive, dbr);
+        timeDialogBuilder.setNegativeButton(R.string.split_dialog_negative, dbr);
+
+        AlertDialog ad = timeDialogBuilder.show();
+
+        EditText hourSpin = (EditText) ad.findViewById(R.id.hour_editText);
+        EditText minSpin = (EditText) ad.findViewById(R.id.min_editText);
+        EditText secSpin = (EditText) ad.findViewById(R.id.sec_editText);
+        EditText centSpin = (EditText) ad.findViewById(R.id.centi_editText);
+
+        hourSpin.setInputType(InputType.TYPE_CLASS_NUMBER);
+        minSpin.setInputType(InputType.TYPE_CLASS_NUMBER);
+        secSpin.setInputType(InputType.TYPE_CLASS_NUMBER);
+        centSpin.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+        String hoursText;
+        String minsText;
+        String secsText;
+        String centText;
+
+        if(textView.getText() == "") {
+            hoursText = "1";
+            minsText = "00";
+            secsText = "00";
+            centText = "0";
+        }
+        else{
+            String current = (String) textView.getText();
+            String[] firstS = current.split(":");
+            String[] secondS = firstS[2].split("\\.");
+            hoursText = firstS[0];
+            minsText = firstS[1];
+            secsText = secondS[0];
+            centText = secondS[1];
+        }
+
+        hourSpin.setText(hoursText);
+        minSpin.setText(minsText);
+        secSpin.setText(secsText);
+        centSpin.setText(centText);
+
+        NDigitWatcher singleDigit = new NDigitWatcher(1);
+        NDigitWatcher doubleDigit = new NDigitWatcher(2);
+
+        hourSpin.addTextChangedListener(singleDigit);
+        minSpin.addTextChangedListener(doubleDigit);
+        centSpin.addTextChangedListener(singleDigit);
+        secSpin.addTextChangedListener(doubleDigit);
+
     }
 
     private void  instanciateSplitSpinnerDialog(int titleId, TextView textView){
