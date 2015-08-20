@@ -8,13 +8,17 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.mapinguari.workoutclass.R;
@@ -39,6 +43,7 @@ public final class IntervalView extends LinearLayout {
     public TextView variableView;
     public TextView SPMView;
     public TextView restView;
+    public Boolean deleteMe = false;
     Context context;
     LinearLayout bottomRow;
 
@@ -91,6 +96,21 @@ public final class IntervalView extends LinearLayout {
         //
         makeViewEditable(SPMView, makeEditable);
         makeViewTimeEditable(restView, R.string.dialog_time_title, makeEditable);
+        if(!(this.getParent() instanceof WorkoutView)) {
+            Button deleteButton = new Button(context);
+            deleteButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.ic_delete_black_24dp));
+            deleteButton.setOnClickListener(new DeleteClick());
+            deleteButton.setLayoutParams(new LayoutParams(48, 56));
+            bottomRow.addView(deleteButton);
+        }
+    }
+
+    class DeleteClick implements View.OnClickListener{
+        @Override
+        public void onClick(View v) {
+            View interval = (View) v.getParent().getParent();
+            interval.setVisibility(GONE);
+        }
     }
 
     private void makeViewEditable(TextView view, Boolean editable) {
@@ -195,12 +215,16 @@ public final class IntervalView extends LinearLayout {
         this.addView(bottomRow);
 
         TextView restViewTitle = new TextView(context,attributeSet);
+        LayoutParams titleParam = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        titleParam.gravity = Gravity.TOP;
+        restViewTitle.setLayoutParams(titleParam);
         restViewTitle.setText(getResources().getString(R.string.interval_view_rest_time_title));
-        restViewTitle.setLayoutParams(textLayoutParams);
+        //restViewTitle.setLayoutParams(textLayoutParams);
         bottomRow.addView(restViewTitle);
 
         restView = new TextView(context,attributeSet);
-        restView.setLayoutParams(textLayoutParams);
+        restView.setLayoutParams(new LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT,1));
+        restView.setGravity(Gravity.CENTER_HORIZONTAL);
         bottomRow.addView(restView);
 
     }
@@ -360,12 +384,19 @@ public final class IntervalView extends LinearLayout {
         }
         else{
             String current = (String) textView.getText();
-            String[] firstS = current.split(":");
-            String[] secondS = firstS[2].split("\\.");
-            hoursText = firstS[0];
-            minsText = firstS[1];
-            secsText = secondS[0];
-            centText = secondS[1];
+            try {
+                Integer[] strs = ErgoFormatter.segmentedParse(current);
+                hoursText = strs[0].toString();
+                minsText = strs[1].toString();
+                secsText = strs[2].toString();
+                centText = strs[3].toString();
+            }catch (Exception e){
+                e.printStackTrace();
+                hoursText = "1";
+                minsText = "00";
+                secsText = "00";
+                centText = "0";
+            }
         }
 
         hourSpin.setText(hoursText);
@@ -416,11 +447,17 @@ public final class IntervalView extends LinearLayout {
         }
         else{
             String current = (String) textView.getText();
-            String[] firstS = current.split(":");
-            String[] secondS = firstS[1].split("\\.");
-            minsText = firstS[0];
-            secsText = secondS[0];
-            centText = secondS[1];
+            try {
+                Integer[] strs = ErgoFormatter.segmentedParse(current);
+                minsText = strs[1].toString();
+                secsText = strs[2].toString();
+                centText = strs[3].toString();
+            }catch (Exception e){
+                e.printStackTrace();
+                minsText = "2";
+                secsText = "00";
+                centText = "0";
+            }
         }
 
         minSpin.setText(minsText);

@@ -12,6 +12,8 @@ import android.provider.MediaStore;
 
 import com.example.mapinguari.workoutclass.R;
 import com.example.mapinguari.workoutclass.ImgProcess;
+import com.example.mapinguari.workoutclass.exceptions.NotHumanStringException;
+import com.example.mapinguari.workoutclass.exerciseObjects.ErgoFormatter;
 
 import java.io.File;
 import java.io.InputStream;
@@ -68,12 +70,28 @@ public class MainMenuActivity extends ActionBarActivity {
                         e.printStackTrace();
                     }
                     //do something with returned values here
+
                 }
 
             default:
         }
 
     }
+
+    public Double getTime(Vector<String> vs){
+        String time = vs.get(0);
+        Double secs = 0.0;
+        try{
+            secs = ErgoFormatter.parseSeconds(time);
+        } catch(NotHumanStringException e){
+            e.printStackTrace();
+            Log.w("time string parse fail", time);
+        }
+        
+        return secs;
+    }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
