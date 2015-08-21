@@ -186,9 +186,12 @@ public final class WorkoutView extends LinearLayout {
             exception.setTotalsComplete();
         }
         List<Interval> intervals = new ArrayList<Interval>(intervalsView.getChildCount()-2);
+        IntervalView currentInterval;
         for(int i = 0; i < intervalsView.getChildCount() - 2; i++){
+            currentInterval = (IntervalView) intervalsView.getChildAt(i);
+            if(currentInterval.getVisibility() != GONE)
             try {
-                intervals.add(i, ((IntervalView) intervalsView.getChildAt(i)).getNewInterval());
+                intervals.add(i, currentInterval.getNewInterval());
             }catch(IncompleteIntervalException e){
                 exception.setIncompleteIntervals(i+1);
             }

@@ -36,7 +36,7 @@ public class ErgoFormatter{
     }
 
     //HH:MM:SS.C
-    public static Double parseSeconds(String string) throws NotHumanStringException {
+    public static Integer[] segmentedParse(String string) throws NotHumanStringException {
         String[] hmr = string.split(":");
         Integer hours = 0,mins = 0;
         String rem  = "";
@@ -72,7 +72,13 @@ public class ErgoFormatter{
         catch(NumberFormatException e){
             throw new NotHumanStringException();
         }
-        return hours*3600 + mins*60 + seconds + (((double) centi)/10);
+        Integer[] result = {hours,mins,seconds,centi};
+        return result;
+    }
+
+    public static Double parseSeconds(String string) throws NotHumanStringException {
+        Integer[] in = segmentedParse(string);
+        return in[0]*3600 + in[1]*60 + in[2] + (((double) in[3])/10);
     }
 
 }
