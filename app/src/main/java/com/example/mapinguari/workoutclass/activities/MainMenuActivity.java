@@ -81,10 +81,10 @@ public class MainMenuActivity extends ActionBarActivity {
                         DatabaseInterface dbi = new DatabaseInterface(this);
                         Workout gleanedWorkout = conservativeWorkout(ocrReturnedValues);
                         if (gleanedWorkout != null) {
-                            Boolean test = dbi.insertWorkout(gleanedWorkout);
-                            String msg = test ? "Workout added" : "Workout not added";
-                            Toast toast = Toast.makeText(this, msg, Toast.LENGTH_SHORT);
-                            toast.show();
+                            Intent inspectWorkout = new Intent(getApplicationContext(),WorkoutViewActivity.class);
+                            inspectWorkout.putExtra(getResources().getString(R.string.EXTRA_WORKOUT),gleanedWorkout);
+                            inspectWorkout.putExtra(getResources().getString(R.string.EXTRA_WORKOUT_PASSED),true);
+                            startActivity(inspectWorkout);
                         } else {
                             Toast failed = Toast.makeText(this, "Couldn't get a workout out", Toast.LENGTH_SHORT);
                             failed.show();
