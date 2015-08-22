@@ -5,6 +5,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -36,6 +37,8 @@ import java.util.List;
 public final class WorkoutView extends LinearLayout {
 
     Workout workout = null;
+    int workoutId;
+
     Context context;
     GregorianCalendar currentCal;
 
@@ -51,14 +54,16 @@ public final class WorkoutView extends LinearLayout {
     ScrollView intervalsViewCont;
     LinearLayout intervalsView;
     Button saveButton;
+    Button editButton;
 
     PowerUnit powerUnitDisplayed;
 
 
-    public WorkoutView(Context context, @Nullable Workout workout) {
+    public WorkoutView(Context context, @Nullable Workout workout,@Nullable int workoutID) {
         super(context);
         this.context = context;
         this.workout = workout;
+        workoutId = workoutID;
         buildView(context);
         setWorkoutView();
     }
@@ -150,7 +155,8 @@ public final class WorkoutView extends LinearLayout {
 
     void addInterval(Interval interval){
         IntervalView intervalView = intervalViewToAdd(interval);
-        int pos = intervalsView.getChildCount() - 2;
+        int pos = intervalsView.getChildCount();
+
         if(pos % 2 ==0){
             intervalView.setBackgroundColor(getResources().getColor(R.color.even_list_item));
         }
@@ -233,6 +239,9 @@ public final class WorkoutView extends LinearLayout {
                 newWorkout = getNewWorkout();
                 if(newWorkout != workout){
                     DatabaseInterface db = new DatabaseInterface(context);
+                    if(workoutId >=0){
+                        db.deleteWorkout(workoutId);
+                    }
                     boolean successdb = db.insertWorkout(newWorkout);
                     String dbMessage = successdb ? "The workout was added" : "The workout was not added";
                     Toast tellsuccess = Toast.makeText(context, dbMessage, Toast.LENGTH_SHORT);
@@ -274,6 +283,8 @@ public final class WorkoutView extends LinearLayout {
             addAddIntervalButton();
             addSaveButton();
             totalsView.makeEditable(true);
+        } else {
+            addEditButton();
         }
 
         if(workout == null){
@@ -292,6 +303,35 @@ public final class WorkoutView extends LinearLayout {
         }
     }
 
+    public void addEditButton(){
+        editButton = new Button(context);
+        editButton.setText(R.string.edit_button_text);
+        editButton.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        editButton.setOnClickListener(new EditClick());
+        this.addView(editButton);
+    }
+
+    class EditClick implements OnClickListener{
+        @Override
+        public void onClick(View v) {
+            makeWorkoutEditable();
+        }
+    }
+
+
+    public void makeWorkoutEditable(){
+        addAddIntervalButton();
+        addSaveButton();
+        totalsView.makeEditable(true);
+        View currView;
+        for(int i = 0; i < intervalsView.getChildCount();i++){
+            currView = intervalsView.getChildAt(i);
+            if(currView instanceof IntervalView){
+                ((IntervalView) currView).makeEditable(true);
+            }
+        }
+        removeView(editButton);
+    }
 
 
 

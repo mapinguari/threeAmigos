@@ -82,4 +82,6 @@
     <string name="split_dialog_negative">Cancel</string>
     <string name="dialog_time_title">Set Time</string>
     <string name="add_interval_button_text">Add Interval</string>
+    <string name="WORKOUT_ID_EXTRA">com.example.mapinguari.workoutclass.WORKOUT_ID_EXTRA</string>
+    <string name="edit_button_text">Edit Workout</string>
 </resources>

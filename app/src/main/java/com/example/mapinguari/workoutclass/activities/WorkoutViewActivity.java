@@ -2,6 +2,7 @@ package com.example.mapinguari.workoutclass.activities;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
@@ -19,6 +20,7 @@ import java.util.List;
 public class WorkoutViewActivity extends ActionBarActivity {
 
     Workout workout;
+    int workoutID = -1;
     TextView dateView;
 
     ScrollView intervalsScroll;
@@ -31,8 +33,9 @@ public class WorkoutViewActivity extends ActionBarActivity {
         WorkoutView workoutView = null;
         if( getIntent().getBooleanExtra(getResources().getString(R.string.EXTRA_WORKOUT_PASSED),false)){
             workout = getIntent().getParcelableExtra(getResources().getString(R.string.EXTRA_WORKOUT));
+            workoutID = getIntent().getIntExtra(getResources().getString(R.string.WORKOUT_ID_EXTRA),-1);
         }
-        workoutView = new WorkoutView(this,workout);
+        workoutView = new WorkoutView(this,workout,workoutID);
         //workoutView.setOnClickListener(this);
         setContentView(workoutView);
 

@@ -84,6 +84,7 @@ public class WorkoutListActivity extends ActionBarActivity implements AdapterVie
             Intent inspectIntent = new Intent(getApplicationContext(),WorkoutViewActivity.class);
             inspectIntent.putExtra(getResources().getString(R.string.EXTRA_WORKOUT_PASSED),true);
             inspectIntent.putExtra(getResources().getString(R.string.EXTRA_WORKOUT),workout);
+            inspectIntent.putExtra(getResources().getString(R.string.WORKOUT_ID_EXTRA),workout_ID);
             startActivity(inspectIntent);
         }
 
