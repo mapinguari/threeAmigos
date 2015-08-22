@@ -279,10 +279,17 @@ public final class WorkoutView extends LinearLayout {
 
         totalsView.setInterval(totalsInterval);
         addIntervals(intervals);
-        if(workout == null){
+        if(workoutId < 0){
             addAddIntervalButton();
             addSaveButton();
             totalsView.makeEditable(true);
+            View currView;
+            for(int i = 0; i < intervalsView.getChildCount();i++){
+                currView = intervalsView.getChildAt(i);
+                if(currView instanceof IntervalView){
+                    ((IntervalView) currView).makeEditable(true);
+                }
+            }
         } else {
             addEditButton();
         }
