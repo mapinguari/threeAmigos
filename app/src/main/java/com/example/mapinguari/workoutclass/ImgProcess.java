@@ -17,12 +17,29 @@ public class ImgProcess {
 	private static final int black = 0xFF000000;
 	private static final int white = 0xFFFFFFFF;
 
+    /**
+     * Returns the average value of the three colour components from a integer pixel
+     * @param value The pixels value
+     * @return The average of the components
+     */
 	private static int pixel_avg(int value) {
 		return (((value >> 16) & 0x000000FF)+
 	 		((value >>8 ) & 0x000000FF)+
 			(value & 0x000000FF))/3;
 	}
 
+    /**
+     *  Compares every value in imageIN to every value in thresArr, writing the white value to
+     *  imageOUT if the imageIN value is greater than the value in thresArr or the black value
+     *  otherwise
+     *
+     * @param imageIN  Input image array
+     * @param thresArr Threshold level array
+     * @param imageOUT Array to write result to
+     * @param length The length of the arrays
+     * @param multiplier Integer multiplier to scale imageIN value
+     * @param divider Integer divider to scale imageIN value
+     */
 	private static void threshold(int[] imageIN, int[]thresArr, int[] imageOUT,
 			int length, int multiplier , int divider) {
 	int a,b;
@@ -39,6 +56,16 @@ public class ImgProcess {
 		}
 	}
 
+    /**
+     * Filters an image, to make each pixel the average of all pixels in a rectangle centred on
+     * itself
+     * @param imageIN The image to carry out filtering on
+     * @param imageOUT The array to write the filtered image to, can be the same as imageIN
+     * @param height The height of the image
+     * @param width The width of the image
+     * @param filth The height of the filtering rectangle
+     * @param filtw The width of the filtering rectangle
+     */
 	private static void avgfilter(int[] imageIN, int[] imageOUT, int height,
 	int width, int filth, int filtw){
 		int i,j,intensity,average;
@@ -202,7 +229,6 @@ public class ImgProcess {
 			continue;
 		} else if (i>0&&HorizontalLines.size()>4 &&TextLines.get(i*2-1)<=HorizontalLines.get(4)&&
 			TextLines.get(i*2)>=HorizontalLines.get(4)) {
-            api.end();
             api.init(Tesspath,"lan");
 		}
 
@@ -229,6 +255,9 @@ public class ImgProcess {
 
 					outText = api.getUTF8Text();
 					ret.lastElement().add(outText);
+                    Log.d("ImgProcess", "Rectangle:" + String.valueOf(prev + 1) + "-" + String.valueOf(j - prev - 1) + "x" +
+                            String.valueOf(TextLines.get(i * 2)) + "-" + String.valueOf(TextLines.get(i*2+1)-TextLines.get(i*2))+
+                            ", Found:" + String.valueOf(i)+"-"+String.valueOf(ret.lastElement().size())+" "+outText);
 				}
 				prev=j-numWhiteCol;
 			}
@@ -295,7 +324,14 @@ public class ImgProcess {
         return values;
     }
 
-    public static boolean loadLanguage(String language,Context context) {
+    /**
+     * Copies a tesseract traineddata file from the packaged assets to a regular file in the cache
+     * so tesseract can find it
+     * @param language The name of the language to be loaded
+     * @param context Application context to access assets and cache directory
+     * @return Whether the traineddata file is now in the cache
+     */
+    public static boolean loadLanguage(String language, Context context) {
         String directory="tessdata";
         String lpath="tessdata/"+language+".traineddata";
         try {

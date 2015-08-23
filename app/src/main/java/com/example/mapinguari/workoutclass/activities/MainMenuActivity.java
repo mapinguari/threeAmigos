@@ -76,9 +76,10 @@ public class MainMenuActivity extends ActionBarActivity {
                         Log.e("LoadImage", e.toString());
                         e.printStackTrace();
                     }
+
                     if(ocrReturnedValues != null) {
                         Log.w("OCR OUTPUT", ocrReturnedValues.toString());
-                        DatabaseInterface dbi = new DatabaseInterface(this);
+                        //DatabaseInterface dbi = new DatabaseInterface(this);
                         Workout gleanedWorkout = conservativeWorkout(ocrReturnedValues);
                         if (gleanedWorkout != null) {
                             Intent inspectWorkout = new Intent(getApplicationContext(),WorkoutViewActivity.class);
@@ -117,9 +118,12 @@ public class MainMenuActivity extends ActionBarActivity {
                 break;
                 }
 
-            if(totalsInterval != null){
-                intervals.add(totalsInterval);
-                totalsInterval = currentInterval;
+            if (currentInterval!=null) {
+                if (i == 0) {
+                    totalsInterval = currentInterval;
+                } else {
+                    intervals.add(currentInterval);
+                }
             }
         }
         Workout result = null;
