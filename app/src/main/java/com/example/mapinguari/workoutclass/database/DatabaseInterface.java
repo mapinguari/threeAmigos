@@ -116,10 +116,6 @@ public class DatabaseInterface {
         if(nor == 0){
             throw new SQLiteException("No workout with specified ID");
         }
-        nor = workoutDatabase.delete(DatabaseSchema.DataBaseTerms.WORKOUTS_TABLE_NAME, DatabaseSchema.DELETE_WORKOUT_REL_ROWS_WHERE_CLAUSE,args);
-        if(nor == 0){
-            throw new SQLiteException("No workout rels with specified ID");
-        }
         return nor;
     }
                 //TODO: CODE DELETEWORKOUT

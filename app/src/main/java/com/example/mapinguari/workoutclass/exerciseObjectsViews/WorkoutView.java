@@ -145,17 +145,9 @@ public final class WorkoutView extends LinearLayout {
         return df.format(currentCal.getTime());
     }
 
-    private IntervalView intervalViewToAdd(@Nullable Interval interval){
+    IntervalView addInterval(Interval interval){
         IntervalView intervalView = new IntervalView(context,interval);
-        if(interval == null){
-            intervalView.makeEditable(true);
-        }
-        return intervalView;
-    }
-
-    void addInterval(Interval interval){
-        IntervalView intervalView = intervalViewToAdd(interval);
-        int pos = intervalsView.getChildCount();
+        int pos = intervalsView.getChildCount() - 2;
 
         if(pos % 2 ==0){
             intervalView.setBackgroundColor(getResources().getColor(R.color.even_list_item));
@@ -164,13 +156,14 @@ public final class WorkoutView extends LinearLayout {
             intervalView.setBackgroundColor(getResources().getColor(R.color.odd_list_item));
         }
         intervalsView.addView(intervalView,pos);
+        return intervalView;
     }
 
     private void addIntervals(List<Interval> intervals){
         IntervalView currInt;
         int j =0;
         for(Interval i : intervals){
-            currInt = intervalViewToAdd(i);
+            currInt = new IntervalView(context,i);
             if(j % 2 ==0){
                 currInt.setBackgroundColor(getResources().getColor(R.color.even_list_item));
             }
@@ -226,7 +219,8 @@ public final class WorkoutView extends LinearLayout {
         addIntervalButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                addInterval(null);
+                IntervalView i = addInterval(null);
+                i.makeEditable(true);
             }
         });
     }
@@ -279,19 +273,9 @@ public final class WorkoutView extends LinearLayout {
 
         totalsView.setInterval(totalsInterval);
         addIntervals(intervals);
-        if(workoutId < 0){
-            addAddIntervalButton();
-            addSaveButton();
-            totalsView.makeEditable(true);
-            View currView;
-            for(int i = 0; i < intervalsView.getChildCount();i++){
-                currView = intervalsView.getChildAt(i);
-                if(currView instanceof IntervalView){
-                    ((IntervalView) currView).makeEditable(true);
-                }
-            }
-        } else {
-            addEditButton();
+        addEditButton();
+        if(workoutId < 0) {
+            makeWorkoutEditable();
         }
 
         if(workout == null){

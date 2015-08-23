@@ -43,11 +43,9 @@ public final class IntervalView extends LinearLayout {
     public TextView variableView;
     public TextView SPMView;
     public TextView restView;
-    public Boolean deleteMe = false;
     Context context;
     LinearLayout bottomRow;
 
-    WorkoutView workoutView;
 
     AlertDialog.Builder splitDialogBuilder;
     AlertDialog.Builder timeDialogBuilder;
@@ -93,7 +91,6 @@ public final class IntervalView extends LinearLayout {
         makeViewEditable(distanceView, makeEditable);
         //TODO: NEED TO WORK OUT WHAT TO DO WHEN CHANGING EDITABLE MODE HERE
         makeViewDialogEditable(variableView, R.string.dialog_split_title, makeEditable);
-        //
         makeViewEditable(SPMView, makeEditable);
         makeViewTimeEditable(restView, R.string.dialog_time_title, makeEditable);
         if(!(this.getParent() instanceof WorkoutView)) {
