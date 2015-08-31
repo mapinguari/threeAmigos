@@ -25,6 +25,10 @@
             android:name=".activities.WorkoutViewActivity"
             android:label="@string/title_activity_workout_view" >
         </activity>
+        <activity
+            android:name=".activities.CornerPickerActivity"
+            android:label="@string/title_activity_corner_picker" >
+        </activity>
     </application>
 
 </manifest>

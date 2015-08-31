@@ -84,4 +84,7 @@
     <string name="add_interval_button_text">Add Interval</string>
     <string name="WORKOUT_ID_EXTRA">com.example.mapinguari.workoutclass.WORKOUT_ID_EXTRA</string>
     <string name="edit_button_text">Edit Workout</string>
+    <string name="title_activity_corner_picker">CornerPickerActivity</string>
+    <string name="EXTRA_ERGO_IMAGE">com.example.mapinguari.workoutclass.EXTRA_ERGO_IMAGE</string>
+    <string name="corner_picker_save_button_text">Save Corners</string>
 </resources>

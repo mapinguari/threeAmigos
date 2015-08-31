@@ -62,42 +62,17 @@ public class MainMenuActivity extends ActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode){
             case GET_IMAGE_REQUEST:
+                Intent cornerPickerIntent = new Intent(this,CornerPickerActivity.class);
+                cornerPickerIntent.putExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE),data.getData().toString());
+                startActivity(cornerPickerIntent);
+                /*
                 if (resultCode==RESULT_OK){
                     Uri imageUri=data.getData();
-                    Vector<Vector<String>> ocrReturnedValues = null;
 
-                    ImgProcess.loadLanguage("lan", this.getApplicationContext());
-
-                    try {
-                        ocrReturnedValues=ImgProcess.ProcessImage(
-                                MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri),
-                                this.getCacheDir().getCanonicalPath());
-                    } catch (Exception e) {
-                        Log.e("LoadImage", e.toString());
-                        e.printStackTrace();
-                    }
-
-                    if(ocrReturnedValues != null) {
-                        Log.w("OCR OUTPUT", ocrReturnedValues.toString());
-                        //DatabaseInterface dbi = new DatabaseInterface(this);
-                        Workout gleanedWorkout = conservativeWorkout(ocrReturnedValues);
-                        if (gleanedWorkout != null) {
-                            Intent inspectWorkout = new Intent(getApplicationContext(),WorkoutViewActivity.class);
-                            inspectWorkout.putExtra(getResources().getString(R.string.EXTRA_WORKOUT),gleanedWorkout);
-                            inspectWorkout.putExtra(getResources().getString(R.string.EXTRA_WORKOUT_PASSED),true);
-                            startActivity(inspectWorkout);
-                        } else {
-                            Toast failed = Toast.makeText(this, "Couldn't get a workout out", Toast.LENGTH_SHORT);
-                            failed.show();
-                        }
-                    } else {
-                        Toast failed = Toast.makeText(this, "I tried, nothing to find", Toast.LENGTH_SHORT);
-                        failed.show();
-                    }
-                }
-
+*/
             default:
         }
+
 
     }
 
@@ -105,59 +80,7 @@ public class MainMenuActivity extends ActionBarActivity {
     //It will attempt to take intervals until it gets a human string parse error on a row. it will
     // then take the last successful parse as the totals row and the rest of the intervals as intervals.
 
-    public Workout conservativeWorkout(Vector<Vector<String>> vvs){
-        Interval totalsInterval = null;
-        Interval currentInterval;
-        ArrayList<Interval> intervals = new ArrayList<Interval>();
-        Vector<String> currentRow;
-        for(int i = vvs.size() - 1; i >= 0;i--){
-            currentRow = vvs.get(i);
-            try{
-                currentInterval = new Interval(getTime(currentRow),getDistance(currentRow),getSPM(currentRow),0.0);
-            } catch(Exception exception){
-                break;
-                }
 
-            if (currentInterval!=null) {
-                if (i == 0) {
-                    totalsInterval = currentInterval;
-                } else {
-                    intervals.add(currentInterval);
-                }
-            }
-        }
-        Workout result = null;
-        if(totalsInterval != null) {
-            result = new Workout(intervals, totalsInterval.getSPM(), totalsInterval.getDistance(), totalsInterval.getDistance(), new GregorianCalendar());
-        }
-        return result;
-    }
-
-    public Double getTime(Vector<String> vs){
-        String time = vs.get(0);
-        Double secs = 0.0;
-        try{
-            secs = ErgoFormatter.parseSeconds(time);
-        } catch(NotHumanStringException e){
-            e.printStackTrace();
-            Log.w("time string parse fail", time);
-        }
-        
-        return secs;
-    }
-
-    public Double getDistance(Vector<String> vs){
-        String distance = vs.get(1);
-        Double dist = 0.0;
-        dist = Double.parseDouble(distance);
-        return dist;
-    }
-
-    public Integer getSPM(Vector<String> vs){
-        String spmS = vs.get(3);
-        Integer spm = Integer.parseInt(spmS);
-        return spm;
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
