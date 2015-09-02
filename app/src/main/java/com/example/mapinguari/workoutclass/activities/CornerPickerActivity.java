@@ -3,11 +3,15 @@ package com.example.mapinguari.workoutclass.activities;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Paint;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,13 +40,14 @@ import java.util.Vector;
 public class CornerPickerActivity extends ActionBarActivity {
 
     int x1,y1,x2,y2,x3,y3,x4,y4;
-    GestureDetector mGestureDetector;
+    View movingView;
     ImageView ergoImageView;
     RelativeLayout relativeLayout;
     ArrayList<View> cornerPoints;
     int cornerPointsCount;
     Button saveButton;
     Uri imgURI;
+    boolean lastWasMove = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,24 +69,77 @@ public class CornerPickerActivity extends ActionBarActivity {
         ergoImageView.setImageURI(imgURI);
         ergoImageView.setOnTouchListener(new CornerAddTouch());
 
+
         //mGestureDetector = new GestureDetector(this,new TouchInteractions());
         cornerPoints = new ArrayList<View>(4);
     }
 
-    class CornerAddTouch implements View.OnTouchListener{
+    class CornerAddTouch implements View.OnTouchListener {
+        float xentry;
+        float yentry;
+
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            if(event.getActionMasked() == MotionEvent.ACTION_UP) {
-                float x = event.getX();
-                float y = event.getY();
-                addCornerView(x, y);
+            switch (event.getActionMasked()) {
+                case (MotionEvent.ACTION_UP):{
+                    if (!lastWasMove) {
+                        float x = event.getX();
+                        float y = event.getY();
+                        addCornerView(x, y);
 
+                    }
+                    if (movingView != null) {
+                        GradientDrawable circle = (GradientDrawable) movingView.getBackground();
+                        circle.setColor(getResources().getColor(R.color.blue));
+                        movingView = null;
+                    }
+                    movingView = null;
+                    lastWasMove = false;
+                    break;
+                }
+                case (MotionEvent.ACTION_DOWN): {
+                    View currentView = null;
+                    xentry = event.getX();
+                    yentry = event.getY();
+                    double dist;
+                    double shortestdist = 10000000000.0;
+                    for (View tV : cornerPoints) {
+                        dist = Math.sqrt(Math.pow((double) getcenterX(tV) - xentry, 2.0) + Math.pow((double) getcenterY(tV) - yentry, 2));
+
+                        if (dist < shortestdist) {
+                            shortestdist = dist;
+                            currentView = tV;
+                            Log.d("currentView ", currentView.toString());
+                        }
+                    }
+                    movingView = currentView;
+                    if (movingView != null) {
+                        GradientDrawable circle = (GradientDrawable) movingView.getBackground();
+                        circle.setColor(getResources().getColor(R.color.red));
+                    }
+                    lastWasMove = false;
+                    break;
+                }
+                case (MotionEvent.ACTION_MOVE): {
+                        float x = event.getX();
+                        float y = event.getY();
+                    if(xentry != x || yentry != y) {
+                        movingView.setX(x);
+                        movingView.setY(y);
+                        xentry = x;
+                        yentry = y;
+                        lastWasMove = true;
+                    }
+                    break;
+                }
             }
             return true;
+
         }
     }
 
     public void addCornerView(float x, float y){
+        if(cornerPointsCount < 4) {
             FrameLayout view = new FrameLayout(this);
             //TODO: SIZING HERE NEEDS TO BE SORTED OUT
             view.setLayoutParams(new ViewGroup.LayoutParams(40, 40));
@@ -91,11 +149,13 @@ public class CornerPickerActivity extends ActionBarActivity {
             view.setY(y);
             cornerPointsCount++;
             cornerPoints.add(view);
-        if(cornerPointsCount == 4) {
-            ergoImageView.setOnTouchListener(null);
-            saveButton.setVisibility(View.VISIBLE);
-            //HERE HANDLE ==4 and >4
+            GradientDrawable circle = (GradientDrawable) view.getBackground();
+            circle.setColor(getResources().getColor(R.color.blue));
+            if(cornerPointsCount == 4){
+                saveButton.setVisibility(View.VISIBLE);
+            }
         }
+
     }
 
     public void saveCorners(View v){
@@ -105,6 +165,7 @@ public class CornerPickerActivity extends ActionBarActivity {
         for(View tV: cornerPoints){
             dist = Math.sqrt(Math.pow((double) getcenterX(tV),2.0) + Math.pow((double) getcenterY(tV),2));
             if(dist < shortestdist) {
+                shortestdist = dist;
                 closestView = tV;
             }
 
@@ -190,7 +251,6 @@ public class CornerPickerActivity extends ActionBarActivity {
             currentRow = vvs.get(i);
             try{
                 currentInterval = new Interval(getTime(currentRow),getDistance(currentRow),getSPM(currentRow),0.0);
-                Log.w("currentInterval", currentInterval.toString());
             } catch(Exception exception){
                 break;
             }
@@ -304,4 +364,5 @@ public class CornerPickerActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }
