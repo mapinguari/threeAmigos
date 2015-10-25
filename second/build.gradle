@@ -12,7 +12,7 @@ targetCompatibility = 1.6
 
 
 repositories {
-        
+
      maven { url "http://maven.openimaj.org/" }
      maven { url "http://snapshots.openimaj.org/" }
      maven { url "http://repo.maven.apache.org/maven2" }

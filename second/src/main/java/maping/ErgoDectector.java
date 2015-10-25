@@ -1,17 +1,25 @@
 package maping;
 
 import org.openimaj.feature.local.list.LocalFeatureList;
+import org.openimaj.feature.local.list.MemoryLocalFeatureList;
 import org.openimaj.feature.local.matcher.FastBasicKeypointMatcher;
 import org.openimaj.feature.local.matcher.LocalFeatureMatcher;
+import org.openimaj.feature.local.matcher.MatchingUtilities;
 import org.openimaj.feature.local.matcher.consistent.ConsistentLocalFeatureMatcher2d;
 import org.openimaj.image.*;
 import org.openimaj.image.analysis.algorithm.HoughLines;
 import org.openimaj.image.colour.RGBColour;
+import org.openimaj.image.feature.local.engine.DoGColourSIFTEngine;
 import org.openimaj.image.feature.local.engine.DoGSIFTEngine;
+import org.openimaj.image.feature.local.engine.asift.ASIFTEngine;
 import org.openimaj.image.feature.local.keypoints.Keypoint;
+import org.openimaj.image.pixel.IntValuePixel;
 import org.openimaj.image.processing.edges.CannyEdgeDetector;
+import org.openimaj.image.processing.edges.StrokeWidthTransform;
 import org.openimaj.image.processing.resize.ResizeProcessor;
 import org.openimaj.math.geometry.line.Line2d;
+import org.openimaj.math.geometry.point.Point2d;
+import org.openimaj.math.geometry.shape.Polygon;
 import org.openimaj.math.geometry.shape.Rectangle;
 import org.openimaj.math.geometry.transforms.AffineTransformModel;
 import org.openimaj.math.geometry.transforms.HomographyModel;
@@ -20,9 +28,12 @@ import org.openimaj.math.geometry.transforms.estimation.RobustAffineTransformEst
 import org.openimaj.math.geometry.transforms.estimation.RobustHomographyEstimator;
 import org.openimaj.math.model.fit.RANSAC;
 
+import java.awt.Point;
 import java.awt.geom.Line2D;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by mapinguari on 9/14/15.
@@ -43,20 +54,8 @@ public class ErgoDectector {
         } catch (Exception e){
         }
 
-
         Image ergoScreen = this.getScreenImage(ErgoModel.PM3, ErgoFeature.C2Logo, target);
 
-        FImage prac = target.flatten();
-        CannyEdgeDetector cannyEdgeDetector = new CannyEdgeDetector((float) 1);
-        cannyEdgeDetector.processImage(prac);
-        HoughLines houghLines = new HoughLines((float) 1);
-        houghLines.analyseImage(prac);
-        for(Line2d line : houghLines.getBestLines(20)){
-            prac.drawLine(line, 3, RGBColour.WHITE[0]);
-
-        }
-
-        DisplayUtilities.display(prac, "Canny");
         return ergoScreen;
     }
 
@@ -85,6 +84,69 @@ public class ErgoDectector {
         return screenRect;
     }
 
+
+    public Image getScreenImageComp(MBFImage fullImage){
+        MBFImage screenI = null;
+        try{
+            screenI = ImageUtilities.readMBF((new File("/home/mapinguari/Downloads/pm3.jpg")));
+        } catch(Exception e){}
+
+        LocalFeatureList<Keypoint> featurePoints = getKeyPointsColour(screenI);
+        LocalFeatureList<Keypoint> targetKeypoints = getKeyPointsColour(fullImage);
+
+        List<Point2d> corners = new ArrayList<Point2d>();
+        corners.add(0,new IntValuePixel(31,39));
+        corners.add(1,new IntValuePixel(252,36));
+        corners.add(2,new IntValuePixel(250,253));
+        corners.add(3,new IntValuePixel(30,252));
+        Polygon screen = new Polygon(corners);
+
+        List<Point2d> oCorners = new ArrayList<Point2d>();
+        oCorners.add(0,new IntValuePixel(10,12));
+        oCorners.add(1,new IntValuePixel(292,9));
+        oCorners.add(2,new IntValuePixel(290,293));
+        oCorners.add(3,new IntValuePixel(13,293));
+        Polygon outer = new Polygon(oCorners);
+
+        ArrayList<Keypoint> carryPoints = new ArrayList<Keypoint>();
+
+        System.out.println(featurePoints.size());
+
+        for(Keypoint p : featurePoints){
+            if(screen.isInside(p) || !(outer.isInside(p))){
+            }
+            else{
+                carryPoints.add(p);
+            }
+
+        }
+
+        LocalFeatureList<Keypoint> trueFeaturePoints = new MemoryLocalFeatureList<Keypoint>(carryPoints);
+        for(Point2d p: trueFeaturePoints){
+            screenI.drawPoint(p,RGBColour.BLUE,4);
+        }
+
+
+        DisplayUtilities.display(screenI, "ScreenI");
+
+        for(Point2d p: targetKeypoints){
+            fullImage.drawPoint(p, RGBColour.BLUE, 4);
+        }
+
+        DisplayUtilities.display(fullImage);
+
+
+        System.out.println(trueFeaturePoints.size());
+
+        HomographyModel homographyModel = findTransform(trueFeaturePoints,targetKeypoints);
+
+        Image transformedImage = fullImage.transform(homographyModel.getTransform());
+        DisplayUtilities.display(transformedImage,"Complete Screen");
+
+        return null;
+    }
+
+
     //Top function. This is the entry point
     //Currently just using DoGSIFTEngine
     public Image getScreenImage( ErgoModel pmX, ErgoFeature ergoFeature, MBFImage fullimage){
@@ -102,11 +164,24 @@ public class ErgoDectector {
         //fullimage.drawShape(
         //        getFeatureRectangle(pmX,ergoFeature).transform(affineTransformModel.getTransform().inverse()), 3, RGBColour.BLUE);
         //fullimage.drawShape(screenRectangle.transform(affineTransformModel.getTransform().inverse()),3, RGBColour.RED);
-        DisplayUtilities.display(fullimage);
+        //DisplayUtilities.display(fullimage);
+
+//        File imagePath = new File("/home/mapinguari/Downloads/pm3concept2Logo.jpg");
+//        MBFImage featureImage = null;
+//        try {
+//            featureImage = ImageUtilities.readMBF(imagePath);
+//        } catch (Exception e){
+//
+//        }
+//
+//        fullimage.drawShape(
+//                featureImage.getBounds().transform(affineTransformModel.getTransform().inverse()), 3, RGBColour.BLUE);
+//        DisplayUtilities.display(fullimage);
+//
 
         //Transform the image back to flush to the screen
         Image transformedImage = fullimage.transform(affineTransformModel.getTransform());
-        DisplayUtilities.display(transformedImage);
+        //DisplayUtilities.display(transformedImage);
         //extract from the image the area which should contain the screen
         Image resolvedScreen = transformedImage.extractROI(screenRectangle);
         return resolvedScreen;
@@ -152,11 +227,21 @@ public class ErgoDectector {
 
     }
 
+    public LocalFeatureList<Keypoint> getKeyPointsColour( MBFImage featureImage){
+        ASIFTEngine engine = new ASIFTEngine();
+        //I should really be saying a keypoint list then just pulling this back into memory but I don't know how to do this yet.
+        LocalFeatureList<Keypoint> targetKeypoints;
+        targetKeypoints = engine.findKeypoints(featureImage.flatten());
+        return targetKeypoints;
+    }
+
     public LocalFeatureList<Keypoint> getKeyPoints( MBFImage featureImage){
         DoGSIFTEngine engine = new DoGSIFTEngine();
+        engine.getOptions().setPeakThreshold((float) 0.3);
         //I should really be saying a keypoint list then just pulling this back into memory but I don't know how to do this yet.
         LocalFeatureList<Keypoint> targetKeypoints;
         targetKeypoints = engine.findFeatures(featureImage.flatten());
+        System.out.println(engine.getOptions().getPeakThreshold());
         return targetKeypoints;
     }
 

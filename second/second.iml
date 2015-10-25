@@ -309,5 +309,6 @@
     <orderEntry type="library" exported="" name="commons-collections-3.2.1" level="project" />
     <orderEntry type="library" exported="" name="xz-1.0" level="project" />
     <orderEntry type="library" exported="" name="junit-4.9" level="project" />
+    <orderEntry type="library" exported="" name="second.second-1.0-SNAPSHOT" level="project" />
   </component>
 </module>
