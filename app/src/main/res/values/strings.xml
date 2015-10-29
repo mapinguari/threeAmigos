@@ -62,7 +62,11 @@
     <string name="title_activity_inout_test">InoutTest</string>
     <string name="title_activity_manual_input">ManualInput</string>
     <string name="previous_workouts_button_text">Previous Workouts</string>
-    <string name="load_image_button_text">Load image</string>
+    <string name="image_header_text">Get Workout From Image</string>
+    <string name="load_image_button_text">From Storage</string>
+    <string name="capture_image_button_text">From Camera</string>
+
+
     <string name="workout_view_header_time">Time</string>
     <string name="workout_view_header_distance">Distance</string>
     <string name="workout_view_header_spm">SPM</string>

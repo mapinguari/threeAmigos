@@ -32,14 +32,31 @@
         android:layout_marginTop="160dp"
         android:onClick="GoToInspect"/>
 
+    <TextView android:text="@string/image_header_text" android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="220dp"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/textView2" />
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/load_image_button_text"
         android:id="@+id/LoadImage"
+        android:onClick="LoadImage"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="220dp"
-        android:onClick="LoadImage"/>
+        android:layout_marginTop="250dp"
+    />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/capture_image_button_text"
+        android:id="@+id/CaptureImage"
+        android:onClick="CaptureImage"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="300dp"
+        />
 
 
 </RelativeLayout>
