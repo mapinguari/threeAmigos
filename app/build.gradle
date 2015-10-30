@@ -43,4 +43,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile project(':tess-two')
     compile ergoRecogFiles
+    compile group: 'org.openimaj', name: 'openimaj', version:'1.3.1'
 }

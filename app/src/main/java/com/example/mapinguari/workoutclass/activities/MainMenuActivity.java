@@ -1,30 +1,19 @@
 package com.example.mapinguari.workoutclass.activities;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.net.Uri;
-import android.provider.MediaStore;
-import android.widget.Toast;
 
 import com.example.mapinguari.workoutclass.R;
-import com.example.mapinguari.workoutclass.ImgProcess;
-import com.example.mapinguari.workoutclass.database.DatabaseInterface;
-import com.example.mapinguari.workoutclass.exceptions.NotHumanStringException;
-import com.example.mapinguari.workoutclass.exerciseObjects.ErgoFormatter;
-import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
-import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Vector;
+import java.io.FileOutputStream;
+
+import maping.ErgoDetector;
 
 
 public class MainMenuActivity extends ActionBarActivity {
@@ -62,8 +51,9 @@ public class MainMenuActivity extends ActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch(requestCode){
             case GET_IMAGE_REQUEST:
+
                 Intent cornerPickerIntent = new Intent(this,CornerPickerActivity.class);
-                cornerPickerIntent.putExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE),data.getData().toString());
+                cornerPickerIntent.putExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE), data.getData().toString());
                 startActivity(cornerPickerIntent);
                 /*
                 if (resultCode==RESULT_OK){
@@ -75,11 +65,6 @@ public class MainMenuActivity extends ActionBarActivity {
 
 
     }
-
-    //This function is conservative. It assumes that intervals are the last elements in the array
-    //It will attempt to take intervals until it gets a human string parse error on a row. it will
-    // then take the last successful parse as the totals row and the rest of the intervals as intervals.
-
 
 
     @Override

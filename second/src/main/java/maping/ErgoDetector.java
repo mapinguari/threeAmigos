@@ -7,6 +7,7 @@ import org.openimaj.feature.local.matcher.LocalFeatureMatcher;
 import org.openimaj.feature.local.matcher.MatchingUtilities;
 import org.openimaj.feature.local.matcher.consistent.ConsistentLocalFeatureMatcher2d;
 import org.openimaj.image.*;
+import org.openimaj.image.Image;
 import org.openimaj.image.analysis.algorithm.HoughLines;
 import org.openimaj.image.colour.RGBColour;
 import org.openimaj.image.feature.local.engine.DoGColourSIFTEngine;
@@ -28,7 +29,7 @@ import org.openimaj.math.geometry.transforms.estimation.RobustAffineTransformEst
 import org.openimaj.math.geometry.transforms.estimation.RobustHomographyEstimator;
 import org.openimaj.math.model.fit.RANSAC;
 
-import java.awt.Point;
+import java.awt.*;
 import java.awt.geom.Line2D;
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +39,7 @@ import java.util.List;
 /**
  * Created by mapinguari on 9/14/15.
  */
-public class ErgoDectector {
+public class ErgoDetector {
     public Image findErgoScreen(String filePath){
         MBFImage target = null;
         try {

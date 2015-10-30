@@ -6,8 +6,6 @@ import org.openimaj.image.Image;
 
 import java.io.File;
 
-import javax.swing.JFrame;
-
 /**
  * OpenIMAJ Hello world!
  *
@@ -17,7 +15,7 @@ public class App {
         System.out.println("Please Input File Path");
         File a = new File("/home/mapinguari/Downloads/ergos/");
         File[] fileList = a.listFiles();
-        ErgoDectector thing = new ErgoDectector();
+        ErgoDetector thing = new ErgoDetector();
         String currentPath;
         for(File file: fileList){
             currentPath = file.getAbsolutePath();
