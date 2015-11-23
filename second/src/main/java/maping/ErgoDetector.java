@@ -1,5 +1,7 @@
 package maping;
 
+import org.apache.tools.ant.taskdefs.Local;
+import org.openimaj.feature.local.list.FileLocalFeatureList;
 import org.openimaj.feature.local.list.LocalFeatureList;
 import org.openimaj.feature.local.list.MemoryLocalFeatureList;
 import org.openimaj.feature.local.matcher.FastBasicKeypointMatcher;
@@ -18,6 +20,7 @@ import org.openimaj.image.pixel.IntValuePixel;
 import org.openimaj.image.processing.edges.CannyEdgeDetector;
 import org.openimaj.image.processing.edges.StrokeWidthTransform;
 import org.openimaj.image.processing.resize.ResizeProcessor;
+import org.openimaj.io.IOUtils;
 import org.openimaj.math.geometry.line.Line2d;
 import org.openimaj.math.geometry.point.Point2d;
 import org.openimaj.math.geometry.shape.Polygon;
@@ -29,10 +32,10 @@ import org.openimaj.math.geometry.transforms.estimation.RobustAffineTransformEst
 import org.openimaj.math.geometry.transforms.estimation.RobustHomographyEstimator;
 import org.openimaj.math.model.fit.RANSAC;
 
-import java.awt.*;
-import java.awt.geom.Line2D;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +43,10 @@ import java.util.List;
  * Created by mapinguari on 9/14/15.
  */
 public class ErgoDetector {
+
+    private String currentKeyPointsFileName = "pm3concept2Logo.key";
+
+
     public Image findErgoScreen(String filePath){
         MBFImage target = null;
         try {
@@ -148,12 +155,17 @@ public class ErgoDetector {
     }
 
 
+    public Image concept2LogoGet(MBFImage fullimage){
+        return getScreenImage(ErgoModel.PM3, ErgoFeature.C2Logo, fullimage);
+    }
+
     //Top function. This is the entry point
     //Currently just using DoGSIFTEngine
     public Image getScreenImage( ErgoModel pmX, ErgoFeature ergoFeature, MBFImage fullimage){
         //Find Keypoints in the feature we are going to search for and the image we are searching for it in
         //DisplayUtilities.display(fullimage);
-        LocalFeatureList<Keypoint> featurePoints = getKeyPoints(getFeatureImage(pmX, ergoFeature));
+        LocalFeatureList<Keypoint> featurePoints = readImageKeyPoints();
+                //getKeyPoints(getFeatureImage(pmX, ergoFeature));
         LocalFeatureList<Keypoint> targetKeypoints = getKeyPoints(fullimage);
 
 
@@ -309,5 +321,52 @@ public class ErgoDetector {
         RightButton,
         SideButtons,
         MainScreen
+    }
+
+
+    public LocalFeatureList<Keypoint> readImageKeyPoints(){
+        ClassLoader classLoader = getClass().getClassLoader();
+        File keyPointsFile = new File(classLoader.getResource("pm3concept2Logo.key").getFile());
+        LocalFeatureList<Keypoint> keypoints = null;
+        try{
+            keypoints = FileLocalFeatureList.read(keyPointsFile, Keypoint.class);
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+        return keypoints;
+    }
+
+    public void saveImageKeyPoints(){
+        ErgoDetector ed = new ErgoDetector();
+        try {
+            ClassLoader classLoader = getClass().getClassLoader();
+            MBFImage logoImg = ImageUtilities.readMBF(new File(classLoader.getResource("pm3concept2Logo.jpg").getFile()));
+
+            LocalFeatureList<Keypoint> featureList = ed.getKeyPoints(logoImg);
+
+            File keyPointsFile = new File(currentKeyPointsFileName);
+            boolean b = keyPointsFile.createNewFile();
+//            RandomAccessFile randomAccessFile = new RandomAccessFile(keyPointsFile,"rw");
+//            featureList.writeBinary(randomAccessFile);
+//            randomAccessFile.close();
+            PrintWriter printWriter = new PrintWriter(keyPointsFile);
+            featureList.writeASCII(printWriter);
+            printWriter.close();
+
+
+            System.out.println("KeyPoints Saved");
+
+            FileLocalFeatureList<Keypoint> fileLocalFeatureList = FileLocalFeatureList.read(keyPointsFile, Keypoint.class);
+
+            System.out.println("file length" + Integer.toString(fileLocalFeatureList.size()));
+
+            boolean res = featureList.equals(((LocalFeatureList) fileLocalFeatureList).subList(1,10));
+
+            System.out.println("And the result is!!!!! " + Boolean.toString(res));
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 }

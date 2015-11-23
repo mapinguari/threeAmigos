@@ -4,6 +4,11 @@ android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
 
+    packagingOptions{
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+    }
+
     defaultConfig {
         applicationId "com.example.mapinguari.workoutclass"
         minSdkVersion 15
@@ -13,6 +18,11 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+
+        debug {
+            debuggable true
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
@@ -23,6 +33,8 @@ android {
 
 repositories {
     mavenCentral()
+    mavenLocal()
+    maven { url "./libs/"}
     maven { url "http://maven.openimaj.org/" }
     maven { url "http://snapshots.openimaj.org/" }
     maven { url "http://repo.maven.apache.org/maven2" }
@@ -36,12 +48,89 @@ def secondLibOut = secondProject.libsDir
 
 def ergoRecogFiles = fileTree(dir: secondLibOut, include: ['*.jar']).builtBy(secondTask)
 
-
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    //compile 'org.openimaj:core-image:1.4-SNAPSHOT'
     compile 'com.android.support:appcompat-v7:22.2.0'
     testCompile 'junit:junit:4.12'
     compile project(':tess-two')
     compile ergoRecogFiles
-    compile group: 'org.openimaj', name: 'openimaj', version:'1.3.1'
+    compile('org.openimaj:core-image:1.4-SNAPSHOT') {
+
+        exclude module: 'test-resources'
+
+//        exclude group: 'org.apache.xmlgraphics'
+//        exclude group: 'xml-apis'
+
+        exclude module: 'core-math'
+        exclude module: 'core'
+
+        exclude group: 'net.billylieurance.azuresearch'
+        exclude group: 'net.sourceforge.jeuclid'
+        exclude group: 'uk.ac.ed.ph.snuggletex'
+        exclude group: 'com.aetrion.flickr'
+        exclude group: 'org.apache.sanselan'
+        exclude group: 'com.caffeineowl.graphics'
+        exclude group: 'javax.media'
+        exclude group: 'com.sun.media'
+        exclude group: 'com.twelvemonkeys.imageio'
+        exclude group: 'junit'
+
+    }
+
+    compile('org.openimaj:core-feature:1.3.1'){
+        //exclude module: 'core-math'
+        exclude module: 'junit'
+    }
+
+    compile('org.openimaj:image-local-features:1.4-SNAPSHOT'){
+        exclude module: 'core-math'
+        exclude module: 'core'
+
+        exclude group: 'net.billylieurance.azuresearch'
+        exclude group: 'net.sourceforge.jeuclid'
+        exclude group: 'uk.ac.ed.ph.snuggletex'
+        exclude group: 'com.aetrion.flickr'
+        exclude group: 'org.apache.sanselan'
+        exclude group: 'com.caffeineowl.graphics'
+        exclude group: 'javax.media'
+        exclude group: 'com.sun.media'
+        exclude group: 'com.twelvemonkeys.imageio'
+        exclude group: 'junit'
+    }
+
+    compile('org.openimaj:core:1.4-SNAPSHOT'){
+        //openimaj
+        exclude module: 'core-citation'
+        //other groups
+        exclude group: 'org.jsoup'
+        //exclude group: 'net.sf.trove4j'
+        exclude group: 'com.google.guava'
+        exclude group: 'colt'
+        exclude group: 'commons-lang'
+        exclude group: 'commons-io'
+        exclude group: 'org.apache.commons'
+        exclude group: 'commons-httpclient'
+        exclude group: 'com.esotericsoftware.kryo'
+        exclude group: 'vigna.dsi.unimi.it'
+        exclude group: 'org.apache.ant'
+        exclude group: 'org.apache.httpcomponents'
+
+        //log4j
+        exclude group: 'log4j'
+
+    }
+
+//    compile(group: 'org.openimaj', name: 'core-image', version:'1.3.1'){
+//        transitive = false
+//        dependencies{
+//            compile 'org.apache.logging.log4j:log4j-core:2.4.1'
+//        }
+//
+////        exclude group: 'org.apache.xmlgraphics'
+////        exclude group: 'xml-apis'
+////        exclude group: 'commons-logging'
+////        exclude module: 'httpclient'
+//    }
+//    //compile 'org.apache.logging.log4j:log4j-core:2.4.1'
 }

@@ -2,23 +2,20 @@ package com.example.mapinguari.workoutclass.activities;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.example.mapinguari.workoutclass.R;
+import com.example.mapinguari.workoutclass.openImajInterface.SecondAppInterface;
+
 
 import java.io.File;
-import java.io.IOException
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Vector;
 
 
 public class MainMenuActivity extends ActionBarActivity {
@@ -34,7 +31,6 @@ public class MainMenuActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
-
     }
 
     public void GoToInputActivity (View v){
@@ -71,34 +67,34 @@ public class MainMenuActivity extends ActionBarActivity {
 
             if (!path.exists()) path.mkdirs();
             if (cacheFile.exists()) cacheFile.delete();
-
             startActivityForResult(CaptureImageIntent, CAPTURE_IMAGE_REQUEST);
         }
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Intent cornerPickerIntent;
-        switch(requestCode){
-            case GET_IMAGE_REQUEST:
-                if (resultCode==RESULT_OK) {
-                    cornerPickerIntent = new Intent(this, CornerPickerActivity.class);
-                    cornerPickerIntent.putExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE), data.getData().toString());
-                    startActivity(cornerPickerIntent);
-                }
-                break;
-            case CAPTURE_IMAGE_REQUEST:
-                if (resultCode==RESULT_OK) {
-                    cornerPickerIntent = new Intent(this, CornerPickerActivity.class);
-                    cornerPickerIntent.putExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE), CameraURI.toString());
-                    startActivity(cornerPickerIntent);
-                }
-                break;
-            default:
-                return;
-        }
 
+        Intent cornerPickerIntent;
+        Uri bitmapURI = null;
+        String ergoScreenName = null;
+            if(resultCode == RESULT_OK){
+                switch (requestCode) {
+                    case GET_IMAGE_REQUEST:
+                        bitmapURI = data.getData();
+                        break;
+                    case CAPTURE_IMAGE_REQUEST:
+                        bitmapURI = CameraURI;
+                }
+                try {
+                    SecondAppInterface secondAppInterface = new SecondAppInterface(this);
+                    ergoScreenName = secondAppInterface.findErgoScreenAndroid(bitmapURI.toString());
+                }catch (Exception e){}
+                cornerPickerIntent = new Intent(this, CornerPickerActivity.class);
+                cornerPickerIntent.putExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE), ergoScreenName);
+                startActivity(cornerPickerIntent);
+            }
 
     }
+
 
 
     @Override

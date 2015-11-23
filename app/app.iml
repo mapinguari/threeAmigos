@@ -36,13 +36,13 @@
       <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/debug" isTestSource="false" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/debug" isTestSource="false" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/debug" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/generated/debug" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/debug" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/source/r/androidTest/debug" isTestSource="true" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/source/aidl/androidTest/debug" isTestSource="true" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/source/buildConfig/androidTest/debug" isTestSource="true" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/source/rs/androidTest/debug" isTestSource="true" generated="true" />
       <sourceFolder url="file://$MODULE_DIR$/build/generated/res/rs/androidTest/debug" type="java-test-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/generated/androidTest/debug" type="java-test-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/build/generated/res/resValues/androidTest/debug" type="java-test-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/res" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/debug/assets" type="java-resource" />
@@ -91,10 +91,96 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 22 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="geronimo-stax-api_1.0_spec-1.0" level="project" />
+    <orderEntry type="library" exported="" name="poi-ooxml-schemas-3.7" level="project" />
     <orderEntry type="library" exported="" name="second-1.0-SNAPSHOT" level="project" />
-    <orderEntry type="library" exported="" name="support-v4-22.2.0" level="project" />
-    <orderEntry type="library" exported="" name="support-annotations-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="kryo-2.21" level="project" />
+    <orderEntry type="library" exported="" name="jal-20031117" level="project" />
+    <orderEntry type="library" exported="" name="netlib-java-0.9.3" level="project" />
+    <orderEntry type="library" exported="" name="guava-14.0.1" level="project" />
+    <orderEntry type="library" exported="" name="commons-collections-2.1" level="project" />
+    <orderEntry type="library" exported="" name="JaFaMa-1.2" level="project" />
+    <orderEntry type="library" exported="" name="mtj-1.0.2" level="project" />
+    <orderEntry type="library" exported="" name="xpp3_min-1.1.4c" level="project" />
+    <orderEntry type="library" exported="" name="objenesis-2.1" level="project" />
+    <orderEntry type="library" exported="" name="axis-1.4" level="project" />
+    <orderEntry type="library" exported="" name="arpack_combined_all-0.1" level="project" />
+    <orderEntry type="library" exported="" name="flickr4java-2.13_jonhare_0408059615bfa8da071c2e54268e3004ce62d6a4" level="project" />
+    <orderEntry type="library" exported="" name="scribe-1.3.5" level="project" />
+    <orderEntry type="library" exported="" name="core-1.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="core-video-1.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="itext-2.1.7" level="project" />
+    <orderEntry type="library" exported="" name="commons-digester-2.1" level="project" />
+    <orderEntry type="library" exported="" name="commons-codec-1.6" level="project" />
+    <orderEntry type="library" exported="" name="commons-beanutils-1.8.3" level="project" />
+    <orderEntry type="library" exported="" name="javassist-3.12.1.GA" level="project" />
+    <orderEntry type="library" exported="" name="nearest-neighbour-1.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="gov-sandia-cognition-common-core-3.3.0" level="project" />
+    <orderEntry type="library" exported="" name="IREval-1.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="image-processing-1.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="clustering-1.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="jdtcore-3.1.0" level="project" />
+    <orderEntry type="library" exported="" name="commons-vfs2-2.0" level="project" />
+    <orderEntry type="library" exported="" name="MatrixLib-1.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="gov-sandia-cognition-learning-core-3.3.0" level="project" />
+    <orderEntry type="library" exported="" name="core-audio-1.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="core-aop-support-1.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="jackson-mapper-asl-1.9.4" level="project" />
+    <orderEntry type="library" exported="" name="ant-launcher-1.8.4" level="project" />
+    <orderEntry type="library" exported="" name="xstream-1.4.3" level="project" />
+    <orderEntry type="library" exported="" name="commons-httpclient-3.1" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="concurrent-1.3.4" level="project" />
+    <orderEntry type="library" exported="" name="colt-1.2.0" level="project" />
+    <orderEntry type="library" exported="" name="bcprov-jdk14-138" level="project" />
+    <orderEntry type="library" exported="" name="jbibtex-1.0.2" level="project" />
+    <orderEntry type="library" exported="" name="stax-api-1.0.1" level="project" />
+    <orderEntry type="library" exported="" name="jcommon-1.0.16" level="project" />
+    <orderEntry type="library" exported="" name="la4j-0.4.0" level="project" />
+    <orderEntry type="library" exported="" name="maven-scm-provider-svnexe-1.4" level="project" />
+    <orderEntry type="library" exported="" name="ascii-table-1.0" level="project" />
+    <orderEntry type="library" exported="" name="commons-lang-2.6" level="project" />
+    <orderEntry type="library" exported="" name="core-citation-1.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="log4j-1.2.17" level="project" />
+    <orderEntry type="library" exported="" name="common-lang-3.0-rc5" level="project" />
+    <orderEntry type="library" exported="" name="commons-io-2.2" level="project" />
+    <orderEntry type="library" exported="" name="asm-4.0" level="project" />
+    <orderEntry type="library" exported="" name="regexp-1.3" level="project" />
+    <orderEntry type="library" exported="" name="ant-1.8.4" level="project" />
+    <orderEntry type="library" exported="" name="animation-1.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="poi-3.7" level="project" />
+    <orderEntry type="library" exported="" name="maven-scm-api-1.4" level="project" />
+    <orderEntry type="library" exported="" name="maven-scm-provider-svn-commons-1.4" level="project" />
+    <orderEntry type="library" exported="" name="jatl-0.2.1" level="project" />
+    <orderEntry type="library" exported="" name="commons-math-2.2" level="project" />
+    <orderEntry type="library" exported="" name="jama-1.0.3" level="project" />
+    <orderEntry type="library" exported="" name="cloning-1.9.1" level="project" />
+    <orderEntry type="library" exported="" name="xmlpull-1.1.3.1" level="project" />
+    <orderEntry type="library" exported="" name="xml-apis-1.3.02" level="project" />
+    <orderEntry type="library" exported="" name="core-feature-1.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="image-local-features-1.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="jmatio-1.2" level="project" />
+    <orderEntry type="library" exported="" name="dom4j-1.6.1" level="project" />
+    <orderEntry type="library" exported="" name="jsoup-1.6.3" level="project" />
+    <orderEntry type="library" exported="" name="JTransforms-1.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="core-experiment-1.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="support-annotations-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="core-math-1.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="plexus-utils-1.5.6" level="project" />
+    <orderEntry type="library" exported="" name="jasperreports-4.6.0" level="project" />
+    <orderEntry type="library" exported="" name="jfreechart-1.0.13" level="project" />
+    <orderEntry type="library" exported="" name="castor-1.2" level="project" />
+    <orderEntry type="library" exported="" name="jackson-core-asl-1.9.4" level="project" />
+    <orderEntry type="library" exported="" name="xmlbeans-2.3.0" level="project" />
+    <orderEntry type="library" exported="" name="jgrapht-0.8.2" level="project" />
+    <orderEntry type="library" exported="" name="core-image-1.4-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="trove4j-3.0.2" level="project" />
+    <orderEntry type="library" exported="" name="support-v4-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="bcmail-jdk14-138" level="project" />
+    <orderEntry type="library" exported="" name="reflectasm-1.07-shaded" level="project" />
+    <orderEntry type="library" exported="" name="minlog-1.2" level="project" />
+    <orderEntry type="library" exported="" name="poi-ooxml-3.7" level="project" />
+    <orderEntry type="library" exported="" name="commons-math3-3.3" level="project" />
     <orderEntry type="module" module-name="tess-two" exported="" />
   </component>
 </module>
