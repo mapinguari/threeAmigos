@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.widget.ImageView;
 
 
-import com.esotericsoftware.kryo.io.Output;
 import com.example.mapinguari.workoutclass.R;
 
 import org.openimaj.feature.local.list.FileLocalFeatureList;
@@ -19,9 +18,7 @@ import org.openimaj.image.Image;
 import org.openimaj.image.MBFImage;
 import org.openimaj.math.geometry.transforms.HomographyModel;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

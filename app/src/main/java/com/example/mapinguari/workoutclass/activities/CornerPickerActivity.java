@@ -60,11 +60,7 @@ public class CornerPickerActivity extends ActionBarActivity {
         int height = ergoImageView.getHeight();
         Intent sIntent = getIntent();
 
-        File fileAbs = new File(sIntent.getStringExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE)));
-        String filePath = fileAbs.getAbsolutePath();
-
         imgURI = Uri.parse(sIntent.getStringExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE)));
-        Bitmap ergoImage = correctlySizedImage(filePath, width, height);
 
         ergoImageView.setImageURI(imgURI);
         ergoImageView.setOnTouchListener(new CornerAddTouch());
