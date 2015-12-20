@@ -13,6 +13,10 @@ android {
         exclude 'bibliography.txt'
     }
 
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+
     defaultConfig {
         applicationId "com.example.mapinguari.workoutclass"
         minSdkVersion 15
@@ -20,11 +24,13 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled=true
     }
     buildTypes {
 
         debug {
             debuggable true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
         release {
@@ -68,10 +74,20 @@ dependencies {
     compile project(':tess-two')
     compile ergoRecogFiles
 
+    compile('com.googlecode.matrix-toolkits-java:mtj:1.0.2'){
+        transitive=true
+    }
+
+    compile('com.github.fommil.netlib:core:1.1.2')
+
+    compile('net.sourceforge.f2j:arpack_combined_all:0.1'){
+        transitive=false
+    }
 
     compile('gov.nist.math:jama:1.0.3'){
         transitive=false
     }
+
 
     compile('colt:colt:1.2.0')
 

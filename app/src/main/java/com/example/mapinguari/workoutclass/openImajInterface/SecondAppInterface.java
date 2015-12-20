@@ -67,7 +67,7 @@ public class SecondAppInterface {
         }
 
         public String takeAndDrawAndroid(Bitmap bitmap){
-            MBFImage mbfImage = createMBFImage(bitmap,false);
+            MBFImage mbfImage = createMBFImage(bitmap, false);
             ErgoDetector ergoDetector = new ErgoDetector();
             Log.w("I am only finding", " not matching");
             ergoDetector.takeAndDraw(mbfImage);
@@ -84,36 +84,17 @@ public class SecondAppInterface {
 
 
         public String findErgoScreenBitAndroid(Bitmap bitmap){
-            MBFImage mbfImage = createMBFImage(bitmap, false);
-            ErgoDetector ergoDetector = new ErgoDetector();
-            LocalFeatureList<Keypoint> searchKeypoints = ergoDetector.getKeyPoints(mbfImage);
-            FileLocalFeatureList<Keypoint> ergoScreenKeypoints = null;
-            try{
-                ergoScreenKeypoints = FileLocalFeatureList.read(getKeypointDataFile(),Keypoint.class);
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-            HomographyModel homographyModel = ergoDetector.findTransform(ergoScreenKeypoints, searchKeypoints);
-            Image transformedImage = mbfImage.transform(homographyModel.getTransform());
-            Bitmap img1 = createBitmap(transformedImage, null);
-            String fileOutName = makeImageOutName(ergoScreenOutName());
-            try {
-                FileOutputStream fileOutputStream = new FileOutputStream(fileOutName);
-                img1.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
-            return fileOutName;
-        }
+//            Resources resources = context.getResources();
+//            int keypointImageInt = resources.getIdentifier("pm3concept2logo.jpg", "drawable", context.getPackageName());
+//            Bitmap keypointBitmap = BitmapFactory.decodeResource(resources, keypointImageInt);
+//            MBFImage keypointmbf = createMBFImage(keypointBitmap, false);
 
-        public String findErgoScreenAndroid(String filepath) {
-            File a = new File(filepath);
-            Log.w("file is accessable", filepath);
-            Bitmap img0 = BitmapFactory.decodeFile(filepath);
-            if(img0 == null)
-                return null;
-            MBFImage mbfImage = createMBFImage(img0, false);
             ErgoDetector ergoDetector = new ErgoDetector();
+
+//            LocalFeatureList<Keypoint> searchKeypoints = ergoDetector.getKeyPoints(keypointmbf);
+
+            MBFImage mbfImage = createMBFImage(bitmap, false);
+
             LocalFeatureList<Keypoint> searchKeypoints = ergoDetector.getKeyPoints(mbfImage);
             FileLocalFeatureList<Keypoint> ergoScreenKeypoints = null;
             try{
@@ -125,6 +106,7 @@ public class SecondAppInterface {
             Image transformedImage = mbfImage.transform(homographyModel.getTransform());
             Bitmap img1 = createBitmap(transformedImage, null);
             String fileOutName = ergoScreenOutName();
+            Log.w("fileoutname",fileOutName);
             try {
                 FileOutputStream fileOutputStream = new FileOutputStream(fileOutName);
                 img1.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
@@ -133,6 +115,7 @@ public class SecondAppInterface {
             }
             return fileOutName;
         }
+
 
         public String ergoScreenOutName(){
             Date d = Calendar.getInstance().getTime();
@@ -147,12 +130,6 @@ public class SecondAppInterface {
                 e.printStackTrace();
             }
             return resp;
-        }
-
-        public String makeImageOutName(String startingFileName){
-            File x = new File(startingFileName);
-            String outFile = "ES" + x.getName();
-            return x.getAbsolutePath() + "/" + outFile;
         }
 
         public File getKeypointDataFile(){
@@ -209,4 +186,40 @@ public class SecondAppInterface {
             }
             return keypointsFile;
         }
+
+//    public String findErgoScreenAndroid(String filepath) {
+//        File a = new File(filepath);
+//        Log.w("file is accessable", filepath);
+//        Bitmap img0 = BitmapFactory.decodeFile(filepath);
+//        if(img0 == null)
+//            return null;
+//        MBFImage mbfImage = createMBFImage(img0, false);
+//        ErgoDetector ergoDetector = new ErgoDetector();
+//        LocalFeatureList<Keypoint> searchKeypoints = ergoDetector.getKeyPoints(mbfImage);
+//        FileLocalFeatureList<Keypoint> ergoScreenKeypoints = null;
+//        try{
+//            ergoScreenKeypoints = FileLocalFeatureList.read(getKeypointDataFile(),Keypoint.class);
+//        }catch(Exception e){
+//            e.printStackTrace();
+//        }
+//        HomographyModel homographyModel = ergoDetector.findTransform(ergoScreenKeypoints, searchKeypoints);
+//        Image transformedImage = mbfImage.transform(homographyModel.getTransform());
+//        Bitmap img1 = createBitmap(transformedImage, null);
+//        String fileOutName = ergoScreenOutName();
+//        try {
+//            FileOutputStream fileOutputStream = new FileOutputStream(fileOutName);
+//            img1.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+//        }catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return fileOutName;
+//    }
+//
+//    public String makeImageOutName(String startingFileName){
+//        File x = new File(startingFileName);
+//        String outFile = "ES" + x.getName();
+//        return x.getAbsolutePath() + "/" + outFile;
+//    }
+
+
 }
