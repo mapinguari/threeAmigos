@@ -7,6 +7,7 @@ android {
     packagingOptions{
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
+        exclude 'META-INF/INDEX.LIST'
         exclude 'bibliography.bib'
         exclude 'bibliography.html'
         exclude 'bibliography.txt'
@@ -51,48 +52,72 @@ def secondLibOut = secondProject.libsDir
 
 def ergoRecogFiles = fileTree(dir: secondLibOut, include: ['*.jar']).builtBy(secondTask)
 
+def coreImageProject = findProject(':core-image')
+
+def coreImageTask = coreImageProject.tasks.findByPath(':core-image:jar')
+
+def coreImageLibOut = coreImageProject.libsDir
+
+def coreImageFiles = fileTree(dir: coreImageLibOut, include: ['*.jar']).builtBy(coreImageTask)
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile coreImageFiles
     compile 'com.android.support:appcompat-v7:22.2.0'
     testCompile 'junit:junit:4.12'
     compile project(':tess-two')
     compile ergoRecogFiles
 
+
     compile('gov.nist.math:jama:1.0.3'){
         transitive=false
     }
 
-    compile('org.openimaj:core-image:1.4-SNAPSHOT') {
+    compile('colt:colt:1.2.0')
 
+    compile('org.openimaj:nearest-neighbour:1.4-SNAPSHOT'){
         transitive=false
-
-        exclude module: 'test-resources'
-
-        exclude group: 'org.apache.xmlgraphics'
-        exclude group: 'xml-apis'
-
-        exclude module: 'core-math'
-        exclude module: 'core'
-
-        exclude module: 'geronimo-stax-api_1.0_spec-1.0'
-        exclude module: 'stax-api-1.0.1'
-
-        exclude group: 'net.billylieurance.azuresearch'
-        exclude group: 'net.sourceforge.jeuclid'
-        exclude group: 'uk.ac.ed.ph.snuggletex'
-        exclude group: 'com.aetrion.flickr'
-        exclude group: 'org.apache.sanselan'
-        exclude group: 'com.caffeineowl.graphics'
-        exclude group: 'javax.media'
-        exclude group: 'com.sun.media'
-        exclude group: 'com.twelvemonkeys.imageio'
-        exclude group: 'junit'
-        exclude group: 'eclipse'
-        exclude group: 'commons-logging'
-
     }
 
-    compile('org.openimaj:core-feature:1.3.1'){
+    compile('org.openimaj:machine-learning:1.4-SNAPSHOT'){
+        transitive=false
+    }
+
+    compile('org.openimaj:clustering:1.4-SNAPSHOT'){
+        transitive=false
+    }
+
+//    compile('org.openimaj:core-image:1.4-SNAPSHOT') {
+//
+//        transitive=false
+//
+//        exclude module: 'test-resources'
+//
+//        exclude group: 'org.apache.xmlgraphics'
+//        exclude group: 'xml-apis'
+//
+//        exclude module: 'core-math'
+//        exclude module: 'core'
+//
+//        exclude module: 'geronimo-stax-api_1.0_spec-1.0'
+//        exclude module: 'stax-api-1.0.1'
+//
+//        exclude group: 'net.billylieurance.azuresearch'
+//        exclude group: 'net.sourceforge.jeuclid'
+//        exclude group: 'uk.ac.ed.ph.snuggletex'
+//        exclude group: 'com.aetrion.flickr'
+//        exclude group: 'org.apache.sanselan'
+//        exclude group: 'com.caffeineowl.graphics'
+//        exclude group: 'javax.media'
+//        exclude group: 'com.sun.media'
+//        exclude group: 'com.twelvemonkeys.imageio'
+//        exclude group: 'junit'
+//        exclude group: 'eclipse'
+//        exclude group: 'commons-logging'
+//
+//    }
+
+    compile('org.openimaj:core-feature:1.4-SNAPSHOT'){
 
         transitive=false
 
@@ -109,7 +134,7 @@ dependencies {
 
     compile('org.openimaj:core-math:1.4-SNAPSHOT'){
 
-        transitive=false
+        transitive=true
 
         exclude module: 'core'
         exclude module: 'MatrixLib'
@@ -117,7 +142,7 @@ dependencies {
         exclude group: 'jama'
         exclude group: 'org.la4j'
         exclude group: 'com.googlecode.matrix-toolkits-java'
-        exclude group: 'net.sf.jafama'
+        //exclude group: 'net.sf.jafama'
         exclude group: 'jgrapht'
         exclude group: 'gov.sandia.foundry'
         exclude group: 'com.thoughtworks.xstream'
@@ -133,40 +158,53 @@ dependencies {
 
     }
 
+    compile('org.openimaj:clustering:1.4-SNAPSHOT'){
+        transitive=false
+    }
+
+
+    compile('org.openimaj:image-processing:1.4-SNAPSHOT'){
+        transitive=false
+    }
+
     compile('org.openimaj:image-local-features:1.4-SNAPSHOT'){
 
         transitive=false
 
-        exclude module: 'core-math'
-        exclude module: 'core'
-
-        exclude group: 'net.billylieurance.azuresearch'
-        exclude group: 'net.sourceforge.jeuclid'
-        exclude group: 'uk.ac.ed.ph.snuggletex'
-        exclude group: 'com.aetrion.flickr'
-        exclude group: 'org.apache.sanselan'
-        exclude group: 'com.caffeineowl.graphics'
-        exclude group: 'javax.media'
-        exclude group: 'com.sun.media'
-        exclude group: 'com.twelvemonkeys.imageio'
-        exclude group: 'junit'
-
-        exclude group: 'commons-logging'
-        exclude group: 'eclipse'
-
-        exclude module: 'geronimo-stax-api_1.0_spec-1.0'
-        exclude module: 'stax-api-1.0.1'
+//        exclude module: 'core-math'
+//        exclude module: 'core'
+//
+//        exclude group: 'net.billylieurance.azuresearch'
+//        exclude group: 'net.sourceforge.jeuclid'
+//        exclude group: 'uk.ac.ed.ph.snuggletex'
+//        exclude group: 'com.aetrion.flickr'
+//        exclude group: 'org.apache.sanselan'
+//        exclude group: 'com.caffeineowl.graphics'
+//        exclude group: 'javax.media'
+//        exclude group: 'com.sun.media'
+//        exclude group: 'com.twelvemonkeys.imageio'
+//        exclude group: 'junit'
+//
+//        exclude group: 'commons-logging'
+//        exclude group: 'eclipse'
+//
+//        exclude module: 'geronimo-stax-api_1.0_spec-1.0'
+//        exclude module: 'stax-api-1.0.1'
     }
+//
+//    compile('org.openimaj:core-feature:1.4-SNAPSHOT'){
+//        transitive=false
+//    }
 
     compile('org.openimaj:core:1.4-SNAPSHOT'){
 
-        transitive=false
+        transitive=true
 
         //openimaj
         exclude module: 'core-citation'
         //other groups
         exclude group: 'org.jsoup'
-        exclude group: 'net.sf.trove4j'
+        //exclude group: 'net.sf.trove4j'
         exclude group: 'com.google.guava'
         exclude group: 'colt'
         exclude group: 'commons-lang'
@@ -174,7 +212,7 @@ dependencies {
         exclude group: 'org.apache.commons'
         exclude group: 'commons-httpclient'
         exclude group: 'com.esotericsoftware.kryo'
-        exclude group: 'vigna.dsi.unimi.it'
+        //exclude group: 'vigna.dsi.unimi.it'
         exclude group: 'org.apache.ant'
         exclude group: 'org.apache.httpcomponents'
 
@@ -187,17 +225,4 @@ dependencies {
         exclude module: 'stax-api-1.0.1'
 
     }
-
-//    compile(group: 'org.openimaj', name: 'core-image', version:'1.3.1'){
-//        transitive = false
-//        dependencies{
-//            compile 'org.apache.logging.log4j:log4j-core:2.4.1'
-//        }
-//
-////        exclude group: 'org.apache.xmlgraphics'
-////        exclude group: 'xml-apis'
-////        exclude group: 'commons-logging'
-////        exclude module: 'httpclient'
-//    }
-//    //compile 'org.apache.logging.log4j:log4j-core:2.4.1'
 }

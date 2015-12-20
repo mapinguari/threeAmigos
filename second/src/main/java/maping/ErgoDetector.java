@@ -17,11 +17,9 @@ import org.openimaj.image.feature.local.engine.DoGSIFTEngine;
 import org.openimaj.image.feature.local.engine.asift.ASIFTEngine;
 import org.openimaj.image.feature.local.keypoints.Keypoint;
 import org.openimaj.image.pixel.IntValuePixel;
-import org.openimaj.image.processing.edges.CannyEdgeDetector;
-import org.openimaj.image.processing.edges.StrokeWidthTransform;
+
 import org.openimaj.image.processing.resize.ResizeProcessor;
-import org.openimaj.io.IOUtils;
-import org.openimaj.math.geometry.line.Line2d;
+
 import org.openimaj.math.geometry.point.Point2d;
 import org.openimaj.math.geometry.shape.Polygon;
 import org.openimaj.math.geometry.shape.Rectangle;
@@ -256,6 +254,13 @@ public class ErgoDetector {
         targetKeypoints = engine.findFeatures(featureImage.flatten());
         System.out.println(engine.getOptions().getPeakThreshold());
         return targetKeypoints;
+    }
+
+
+    public Image takeAndDraw(MBFImage image){
+        LocalFeatureList<Keypoint> a = getKeyPoints(image);
+        image.drawPoints(a,RGBColour.RED,3);
+        return image;
     }
 
     public Rectangle getFeatureRectangle(ErgoModel pmX, ErgoFeature ergoFeature){

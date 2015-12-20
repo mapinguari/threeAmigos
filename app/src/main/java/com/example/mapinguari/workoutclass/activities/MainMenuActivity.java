@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,6 +15,8 @@ import android.view.View;
 import com.example.mapinguari.workoutclass.R;
 import com.example.mapinguari.workoutclass.openImajInterface.SecondAppInterface;
 
+
+import org.openimaj.image.feature.local.engine.DoGSIFTEngineOptions;
 
 import java.io.File;
 
@@ -85,12 +88,21 @@ public class MainMenuActivity extends ActionBarActivity {
                         bitmapURI = CameraURI;
                 }
                 try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), bitmapURI);
                     SecondAppInterface secondAppInterface = new SecondAppInterface(this);
-                    ergoScreenName = secondAppInterface.findErgoScreenAndroid(bitmapURI.toString());
-                }catch (Exception e){}
-                cornerPickerIntent = new Intent(this, CornerPickerActivity.class);
-                cornerPickerIntent.putExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE), ergoScreenName);
-                startActivity(cornerPickerIntent);
+                    DoGSIFTEngineOptions a = new DoGSIFTEngineOptions();
+                    ergoScreenName = secondAppInterface.findErgoScreenBitAndroid(bitmap);
+                    //ergoScreenName = secondAppInterface.takeAndDrawAndroid(bitmap);
+                    Log.w("ergoScreen File Name", ergoScreenName);
+                    cornerPickerIntent = new Intent(this, CornerPickerActivity.class);
+                    Uri resultUri = Uri.fromFile(new File(ergoScreenName));
+                    cornerPickerIntent.putExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE), resultUri.toString());
+                    startActivity(cornerPickerIntent);
+                }catch(Exception e){
+                    e.printStackTrace();
+                    Log.w("FileURI", bitmapURI.toString());
+                }
+
             }
 
     }

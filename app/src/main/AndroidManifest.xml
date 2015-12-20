@@ -4,6 +4,8 @@
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="ANDROID.PERMISSION.READ_EXTERNAL_STORAGE" />
+    <!--<uses-permission android:name="ANDROID.PERMISSION.WRITE_EXTERNAL_STORAGE" />-->
 
     <!-- remove at some point
     application.largeHeap

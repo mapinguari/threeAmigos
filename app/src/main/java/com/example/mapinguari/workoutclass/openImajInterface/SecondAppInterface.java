@@ -1,11 +1,11 @@
 package com.example.mapinguari.workoutclass.openImajInterface;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.widget.ImageView;
 
 
@@ -23,6 +23,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Calendar;
+import java.util.Date;
 
 import maping.ErgoDetector;
 
@@ -64,8 +66,52 @@ public class SecondAppInterface {
             return(createBitmap(mbfImageOut,null));
         }
 
+        public String takeAndDrawAndroid(Bitmap bitmap){
+            MBFImage mbfImage = createMBFImage(bitmap,false);
+            ErgoDetector ergoDetector = new ErgoDetector();
+            Log.w("I am only finding", " not matching");
+            ergoDetector.takeAndDraw(mbfImage);
+            Bitmap img1 = createBitmap(mbfImage,null);
+            String fileOutName = ergoScreenOutName();
+            try {
+                FileOutputStream fileOutputStream = new FileOutputStream(fileOutName);
+                img1.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+            return fileOutName;
+        }
+
+
+        public String findErgoScreenBitAndroid(Bitmap bitmap){
+            MBFImage mbfImage = createMBFImage(bitmap, false);
+            ErgoDetector ergoDetector = new ErgoDetector();
+            LocalFeatureList<Keypoint> searchKeypoints = ergoDetector.getKeyPoints(mbfImage);
+            FileLocalFeatureList<Keypoint> ergoScreenKeypoints = null;
+            try{
+                ergoScreenKeypoints = FileLocalFeatureList.read(getKeypointDataFile(),Keypoint.class);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            HomographyModel homographyModel = ergoDetector.findTransform(ergoScreenKeypoints, searchKeypoints);
+            Image transformedImage = mbfImage.transform(homographyModel.getTransform());
+            Bitmap img1 = createBitmap(transformedImage, null);
+            String fileOutName = makeImageOutName(ergoScreenOutName());
+            try {
+                FileOutputStream fileOutputStream = new FileOutputStream(fileOutName);
+                img1.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+            return fileOutName;
+        }
+
         public String findErgoScreenAndroid(String filepath) {
+            File a = new File(filepath);
+            Log.w("file is accessable", filepath);
             Bitmap img0 = BitmapFactory.decodeFile(filepath);
+            if(img0 == null)
+                return null;
             MBFImage mbfImage = createMBFImage(img0, false);
             ErgoDetector ergoDetector = new ErgoDetector();
             LocalFeatureList<Keypoint> searchKeypoints = ergoDetector.getKeyPoints(mbfImage);
@@ -78,7 +124,7 @@ public class SecondAppInterface {
             HomographyModel homographyModel = ergoDetector.findTransform(ergoScreenKeypoints, searchKeypoints);
             Image transformedImage = mbfImage.transform(homographyModel.getTransform());
             Bitmap img1 = createBitmap(transformedImage, null);
-            String fileOutName = makeImageOutName(filepath);
+            String fileOutName = ergoScreenOutName();
             try {
                 FileOutputStream fileOutputStream = new FileOutputStream(fileOutName);
                 img1.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
@@ -86,6 +132,21 @@ public class SecondAppInterface {
                 e.printStackTrace();
             }
             return fileOutName;
+        }
+
+        public String ergoScreenOutName(){
+            Date d = Calendar.getInstance().getTime();
+            long milli = d.getTime();
+            String milliS = Long.toString(milli);
+            String path = context.getFilesDir().getPath();
+            File out = new File(path,"ES" + milliS + ".jpg");
+            String resp = null;
+            try{
+                resp = out.getCanonicalPath();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            return resp;
         }
 
         public String makeImageOutName(String startingFileName){
