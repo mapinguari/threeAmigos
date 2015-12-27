@@ -13,10 +13,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.mapinguari.workoutclass.R;
-import com.example.mapinguari.workoutclass.openImajInterface.SecondAppInterface;
 
 
-import org.openimaj.image.feature.local.engine.DoGSIFTEngineOptions;
 
 import java.io.File;
 
@@ -59,19 +57,8 @@ public class MainMenuActivity extends ActionBarActivity {
     }
 
     public void CaptureImage (View v){
-        Intent CaptureImageIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (CaptureImageIntent.resolveActivity(getPackageManager()) != null) {
-            File path=new File(this.getApplicationContext().getFilesDir(),CAPTURE_IMAGE_FILE_PROVIDER_DIR);
-            File cacheFile=new File(path,CAPTURE_IMAGE_FILE_PROVIDER_NAME);
-
-            Uri imageURI = FileProvider.getUriForFile(this, CAPTURE_IMAGE_FILE_PROVIDER, cacheFile);
-            CaptureImageIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageURI);
-            CameraURI=Uri.fromFile(cacheFile);
-
-            if (!path.exists()) path.mkdirs();
-            if (cacheFile.exists()) cacheFile.delete();
-            startActivityForResult(CaptureImageIntent, CAPTURE_IMAGE_REQUEST);
-        }
+        Intent cornerPickerIntent = new Intent(this, ErgoCapture.class);
+        startActivity(cornerPickerIntent);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -88,15 +75,9 @@ public class MainMenuActivity extends ActionBarActivity {
                         bitmapURI = CameraURI;
                 }
                 try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), bitmapURI);
-                    SecondAppInterface secondAppInterface = new SecondAppInterface(this);
-                    DoGSIFTEngineOptions a = new DoGSIFTEngineOptions();
-                    ergoScreenName = secondAppInterface.findErgoScreenBitAndroid(bitmap);
-                    //ergoScreenName = secondAppInterface.takeAndDrawAndroid(bitmap);
-                    Log.w("ergoScreen File Name", ergoScreenName);
+
                     cornerPickerIntent = new Intent(this, CornerPickerActivity.class);
-                    Uri resultUri = Uri.fromFile(new File(ergoScreenName));
-                    cornerPickerIntent.putExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE), resultUri.toString());
+                    cornerPickerIntent.putExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE), bitmapURI.toString());
                     startActivity(cornerPickerIntent);
                 }catch(Exception e){
                     e.printStackTrace();

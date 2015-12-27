@@ -64,6 +64,7 @@ public class CornerPickerActivity extends ActionBarActivity {
 
         imgURI = Uri.parse(sIntent.getStringExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE)));
 
+
         ergoImageView.setImageURI(imgURI);
         ergoImageView.setOnTouchListener(new CornerAddTouch());
 

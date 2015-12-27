@@ -116,7 +116,7 @@ public class ImgProcess {
 	int[] cumulative=new int[width*height];
 
 	//actual edges to use
-	int leftMargin=width/40;
+	int leftMargin=0;
 	int rightMargin=(width*8)/10;
 	int topMargin=0;
 	int bottomMargin=(9*height)/10;
@@ -281,7 +281,7 @@ public class ImgProcess {
 		//filter parameters
 		int filthh=width/200,filthw=width/200;//high filter
 		int filtlh=width/40,filtlw=width/40;  //low filter 1
-		int filtlh2=width/40,filtlw2=width/40;  //low filter 2
+		int filtlh2=width/100,filtlw2=width/100;  //low filter 2
 
 		int[] LowArray=new int[width*height];		//Array for low pass filtered image
 		int[] HighArray=new int[width*height];
