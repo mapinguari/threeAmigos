@@ -144,6 +144,7 @@ public class ErgoCapture extends AppCompatActivity {
     public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
         private SurfaceHolder mHolder;
         private Camera mCamera;
+        private double biggest;
 
 
         public CameraPreview(Context context, Camera camera) {
@@ -158,9 +159,52 @@ public class ErgoCapture extends AppCompatActivity {
             mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
         }
 
+        private void bestAsp(Camera camera){
+            Camera.Parameters p = mCamera.getParameters();
+            List<Camera.Size> lcs = p.getSupportedPreviewSizes();
+            double aspect = ((double) this.getHeight()) / (double) this.getWidth();
+            double bestAspect = 0;
+            Camera.Size bestSize = null;
+            double currAspect;
+            for(Camera.Size cs : lcs){
+                currAspect = ((double) cs.height) / ((double) cs.width);
+                if(Math.abs(aspect - currAspect) < (Math.abs(aspect - bestAspect))){
+                    bestAspect = currAspect;
+                    bestSize = cs;
+                }
+            }
+            p.setPreviewSize(bestSize.width, bestSize.height);
+            p.setPictureSize(bestSize.width, bestSize.height);
+            mCamera.setParameters(p);
+        }
+
+        private void biggest(Camera camera){
+
+            Camera.Parameters p = mCamera.getParameters();
+            List<Camera.Size> lcs = p.getSupportedPreviewSizes();
+
+            double biggest = 0;
+            Camera.Size biggestSize = null;
+            double currSize;
+            for(Camera.Size cs : lcs){
+                currSize = ((double) cs.height) * ((double) cs.width);
+                if(currSize > biggest){
+                    biggest = currSize;
+                    biggestSize = cs;
+                }
+            }
+            this.biggest = biggest;
+            p.setPreviewSize(biggestSize.width, biggestSize.height);
+            p.setPictureSize(biggestSize.width, biggestSize.height);
+            mCamera.setParameters(p);
+        }
+
         public void surfaceCreated(SurfaceHolder holder) {
             // The Surface has been created, now tell the camera where to draw the preview.
             try {
+                biggest(mCamera);
+                Toast a = Toast.makeText(ErgoCapture.this,Double.toString(biggest), Toast.LENGTH_LONG);
+                a.show();
                 mCamera.setPreviewDisplay(holder);
                 mCamera.startPreview();
             } catch (IOException e) {
