@@ -4,14 +4,14 @@ android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
 
-    packagingOptions{
-        exclude 'META-INF/LICENSE'
-        exclude 'META-INF/NOTICE'
-        exclude 'META-INF/INDEX.LIST'
-        exclude 'bibliography.bib'
-        exclude 'bibliography.html'
-        exclude 'bibliography.txt'
-    }
+//    packagingOptions{
+//        exclude 'META-INF/LICENSE'
+//        exclude 'META-INF/NOTICE'
+//        exclude 'META-INF/INDEX.LIST'
+//        exclude 'bibliography.bib'
+//        exclude 'bibliography.html'
+//        exclude 'bibliography.txt'
+//    }
 
     dexOptions {
         javaMaxHeapSize "4g"

@@ -56,8 +56,6 @@ public class CornerPickerActivity extends ActionBarActivity {
         ergoImageView = (ImageView) findViewById(R.id.ergo_image_view);
         relativeLayout = (RelativeLayout) findViewById(R.id.corner_picker_frame);
         saveButton = (Button) findViewById(R.id.corner_picker_saveButton);
-        int width = ergoImageView.getWidth();
-        int height = ergoImageView.getHeight();
         Intent sIntent = getIntent();
 
         String farSide = sIntent.getStringExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE));
@@ -66,136 +64,14 @@ public class CornerPickerActivity extends ActionBarActivity {
 
 
         ergoImageView.setImageURI(imgURI);
-        ergoImageView.setOnTouchListener(new CornerAddTouch());
 
 
-        //mGestureDetector = new GestureDetector(this,new TouchInteractions());
-        cornerPoints = new ArrayList<View>(4);
-    }
-
-    class CornerAddTouch implements View.OnTouchListener {
-        float xentry;
-        float yentry;
-
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            switch (event.getActionMasked()) {
-                case (MotionEvent.ACTION_UP):{
-                    if (!lastWasMove) {
-                        float x = event.getX();
-                        float y = event.getY();
-                        addCornerView(x, y);
-
-                    }
-                    if (movingView != null) {
-                        GradientDrawable circle = (GradientDrawable) movingView.getBackground();
-                        circle.setColor(getResources().getColor(R.color.blue));
-                        movingView = null;
-                    }
-                    movingView = null;
-                    lastWasMove = false;
-                    break;
-                }
-                case (MotionEvent.ACTION_DOWN): {
-                    View currentView = null;
-                    xentry = event.getX();
-                    yentry = event.getY();
-                    double dist;
-                    double shortestdist = 10000000000.0;
-                    for (View tV : cornerPoints) {
-                        dist = Math.sqrt(Math.pow((double) getcenterX(tV) - xentry, 2.0) + Math.pow((double) getcenterY(tV) - yentry, 2));
-
-                        if (dist < shortestdist) {
-                            shortestdist = dist;
-                            currentView = tV;
-                            Log.d("currentView ", currentView.toString());
-                        }
-                    }
-                    movingView = currentView;
-                    if (movingView != null) {
-                        GradientDrawable circle = (GradientDrawable) movingView.getBackground();
-                        circle.setColor(getResources().getColor(R.color.red));
-                    }
-                    lastWasMove = false;
-                    break;
-                }
-                case (MotionEvent.ACTION_MOVE): {
-                        float x = event.getX();
-                        float y = event.getY();
-                    if(xentry != x || yentry != y) {
-                        movingView.setX(x);
-                        movingView.setY(y);
-                        xentry = x;
-                        yentry = y;
-                        lastWasMove = true;
-                    }
-                    break;
-                }
-            }
-            return true;
-
-        }
-    }
-
-    public void addCornerView(float x, float y){
-        if(cornerPointsCount < 4) {
-            FrameLayout view = new FrameLayout(this);
-            //TODO: SIZING HERE NEEDS TO BE SORTED OUT
-            view.setLayoutParams(new ViewGroup.LayoutParams(40, 40));
-            view.setBackgroundResource(R.drawable.circle);
-            relativeLayout.addView(view);
-            view.setX(x);
-            view.setY(y);
-            cornerPointsCount++;
-            cornerPoints.add(view);
-            GradientDrawable circle = (GradientDrawable) view.getBackground();
-            circle.setColor(getResources().getColor(R.color.blue));
-            if(cornerPointsCount == 4){
-                saveButton.setVisibility(View.VISIBLE);
-            }
-        }
 
     }
+
 
     public void saveCorners(View v){
-        View closestView = null;
-        double dist;
-        double shortestdist = 10000000000.0;
-        for(View tV: cornerPoints){
-            dist = Math.sqrt(Math.pow((double) getcenterX(tV),2.0) + Math.pow((double) getcenterY(tV),2));
-            if(dist < shortestdist) {
-                shortestdist = dist;
-                closestView = tV;
-            }
-
-        }
-        x1 = (int) getcenterX(closestView);
-        y1 = (int) getcenterY(closestView);
-        cornerPoints.remove(closestView);
-        View bl = null;
-        int blx = 1000000;
-        View tr = null;
-        int trY = 1000000;
-        for(View tV: cornerPoints){
-            if(getcenterX(tV) < blx){
-                bl = tV;
-            }
-            if(getcenterY(tV) < trY){
-                tr = tV;
-            }
-        }
-        x2 = (int) getcenterX(tr);
-        y2 = (int) getcenterY(tr);
-        x4 = (int) getcenterX(bl);
-        y4 = (int) getcenterY(bl);
-        cornerPoints.remove(tr);
-        cornerPoints.remove(bl);
-        x3 = (int) getcenterX(cornerPoints.get(0));
-        y3 = (int) getcenterY(cornerPoints.get(0));
-
-        Log.d("About to rotate and ocr","");
-
-        Workout gleanedWorkout = rotateANDOCR();
+        Workout gleanedWorkout = OCR();
         Intent inspectWorkout = new Intent(getApplicationContext(),WorkoutViewActivity.class);
         inspectWorkout.putExtra(getResources().getString(R.string.EXTRA_WORKOUT),gleanedWorkout);
         inspectWorkout.putExtra(getResources().getString(R.string.EXTRA_WORKOUT_PASSED),true);
@@ -203,7 +79,7 @@ public class CornerPickerActivity extends ActionBarActivity {
 
     }
 
-    private Workout rotateANDOCR(){
+    private Workout OCR(){
         Bitmap fullBitmap = null;
         try {
             fullBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imgURI);
@@ -212,14 +88,12 @@ public class CornerPickerActivity extends ActionBarActivity {
             failed.show();
             return null;
         }
-        Bitmap transformedBitmap;
-        transformedBitmap = ImageTransform.TransformAreaToSquare(fullBitmap,x1,x2,x4,x3,y1,y2,y4,y3);
         Vector<Vector<String>> ocrReturnedValues = null;
 
         ImgProcess.loadLanguage("lan", this.getApplicationContext());
 
         try {
-            ocrReturnedValues= ImgProcess.ProcessImage(transformedBitmap,
+            ocrReturnedValues= ImgProcess.ProcessImage(fullBitmap,
                     this.getCacheDir().getCanonicalPath());
         } catch (Exception e) {
             Log.e("LoadImage", e.toString());
@@ -300,46 +174,6 @@ public class CornerPickerActivity extends ActionBarActivity {
     }
     private double getcenterY(View v){
         return v.getY() + (v.getHeight() / 2);
-    }
-
-
-
-    private Bitmap correctlySizedImage(String filePath,int reqWidth, int reqHeight ){
-
-        // First decode with inJustDecodeBounds=true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(filePath, options);
-
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(filePath, options);
-    }
-
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
-            }
-        }
-
-        return inSampleSize;
     }
 
     @Override

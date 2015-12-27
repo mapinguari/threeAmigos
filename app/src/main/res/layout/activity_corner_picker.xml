@@ -17,7 +17,6 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         android:id="@+id/corner_picker_saveButton"
         android:onClick="saveCorners"
         android:text="@string/corner_picker_save_button_text"
