@@ -116,7 +116,7 @@ public class ImgProcess {
 	int[] cumulative=new int[width*height];
 
 	//actual edges to use
-	int leftMargin=0;
+	int leftMargin=width/40;
 	int rightMargin=(width*8)/10;
 	int topMargin=0;
 	int bottomMargin=(9*height)/10;
@@ -223,52 +223,69 @@ public class ImgProcess {
 
 	for (i=0;i<nTextLines;i++) {
 
-	//skip everything before second black line, start of numbers
-		if (HorizontalLines.size()>4 &&
-		 	TextLines.get(i*2)<=HorizontalLines.get(4)) {
-			continue;
-		} else if (i>0&&HorizontalLines.size()>4 &&TextLines.get(i*2-1)<=HorizontalLines.get(4)&&
-			TextLines.get(i*2)>=HorizontalLines.get(4)) {
-            api.init(Tesspath,"lan");
-		}
+        //skip everything before second black line, start of numbers
+        if (HorizontalLines.size() > 4 &&
+                TextLines.get(i * 2) <= HorizontalLines.get(4)) {
+            continue;
+        } else if (i > 0 && HorizontalLines.size() > 4 && TextLines.get(i * 2 - 1) <= HorizontalLines.get(4) &&
+                TextLines.get(i * 2) >= HorizontalLines.get(4)) {
+            api.init(Tesspath, "lan");
+        }
 
-		RowHeight=TextLines.get(i*2+1)-TextLines.get(i*2);
-		ret.add(new Vector<String>());
+        RowHeight = TextLines.get(i * 2 + 1) - TextLines.get(i * 2);
 
-		vthres=1+RowHeight/20;
-		numWhiteCol=0;
-		firstUp=0;
+        vthres = 1 + RowHeight / 20;
+        spaceSize = width / 30;
+        boolean cont;
+        Vector<String> foundThisRow,foundThisRowLast=null;
 
-		for(j=leftMargin;j<rightMargin;j++) {
-			PixelCount=cumulative[TextLines.get(i*2+1)*width+j]-
-				cumulative[TextLines.get(i*2)*width+j];
+        do {
+            numWhiteCol = 0;
+            firstUp = 0;
+            foundThisRow=new Vector<String>();
+            cont = false;
+            for (j = leftMargin; j < rightMargin; j++) {
+                PixelCount = cumulative[TextLines.get(i * 2 + 1) * width + j] -
+                        cumulative[TextLines.get(i * 2) * width + j];
 
 
-			if ((numWhiteCol>spaceSize && PixelCount>vthres)||
-				j==(rightMargin-1)) {
+                if ((numWhiteCol > spaceSize && PixelCount > vthres) ||
+                        j == (rightMargin - 1)) {
 
-				if (firstUp==0) {
-					firstUp=1;
-				} else {
-                    api.setRectangle(prev + 1, TextLines.get(i * 2), j - prev - 1,
-                            TextLines.get(i*2+1)-TextLines.get(i*2));
+                    if (firstUp == 0) {
+                        firstUp = 1;
+                    } else {
+                        api.setRectangle(prev + 1, TextLines.get(i * 2), j - prev - 1,
+                                TextLines.get(i * 2 + 1) - TextLines.get(i * 2));
 
-					outText = api.getUTF8Text();
-					ret.lastElement().add(outText);
-                    Log.d("ImgProcess", "Rectangle:" + String.valueOf(prev + 1) + "-" + String.valueOf(j - prev - 1) + "x" +
-                            String.valueOf(TextLines.get(i * 2)) + "-" + String.valueOf(TextLines.get(i*2+1)-TextLines.get(i*2))+
-                            ", Found:" + String.valueOf(i)+"-"+String.valueOf(ret.lastElement().size())+" "+outText);
-				}
-				prev=j-numWhiteCol;
-			}
+                        outText = api.getUTF8Text();
+                        foundThisRow.add(outText);
+                        Log.d("ImgProcess", "Rectangle:" + String.valueOf(prev + 1) + "-" + String.valueOf(j - prev - 1) + "x" +
+                                String.valueOf(TextLines.get(i * 2)) + "-" + String.valueOf(TextLines.get(i * 2 + 1) - TextLines.get(i * 2)) +
+                                ", Found:" + String.valueOf(i) + "-" + String.valueOf(foundThisRow.size()) + " " + outText);
+                    }
+                    prev = j - numWhiteCol;
+                }
 
-			if (PixelCount<=vthres)
-				numWhiteCol++;
-			else
-				numWhiteCol=0;
-		}
+                if (PixelCount <= vthres)
+                    numWhiteCol++;
+                else
+                    numWhiteCol = 0;
 
-		}
+            }
+
+            if (foundThisRow.size() < 4 && spaceSize >= 1) {
+                spaceSize = spaceSize / 2;
+                cont = true;
+            } else if (foundThisRow.size() > 4 && foundThisRowLast!=null) {
+                foundThisRow=foundThisRowLast;
+            }
+			foundThisRowLast=foundThisRow;
+
+        } while (cont);
+        ret.add(foundThisRow);
+
+    }
 
 		api.end();
 
@@ -281,7 +298,7 @@ public class ImgProcess {
 		//filter parameters
 		int filthh=width/200,filthw=width/200;//high filter
 		int filtlh=width/40,filtlw=width/40;  //low filter 1
-		int filtlh2=width/100,filtlw2=width/100;  //low filter 2
+		int filtlh2=width/40,filtlw2=width/40;  //low filter 2
 
 		int[] LowArray=new int[width*height];		//Array for low pass filtered image
 		int[] HighArray=new int[width*height];
