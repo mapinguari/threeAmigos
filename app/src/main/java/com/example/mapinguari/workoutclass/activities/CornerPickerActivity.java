@@ -115,6 +115,8 @@ public class CornerPickerActivity extends ActionBarActivity {
         return gleanedWorkout;
     }
 
+
+
     public Workout conservativeWorkout(Vector<Vector<String>> vvs){
         Interval totalsInterval = null;
         Interval currentInterval;

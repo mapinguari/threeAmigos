@@ -57,8 +57,8 @@ public class MainMenuActivity extends ActionBarActivity {
     }
 
     public void CaptureImage (View v){
-        Intent cornerPickerIntent = new Intent(this, ErgoCapture.class);
-        startActivity(cornerPickerIntent);
+        Intent captureIntent = new Intent(this, ErgoCapture.class);
+        startActivity(captureIntent);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
