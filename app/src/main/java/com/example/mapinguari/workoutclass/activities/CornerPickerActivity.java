@@ -37,19 +37,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CornerPickerActivity extends ActionBarActivity {
 
-    int x1,y1,x2,y2,x3,y3,x4,y4;
-    View movingView;
     ImageView ergoImageView;
     RelativeLayout relativeLayout;
-    ArrayList<View> cornerPoints;
-    int cornerPointsCount;
+
     Button saveButton;
     Uri imgURI;
-    boolean lastWasMove = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +60,6 @@ public class CornerPickerActivity extends ActionBarActivity {
         saveButton = (Button) findViewById(R.id.corner_picker_saveButton);
         Intent sIntent = getIntent();
 
-        String farSide = sIntent.getStringExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE));
 
         imgURI = Uri.parse(sIntent.getStringExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE)));
 
@@ -102,7 +101,11 @@ public class CornerPickerActivity extends ActionBarActivity {
         if(ocrReturnedValues != null) {
             Log.w("OCR OUTPUT", ocrReturnedValues.toString());
 
-            gleanedWorkout = conservativeWorkout(ocrReturnedValues);
+            //trying a bolder parse
+            //gleanedWorkout = conservativeWorkout(ocrReturnedValues);
+
+            gleanedWorkout = bolderWorkout(ocrReturnedValues);
+
             if (gleanedWorkout == null) {
                 Toast failed = Toast.makeText(this, "Couldn't get a workout out", Toast.LENGTH_SHORT);
                 failed.show();
@@ -114,7 +117,20 @@ public class CornerPickerActivity extends ActionBarActivity {
         return gleanedWorkout;
     }
 
+    public Workout bolderWorkout(Vector<Vector<String>> vvs){
+        List<Interval> intervalList = new ArrayList<Interval>(vvs.size() - 1);
+        Interval totalsInterval,curInterval = null;
+        Workout result;
 
+        totalsInterval = getInterval(vvs.get(0));
+
+        for(int i = 1; i< vvs.size(); i++){
+            curInterval = getInterval(vvs.get(i));
+            intervalList.add(curInterval);
+        }
+        result = new Workout(intervalList,totalsInterval.getSPM(),totalsInterval.getDistance(),totalsInterval.getTime(),new GregorianCalendar());
+        return result;
+    }
 
     public Workout conservativeWorkout(Vector<Vector<String>> vvs){
         Log.v("PAR","parsing:"+(vvs.size())+" rows");
@@ -377,12 +393,71 @@ public class CornerPickerActivity extends ActionBarActivity {
         return spm;
     }
 
-    private double getcenterX(View v){
-        return v.getX() + (v.getWidth() / 2);
+
+    /*Bolder workout code begins here
+
+     */
+
+    public Interval getInterval(Vector<String> vs){
+        Double workTime,distance;
+        Integer spm;
+
+        distance = getDistance(vs.get(1)).doubleValue();
+        spm = getSPM(vs.get(3));
+        workTime = 0.0;
+
+        spm = spm != null ? spm: 0;
+        distance = distance != null?distance:0.0;
+
+        Interval result = new Interval(workTime,distance,spm,0.0);
+        return result;
     }
-    private double getcenterY(View v){
-        return v.getY() + (v.getHeight() / 2);
+
+    public Integer getIntProto(String sS,int n,int m){
+        sS = sS.replaceAll("\\s", "");
+        sS = colonPeriodConvert(sS);
+        //catch digits
+        String regex;
+        if(m < n){
+            regex = "[\\d:\\.]"+"{"+n+",}";
+        } else {
+            regex = "[\\d:\\.]"+"{"+n+","+m+"}";
+
+        }
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(sS);
+
+        Integer result = null;
+        if(matcher.find()) {
+            sS = matcher.group();
+            result = Integer.valueOf(sS);
+            return result;
+        }
+        return result;
     }
+
+    public Integer getSPM(String spmS){
+        return getIntProto(spmS,1,2);
+    }
+
+    public Integer getDistance(String distS){
+        return getIntProto(distS,1,0);
+    }
+
+    public Integer getCalories(String calS){
+        return getIntProto(calS,1,0);
+    }
+
+    private String colonPeriodConvert(String s){
+        s = s.replaceAll(":","1");
+        s = s.replaceAll("\\.","0");
+        return s;
+    }
+
+    /* Bolder workout code ends here
+
+     */
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

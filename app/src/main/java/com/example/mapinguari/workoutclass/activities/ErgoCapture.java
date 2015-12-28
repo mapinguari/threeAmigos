@@ -78,6 +78,12 @@ public class ErgoCapture extends AppCompatActivity {
                 }
         );
     }
+
+    @Override
+    protected void onDestroy() {
+        mCamera.release();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
