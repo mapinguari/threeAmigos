@@ -122,7 +122,7 @@ public class ImgProcess {
 
 
         //actual edges to use
-        int leftMargin=width/40;
+        int leftMargin=width/20;
         int rightMargin=(width*9)/10;
         int topMargin=0;
         int bottomMargin=(9*height)/10;
@@ -134,7 +134,7 @@ public class ImgProcess {
         int minTextSize=height/50;
 
         //vertical detection parameters
-        int spaceSize=width/30;		//size of spaces between words
+        int spaceSize;		//size of spaces between words
 
 
         //horizontal detection variables
@@ -223,14 +223,6 @@ public class ImgProcess {
 
         }
 
-        for(Integer line : HorizontalLines){
-            for(i=0;i<width;i++)
-                processedImage[line*width+i]=0xFFFF0000;
-        }
-        for(Integer line : TextLines){
-            for(i=0;i<width;i++)
-                processedImage[line*width+i]=0xFF0000FF;
-        }
 
 
         //split horizontally into words
@@ -256,15 +248,13 @@ public class ImgProcess {
             int upperBound = spaceSize;
             int lowerBound = 0;
             int noOfRows;
-            Vector<String> foundThisRow,foundThisRowLast=null;
-            Vector<Integer> columnBreaks=null;
+            Vector<Integer> columnBreaks;
 
             do {
+                Log.d("Col Space", "Row" + Integer.toString(i) + ": " + Integer.toString(spaceSize));
                 numWhiteCol = 0;
                 firstUp = 0;
                 columnBreaks=new Vector<Integer>();
-                foundThisRow=new Vector<String>();
-                cont = false;
 
                 for (j = leftMargin; j < rightMargin; j++) {
                     PixelCount = cumulative[TextLines.get(i * 2 + 1) * width + j] -
@@ -279,15 +269,12 @@ public class ImgProcess {
                         } else {
                             columnBreaks.add(prev);
                             columnBreaks.add(j);
-                            api.setRectangle(prev + 1, TextLines.get(i * 2), j - prev - 1,
-                                    TextLines.get(i * 2 + 1) - TextLines.get(i * 2));
 
-                            outText = api.getUTF8Text();
-                            foundThisRow.add(outText);
-                            Log.d("ImgProcess", "Rectangle:" + String.valueOf(prev + 1) + "-" + String.valueOf(j - prev - 1) + "x" +
-                                    String.valueOf(TextLines.get(i * 2)) + "-" + String.valueOf(TextLines.get(i * 2 + 1) - TextLines.get(i * 2)) +
-                                    ", Found:" + String.valueOf(i) + "-" + String.valueOf(foundThisRow.size()) + " " + outText);
-                            Log.d("Col Space", Integer.toString(spaceSize));
+                            Log.d("ImgProcess",
+                                    "Found Rectangle: x:" + String.valueOf(prev + 1) +
+                                            " y:"+String.valueOf(TextLines.get(i * 2)) +
+                                            " width:"+ String.valueOf(j - prev - 1) +
+                                            " height:" + String.valueOf(TextLines.get(i * 2 + 1) - TextLines.get(i * 2)));
                         }
                         prev = j - numWhiteCol;
                     }
@@ -299,13 +286,13 @@ public class ImgProcess {
 
                 }
 
-                noOfRows = foundThisRow.size();
+                noOfRows = columnBreaks.size()/2;
                 //space size too big
                 if (noOfRows < 4) {
                     if(spaceSize < upperBound)
                         upperBound = spaceSize;
                 //space size too small
-                } else if (foundThisRow.size() > 4) {
+                } else if (noOfRows > 4) {
                     if(spaceSize > lowerBound)
                         lowerBound = spaceSize;
                 }
@@ -319,10 +306,22 @@ public class ImgProcess {
                 if(noOfRows == 4)
                     cont = false;
 
-
-
             } while (cont);
-            ret.add(foundThisRow);
+
+            //OCR strings in found rectangles
+            ret.add(new Vector<String>());
+            for (j=0;j<columnBreaks.size()/2;j++) {
+                api.setRectangle(
+                        columnBreaks.get(2*j)+1,
+                        TextLines.get(i * 2),
+                        columnBreaks.get(2*j+1) - columnBreaks.get(2*j) - 1,
+                        TextLines.get(i * 2 + 1) - TextLines.get(i * 2));
+
+                outText = api.getUTF8Text();
+                ret.lastElement().add(outText);
+                Log.d("ImgProcess", "Found:" + String.valueOf(i) + "-" +
+                        String.valueOf(ret.lastElement().size()) + " " + outText);
+            }
 
             for(Integer line : columnBreaks){
                 for(int k= TextLines.get(i * 2);k<TextLines.get(i * 2 + 1);k++)
@@ -330,9 +329,18 @@ public class ImgProcess {
             }
 
         }
-
-        saveImage(processedImage,width,height,"textlines",Cachepath);
         api.end();
+
+        for(Integer line : HorizontalLines){
+            for(i=0;i<width;i++)
+                processedImage[line*width+i]=0xFFFF0000;
+        }
+        for(Integer line : TextLines){
+            for(i=0;i<width;i++)
+                processedImage[line*width+i]=0xFF0000FF;
+        }
+
+        saveImage(processedImage, width, height, "textlines",Cachepath);
 
         return ret;
     }
@@ -382,8 +390,7 @@ public class ImgProcess {
         Log.d("ImgProcess", "Processing image; size:" + width + "x" + height);
 
         //do stuff here
-        Vector<Vector<String>> values=doEverything(array,height,width,Cachepath);
-        return values;
+        return doEverything(array,height,width,Cachepath);
     }
 
     /**
