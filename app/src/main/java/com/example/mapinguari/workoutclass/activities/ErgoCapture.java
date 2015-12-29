@@ -81,8 +81,11 @@ public class ErgoCapture extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        super.onDestroy();
         mCamera.release();
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

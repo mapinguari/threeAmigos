@@ -18,6 +18,9 @@ public class ImgProcess {
     private static final int black = 0xFF000000;
     private static final int white = 0xFFFFFFFF;
 
+    public static Bitmap linesImg = null;
+
+
     /**
      * Returns the average value of the three colour components from a integer pixel
      * @param value The pixels value
@@ -250,6 +253,9 @@ public class ImgProcess {
             vthres = 1 + RowHeight / 20;
             spaceSize = width / 10;
             boolean cont;
+            int upperBound = spaceSize;
+            int lowerBound = 0;
+            int noOfRows;
             Vector<String> foundThisRow,foundThisRowLast=null;
             Vector<Integer> columnBreaks=null;
 
@@ -259,6 +265,7 @@ public class ImgProcess {
                 columnBreaks=new Vector<Integer>();
                 foundThisRow=new Vector<String>();
                 cont = false;
+
                 for (j = leftMargin; j < rightMargin; j++) {
                     PixelCount = cumulative[TextLines.get(i * 2 + 1) * width + j] -
                             cumulative[TextLines.get(i * 2) * width + j];
@@ -280,6 +287,7 @@ public class ImgProcess {
                             Log.d("ImgProcess", "Rectangle:" + String.valueOf(prev + 1) + "-" + String.valueOf(j - prev - 1) + "x" +
                                     String.valueOf(TextLines.get(i * 2)) + "-" + String.valueOf(TextLines.get(i * 2 + 1) - TextLines.get(i * 2)) +
                                     ", Found:" + String.valueOf(i) + "-" + String.valueOf(foundThisRow.size()) + " " + outText);
+                            Log.d("Col Space", Integer.toString(spaceSize));
                         }
                         prev = j - numWhiteCol;
                     }
@@ -291,13 +299,27 @@ public class ImgProcess {
 
                 }
 
-                if (foundThisRow.size() < 4 && spaceSize >= 1) {
-                    spaceSize = spaceSize / 2;
-                    cont = true;
-                } else if (foundThisRow.size() > 4 && foundThisRowLast!=null) {
-                    foundThisRow=foundThisRowLast;
+                noOfRows = foundThisRow.size();
+                //space size too big
+                if (noOfRows < 4) {
+                    if(spaceSize < upperBound)
+                        upperBound = spaceSize;
+                //space size too small
+                } else if (foundThisRow.size() > 4) {
+                    if(spaceSize > lowerBound)
+                        lowerBound = spaceSize;
                 }
-                foundThisRowLast=foundThisRow;
+
+                spaceSize = (upperBound + lowerBound) / 2;
+                cont = true;
+
+                if(upperBound - lowerBound < 2)
+                    cont = false;
+
+                if(noOfRows == 4)
+                    cont = false;
+
+
 
             } while (cont);
             ret.add(foundThisRow);
@@ -404,6 +426,7 @@ public class ImgProcess {
     private static void saveImage(int[] image, int width, int height, String name, String Cachepath){
         FileOutputStream cacheFile=null;
         Bitmap bmp = Bitmap.createBitmap(image, width, height, Bitmap.Config.ARGB_8888);
+        linesImg = bmp;
 
         try {
             cacheFile = new FileOutputStream(Cachepath+"/" + name + ".png");

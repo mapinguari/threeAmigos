@@ -93,6 +93,8 @@ public class CornerPickerActivity extends ActionBarActivity {
         try {
             ocrReturnedValues= ImgProcess.ProcessImage(fullBitmap,
                     this.getCacheDir().getCanonicalPath());
+            Bitmap bit = ImgProcess.linesImg;
+
         } catch (Exception e) {
             Log.e("LoadImage", e.toString());
             e.printStackTrace();
@@ -118,6 +120,10 @@ public class CornerPickerActivity extends ActionBarActivity {
     }
 
     public Workout bolderWorkout(Vector<Vector<String>> vvs){
+
+        Toast a = Toast.makeText(this,vvs.toString().toString(),Toast.LENGTH_LONG);
+        a.show();
+
         List<Interval> intervalList = new ArrayList<Interval>(vvs.size() - 1);
         Interval totalsInterval,curInterval = null;
         Workout result;
@@ -399,18 +405,33 @@ public class CornerPickerActivity extends ActionBarActivity {
      */
 
     public Interval getInterval(Vector<String> vs){
-        Double workTime,distance;
-        Integer spm;
+        Double workTime;
+        Integer spm,distance;
 
-        distance = getDistance(vs.get(1)).doubleValue();
-        spm = getSPM(vs.get(3));
-        workTime = 0.0;
+        distance =  getDistance(vs.get(1));
+        if(vs.size() > 3)
+            spm = getSPM(vs.get(3));
+        else
+            spm = null;
+        workTime = getDoubleProto(vs.get(0));
 
         spm = spm != null ? spm: 0;
-        distance = distance != null?distance:0.0;
+        distance = distance != null?distance:0;
 
-        Interval result = new Interval(workTime,distance,spm,0.0);
+        Interval result = new Interval(workTime,distance.doubleValue(),spm,0.0);
         return result;
+    }
+
+    public Double getDoubleProto(String sS){
+        sS = sS.replace("\\s", "");
+        Double result;
+        try {
+            result = ErgoFormatter.parseSeconds(sS);
+        }catch(NotHumanStringException e){
+            result = 0.0;
+        }
+        return result;
+        //[\d:][\d{1,2}:]\d{1,2}.\d
     }
 
     public Integer getIntProto(String sS,int n,int m){
