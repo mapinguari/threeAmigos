@@ -19,6 +19,7 @@ public class ImgProcess {
     private static final int white = 0xFFFFFFFF;
 
     public static Bitmap linesImg = null;
+    public static String workoutType=null;
 
 
     /**
@@ -129,7 +130,7 @@ public class ImgProcess {
 
         //horizontal detection parameters
         int thres=width/2;		//black line threshold
-        int Tthres=width/20;		//Text line threshold
+        int Tthres=width/40;		//Text line threshold
         int minLineGap=height/20;	//minimum gap between solid lines
         int minTextSize=height/50;
 
@@ -223,21 +224,33 @@ public class ImgProcess {
 
         }
 
-
-
         //split horizontally into words
 
         nTextLines=TextLines.size()/2;
+        boolean typeLine=false;
 
         for (i=0;i<nTextLines;i++) {
 
             //skip everything before second black line, start of numbers
-            if (HorizontalLines.size() > 4 &&
+            if (HorizontalLines.size() > 4 && TextLines.get(i * 2) > HorizontalLines.get(2) &&
+                    TextLines.get(i * 2) <= HorizontalLines.get(3) && !typeLine){
+
+                api.setRectangle(
+                        leftMargin,
+                        TextLines.get(i * 2),
+                        rightMargin-leftMargin,
+                        TextLines.get(i * 2 + 1) - TextLines.get(i * 2));
+
+                workoutType=api.getUTF8Text();
+                Log.d("ImgProcess", "Type Line: " + workoutType);
+                typeLine=true;
+                continue;
+            } else if (HorizontalLines.size() > 4 &&
                     TextLines.get(i * 2) <= HorizontalLines.get(4)) {
                 continue;
             } else if (i > 0 && HorizontalLines.size() > 4 && TextLines.get(i * 2 - 1) <= HorizontalLines.get(4) &&
                     TextLines.get(i * 2) >= HorizontalLines.get(4)) {
-                api.init(Cachepath, "lan");
+                ;
             }
 
             RowHeight = TextLines.get(i * 2 + 1) - TextLines.get(i * 2);
