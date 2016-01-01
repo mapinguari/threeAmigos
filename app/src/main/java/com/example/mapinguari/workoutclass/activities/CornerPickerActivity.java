@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
+import android.hardware.Camera;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
@@ -24,9 +25,11 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.example.mapinguari.workoutclass.BolderWorkout;
 import com.example.mapinguari.workoutclass.ImageTransform;
 import com.example.mapinguari.workoutclass.ImgProcess;
 import com.example.mapinguari.workoutclass.R;
+import com.example.mapinguari.workoutclass.exceptions.CantDecipherWorkoutException;
 import com.example.mapinguari.workoutclass.exceptions.NotHumanStringException;
 import com.example.mapinguari.workoutclass.exerciseObjects.ErgoFormatter;
 import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
@@ -36,8 +39,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -106,7 +111,9 @@ public class CornerPickerActivity extends ActionBarActivity {
             //trying a bolder parse
             //gleanedWorkout = conservativeWorkout(ocrReturnedValues);
 
-            gleanedWorkout = bolderWorkout(ocrReturnedValues);
+            BolderWorkout bw = new BolderWorkout();
+
+            gleanedWorkout = bw.bolderWorkout(ocrReturnedValues);
 
             if (gleanedWorkout == null) {
                 Toast failed = Toast.makeText(this, "Couldn't get a workout out", Toast.LENGTH_SHORT);
@@ -119,24 +126,7 @@ public class CornerPickerActivity extends ActionBarActivity {
         return gleanedWorkout;
     }
 
-    public Workout bolderWorkout(Vector<Vector<String>> vvs){
 
-        Toast a = Toast.makeText(this,vvs.toString().toString(),Toast.LENGTH_LONG);
-        a.show();
-
-        List<Interval> intervalList = new ArrayList<Interval>(vvs.size() - 1);
-        Interval totalsInterval,curInterval = null;
-        Workout result;
-
-        totalsInterval = getInterval(vvs.get(0));
-
-        for(int i = 1; i< vvs.size(); i++){
-            curInterval = getInterval(vvs.get(i));
-            intervalList.add(curInterval);
-        }
-        result = new Workout(intervalList,totalsInterval.getSPM(),totalsInterval.getDistance(),totalsInterval.getTime(),new GregorianCalendar());
-        return result;
-    }
 
     public Workout conservativeWorkout(Vector<Vector<String>> vvs){
         Log.v("PAR","parsing:"+(vvs.size())+" rows");
@@ -400,84 +390,6 @@ public class CornerPickerActivity extends ActionBarActivity {
     }
 
 
-    /*Bolder workout code begins here
-
-     */
-
-    public Interval getInterval(Vector<String> vs){
-        Double workTime;
-        Integer spm,distance;
-
-        distance =  getDistance(vs.get(1));
-        if(vs.size() > 3)
-            spm = getSPM(vs.get(3));
-        else
-            spm = null;
-        workTime = getDoubleProto(vs.get(0));
-
-        spm = spm != null ? spm: 0;
-        distance = distance != null?distance:0;
-
-        Interval result = new Interval(workTime,distance.doubleValue(),spm,0.0);
-        return result;
-    }
-
-    public Double getDoubleProto(String sS){
-        sS = sS.replace("\\s", "");
-        Double result;
-        try {
-            result = ErgoFormatter.parseSeconds(sS);
-        }catch(NotHumanStringException e){
-            result = 0.0;
-        }
-        return result;
-        //[\d:][\d{1,2}:]\d{1,2}.\d
-    }
-
-    public Integer getIntProto(String sS,int n,int m){
-        sS = sS.replaceAll("\\s", "");
-        sS = colonPeriodConvert(sS);
-        //catch digits
-        String regex;
-        if(m < n){
-            regex = "[\\d:\\.]"+"{"+n+",}";
-        } else {
-            regex = "[\\d:\\.]"+"{"+n+","+m+"}";
-
-        }
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(sS);
-
-        Integer result = null;
-        if(matcher.find()) {
-            sS = matcher.group();
-            result = Integer.valueOf(sS);
-            return result;
-        }
-        return result;
-    }
-
-    public Integer getSPM(String spmS){
-        return getIntProto(spmS,1,2);
-    }
-
-    public Integer getDistance(String distS){
-        return getIntProto(distS,1,0);
-    }
-
-    public Integer getCalories(String calS){
-        return getIntProto(calS,1,0);
-    }
-
-    private String colonPeriodConvert(String s){
-        s = s.replaceAll(":","1");
-        s = s.replaceAll("\\.","0");
-        return s;
-    }
-
-    /* Bolder workout code ends here
-
-     */
 
 
     @Override
