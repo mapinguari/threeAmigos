@@ -9,6 +9,7 @@ import com.example.mapinguari.workoutclass.exerciseObjects.ErgoFormatter;
 import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
 import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -23,13 +24,26 @@ import java.util.regex.Pattern;
  */
 public class BolderWorkout {
 
+    int NUMBER_OF_EMPTY_CELLS_ALLOWED_PER_ROW = 2;
+
     public Workout bolderWorkout(Vector<Vector<String>> vvs){
 
         List<Interval> intervalListTemp = new ArrayList<Interval>(vvs.size() - 1);
-        Interval totalsInterval,curInterval = null;
+        Interval totalsInterval,curInterval;
         Workout result;
 
         totalsInterval = getInterval(vvs.get(0));
+
+        //Clear inappropriate rows
+        vvs = clearInappropriate(vvs,NUMBER_OF_EMPTY_CELLS_ALLOWED_PER_ROW);
+        //This currently leaves us with a number of column cells possibly not equal to 4
+        //With no cells of all punctuation or white space.
+        //At this point probably try to seperate out cells again if you can try.
+        //I.e I think we need to write some pattern to check if the data is in a given form.
+        // At this point I want to try and take the last two digits of the last cell if it looks
+        //like it could be spm
+
+
 
         for(int i = 1; i< vvs.size(); i++){
             curInterval = getInterval(vvs.get(i));
@@ -39,6 +53,9 @@ public class BolderWorkout {
 
 
         result = new Workout(intervalListTemp,totalsInterval.getSPM(),totalsInterval.getDistance(),totalsInterval.getTime(),new GregorianCalendar());
+
+        result = correctSPM(result);
+
         try {
             result = workoutDecipher(result);
         }catch (CantDecipherWorkoutException e){
@@ -47,16 +64,140 @@ public class BolderWorkout {
         return result;
     }
 
+
+    /**
+     * function to clear inappropriate rows from the VVS returned from the OCR
+     * @param vvs vector string vector
+     * @param numRej the number of cells to require to be empty before the row is rejected
+     * @return the new VVS
+     */
+    private Vector<Vector<String>> clearInappropriate(Vector<Vector<String>> vvs,int numRej){
+        int noECells = 0;
+        Vector<String> vs;
+        for(int i = 0; i<vvs.size();i++){
+            vs = vvs.get(i);
+            for(String s : vs)
+                if(!containsSomeData(s)){
+                    vs.remove(s);
+                    noECells +=1;
+                }
+            if(vs.size() != 4|| noECells >= numRej){
+                vvs.remove(i);
+            }
+        }
+        return vvs;
+    }
+
+
+    /**
+     * @return true if has some digits in, false otherwise
+     */
+    private boolean containsSomeData(String s){
+        Pattern pattern = Pattern.compile("\\d+");
+        Matcher matcher = pattern.matcher(s);
+        return matcher.find();
+    }
+
+    public Interval getInterval(Vector<String> vs){
+        Double workTime;
+        Integer spm,distance;
+
+        boolean empty1 = false;
+        boolean emptyC;
+        for(int i = 0; i < vs.size();i++){
+            emptyC = replaceWhiteSpace(vs.get(i)).isEmpty();
+            if(emptyC && empty1)
+                return null;
+            empty1 = empty1 || emptyC;
+        }
+
+
+        distance =  getDistance(vs.get(1));
+        if(vs.size() > 3)
+            spm = getSPM(vs.get(3));
+        else
+            spm = null;
+        workTime = getDoubleProto(vs.get(0));
+
+        spm = spm != null ? spm: 0;
+        distance = distance != null?distance:0;
+
+        Interval result = new Interval(workTime,distance.doubleValue(),spm,0.0);
+        return result;
+    }
+
     /*Bolder workout code begins here
 
      */
+
+
+    //WE can introduce an integer to denote how aggressively we wish to try and make data appear in
+    // the cells. here is a prime example where we could try too aggresively to fit data.
+
+    //WE also need to think about what to do about numbers that singularly seem horrifically out.
+    //Should we try and correct that?!
+
+    private Workout correctSPM(Workout workout){
+        Integer spm = workout.getSPM();
+        List<Interval> intervalList = workout.getIntervalList();
+        Interval curInterval;
+
+        Integer curInte;
+        int noOfZeros = 0,noOfRows = intervalList.size();
+        double intSum = 0;
+        double replacementSPM = 0;
+        int realreplacementSPM;
+
+
+
+        List<Integer> sspm = new ArrayList<Integer>(intervalList.size());
+        List<Integer> zeros = new ArrayList();
+
+        for(int i = 0;i <intervalList.size();i++){
+            curInte = intervalList.get(i).getSPM();
+            sspm.add(curInte);
+            if(curInte == 0) {
+                zeros.add(i);
+                noOfZeros++;
+            } else {
+                intSum +=curInte;
+            }
+
+        }
+
+
+        if(spm == 0){
+            if(noOfZeros >0){
+                replacementSPM = intSum / (noOfRows - noOfZeros);
+            } else {
+                replacementSPM = intSum / noOfRows;
+            }
+        } else {
+            if(noOfZeros > 0){
+                replacementSPM = ((double) noOfRows / noOfZeros) * (spm - (intSum / noOfRows));
+            }
+        }
+
+        //HERE I AM NOT AT ALL CONSIDERING THE PROBLEM INVOLVING FLOAT -> INT CONVERSION!
+        realreplacementSPM = (int) replacementSPM;
+
+        if(spm == 0)
+            workout.setSPM(realreplacementSPM);
+
+        for(Integer i : zeros){
+            curInterval = intervalList.get(i);
+            curInterval.setAverageSPM(realreplacementSPM);
+        }
+        return workout;
+    }
+
 
     private List<Interval> justRowCorrect(List<Interval> intervals, Double total){
         int n = intervals.size();
         for(int i = 0; i <n-1;i++){
             intervals.get(i).setWorkTime(300.0);
         }
-        intervals.get(n-1).setWorkTime(total - (300*n));
+        intervals.get(n-1).setWorkTime(total - (300*(n-1)));
         return intervals;
     }
 
@@ -170,7 +311,7 @@ public class BolderWorkout {
 
         if(timeTEL || distanceTEL) {
             if (timeTEL) {
-                if (timeTotal > (300 * size - 1) && timeTotal < (300 * size)) {
+                if (timeTotal > (300 * (size - 1)) && timeTotal < (300 * size)) {
                     intervalList = justRowCorrect(intervalList, timeTotal);
                 } else {
                     intervalList = timeCorrect(intervalList, timeAVGI);
@@ -199,7 +340,7 @@ public class BolderWorkout {
             if(timeTEC){
                 distanceCorrect(intervalList,distanceAVGI);
             } else {
-                if(timeTotal > (300 * size - 1) && timeTotal < (300 * size)){
+                if(timeTotal > (300 * (size - 1)) && timeTotal < (300 * size)){
                     justRowCorrect(intervalList,timeTotal);
                 } else {
                     intervalList = timeCorrect(intervalList, timeAVGI);
@@ -226,7 +367,7 @@ public class BolderWorkout {
             if(distanceII){
                 distanceCorrect(intervalList,distanceAVGI);
             } else {
-                if(timeTotal > (300 * size - 1) && timeTotal < (300 * size)){
+                if(timeTotal > (300 * (size - 1)) && timeTotal < (300 * size)){
                     justRowCorrect(intervalList,timeTotal);
                 } else {
                     intervalList = timeCorrect(intervalList, timeAVGI);
@@ -310,33 +451,7 @@ public class BolderWorkout {
     }
 
 
-    public Interval getInterval(Vector<String> vs){
-        Double workTime;
-        Integer spm,distance;
 
-        boolean empty1 = false;
-        boolean emptyC;
-        for(int i = 0; i < vs.size();i++){
-            emptyC = replaceWhiteSpace(vs.get(i)).isEmpty();
-            if(emptyC && empty1)
-                return null;
-            empty1 = empty1 || emptyC;
-        }
-
-
-        distance =  getDistance(vs.get(1));
-        if(vs.size() > 3)
-            spm = getSPM(vs.get(3));
-        else
-            spm = null;
-        workTime = getDoubleProto(vs.get(0));
-
-        spm = spm != null ? spm: 0;
-        distance = distance != null?distance:0;
-
-        Interval result = new Interval(workTime,distance.doubleValue(),spm,0.0);
-        return result;
-    }
 
     public Double getDoubleProto(String sS){
         sS = replaceWhiteSpace(sS);

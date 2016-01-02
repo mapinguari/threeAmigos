@@ -69,9 +69,6 @@ public class ErgoCapture extends AppCompatActivity {
                         Toast a = Toast.makeText(ErgoCapture.this,mCamera.getParameters().getFocusMode().toString(),Toast.LENGTH_LONG);
                         a.show();
                         Camera.Parameters p = mCamera.getParameters();
-
-                        p.setPictureSize(p.getPreviewSize().width,p.getPreviewSize().height);
-                        mCamera.setParameters(p);
                         // get an image from the camera
                         mCamera.takePicture(null, null, mPicture);
                     }
@@ -288,9 +285,6 @@ public class ErgoCapture extends AppCompatActivity {
             int trueY = (int) (Ry * verLam);
 
 
-//            (xmid - (trueW / 2))
-//            (ymid - (trueH / 2))
-
 
             Bitmap outB = Bitmap.createBitmap(b,trueX,trueY,trueW,trueH);
 
@@ -303,6 +297,9 @@ public class ErgoCapture extends AppCompatActivity {
             } catch (IOException e) {
                 Log.d(TAG, "Error accessing file: " + e.getMessage());
             }
+
+
+            mCamera.release();
 
 
             Intent a = new Intent(ErgoCapture.this,CornerPickerActivity.class);
