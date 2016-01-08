@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * Created by mapinguari on 7/24/15.
@@ -24,6 +25,10 @@ public class Workout extends PerformanceMeasure implements Parcelable {
     private Double totalTime;
     private Integer averageSPM;
     private List<Interval> intervalList;
+
+    public enum thirdColumnType {
+        SPLIT,WATTS,CALORIES
+    }
 
     //constructors
     public Workout(List<Interval> intervalList, Integer averageSPM, Double distance, Double totalTime, GregorianCalendar workoutTime) {
@@ -134,6 +139,54 @@ public class Workout extends PerformanceMeasure implements Parcelable {
         return sum;
     }
 
+    private Vector<String> valuesToVS(double time, double distance, thirdColumnType type, int SPM){
+        Vector<String> returned=new Vector<String>();
+
+        returned.add(ErgoFormatter.formatSeconds(time));
+        returned.add(String.valueOf(distance));
+
+        double split=500*time/distance;
+        double watts=2.8/Math.pow(time/distance,3);
+        double calories=((4*(watts*time)/1000+0.35*time)/4.2)*3600/time;
+
+        switch (type) {
+            case SPLIT:
+                returned.add(ErgoFormatter.formatSeconds(split));
+                break;
+            case WATTS:
+                returned.add(Integer.toString((int)Math.round(watts)));
+                break;
+            case CALORIES:
+                returned.add(Integer.toString((int)Math.round(calories)));
+                break;
+        }
+        returned.add(String.valueOf(SPM));
+        return returned;
+
+    }
+
+    public Vector<Vector<String>> toVVS(thirdColumnType type) {
+        Vector<Vector<String>> returned=new Vector<Vector<String>>();
+        returned.add(valuesToVS(this.getTime(),this.getDistance(),type,this.getSPM()));
+
+        List<Interval> intervals=this.getIntervalList();
+
+        boolean timeIncremental=false;
+        boolean distanceIncremental=false;
+
+        double thisTime=0;
+        double thisDistance=0;
+
+        for(Interval i : intervals) {
+            thisTime=i.getTime()+(timeIncremental?thisTime:0);
+            thisDistance=i.getDistance()+(distanceIncremental?thisDistance:0);
+            returned.add(valuesToVS(thisTime,thisDistance,type,i.getSPM()));
+        }
+
+
+        return returned;
+    }
+
 
 
     // Parcelable code here
@@ -185,4 +238,5 @@ public class Workout extends PerformanceMeasure implements Parcelable {
                 ", intervalList=" + intervalList +
                 '}';
     }
+
 }
