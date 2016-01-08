@@ -26,6 +26,75 @@ public class BolderWorkout {
 
     int NUMBER_OF_EMPTY_CELLS_ALLOWED_PER_ROW = 2;
 
+    String anyDigRegex = "[0-9]";
+    String anyOCRRegex = "[0-9\\.:]";
+    String minDecRegex = "[1-5]";
+    String secDecRegex = "[0-5]";
+
+
+
+    //We can do some stuff with the digits here, for example, the first \d char will be less than 6
+    public Pattern basicTimeRegex = Pattern.compile("(\\d{1,2}:)?(\\d{2})?:\\d{2}\\.\\d");
+    public Pattern betterTimeRegex = Pattern.compile("([0-9]{1,2}:)?([1-5]?[0-9])?:[0-5][0-9]\\.[0-9]");
+    public Pattern desperateTimeRegex = Pattern.compile(anyOCRRegex+"{9,10}|"+ anyOCRRegex + "{5,7}");
+
+    public Pattern distanceRegex = Pattern.compile("[0-9]{1,6}");
+
+    public Pattern SPMRegex = Pattern.compile("[0-9]{1,2}");
+
+    public Pattern CalRegex = Pattern.compile("[0-9]{1,4}");
+    public Pattern PowerRegex = Pattern.compile("[0-9]{1,4}");
+
+
+//    private String idealTimeRegex(String string){
+//        Matcher timeMatcher = betterTimeRegex.matcher(string);
+//        if(timeMatcher.find()){
+//
+//        }
+//    }
+
+    private String length5(String string){
+        string = colonPeriodConvert(string);
+        String result = ":" + string.substring(1,2) + "." + string.charAt(4);
+        return result;
+    }
+
+    private String length6(String string){
+        String result;
+        char min1 = string.charAt(0);
+        if(min1 ==  ':' || min1 == '.')
+            min1 = fixChar(min1);
+        result = min1 + length5(string.substring(1));
+        return result;
+    }
+
+    private String length7(String string){
+        String result;
+        char min2 = string.charAt(0);
+
+        return "";
+    }
+
+    private char fixChar(char c){
+        switch(c){
+            case ':' : c = 1;
+                break;
+            case '.' : c = 1;
+                break;
+            case '6' : c = 5;
+                break;
+            case '7' : c = 2;
+                break;
+            case '8' : c = 3;
+                break;
+            case '9' : c = 5;
+                break;
+            case '0' : c = 3;
+                break;
+        }
+        return c;
+    }
+
     public Workout bolderWorkout(Vector<Vector<String>> vvs){
 
         List<Interval> intervalListTemp = new ArrayList<Interval>(vvs.size() - 1);
@@ -117,6 +186,7 @@ public class BolderWorkout {
             spm = getSPM(vs.get(3));
         else
             spm = null;
+
         workTime = getDoubleProto(vs.get(0));
 
         spm = spm != null ? spm: 0;
@@ -454,10 +524,10 @@ public class BolderWorkout {
 
 
     public Double getDoubleProto(String sS){
-        sS = replaceWhiteSpace(sS);
         Double result;
+        String timeString = getTimeString(sS);
         try {
-            result = ErgoFormatter.parseSeconds(sS);
+            result = ErgoFormatter.parseSeconds(timeString);
         }catch(NotHumanStringException e){
             result = 0.0;
         }
@@ -465,28 +535,15 @@ public class BolderWorkout {
         //[\d:][\d{1,2}:]\d{1,2}.\d
     }
 
-    public Double getTime(String sS){
-        Double result = null;
-        try{
-            sS = removeConcurrentWhiteSpace(sS);
-            result = ErgoFormatter.parseSeconds(sS);
-        }catch(NotHumanStringException e){
-            Log.w("Cannot Parse Time", "Attempting error correction");
+
+
+    public String getTimeString(String sS){
+        String result = null;
+        Matcher matcher = betterTimeRegex.matcher(sS);
+        if(matcher.find()){
+            sS = matcher.group();
+            result = sS;
         }
-//
-//        String[] spaceSplit = sS.split("[\\.:]");
-//        String[] periodSplit = sS.split("\\.");
-//        String milliS,hmsS,lt2S;
-//        Integer hI,mI,sI,milI;
-//        if(periodSplit.length == 2){
-//            milliS = periodSplit[1];
-//            hmsS = periodSplit[0];
-//        } else if(periodSplit.length < 2){
-//            lt2S = sS;
-//        } else {
-//
-//        }
-        //2 parse on . if >2, problem, if <2 problem
         return result;
     }
 

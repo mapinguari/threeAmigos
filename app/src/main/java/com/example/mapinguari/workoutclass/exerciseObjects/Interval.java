@@ -89,6 +89,17 @@ public class Interval extends PerformanceMeasure implements Parcelable {
         this.averageSPM = averageSPM;
     }
 
+
+    public double percentageCorrect(Interval correctInterval) {
+        double a = workTime.equals(correctInterval.getTime())?1:0;
+        double b = distance.equals(correctInterval.getDistance())?1:0;
+        double c = averageSPM.equals(correctInterval.getSPM())?1:0;
+        double d = restTime.equals(correctInterval.getRestTime())?1:0;
+        return (a+b+d+c) / 4;
+    }
+
+
+
     //Parcelable code
 
 

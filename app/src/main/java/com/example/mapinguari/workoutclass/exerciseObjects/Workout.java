@@ -25,6 +25,10 @@ public class Workout extends PerformanceMeasure implements Parcelable {
     private Integer averageSPM;
     private List<Interval> intervalList;
 
+    private enum WorkoutType {
+        JustRow,Time,Distance;
+    }
+
     //constructors
     public Workout(List<Interval> intervalList, Integer averageSPM, Double distance, Double totalTime, GregorianCalendar workoutTime) {
         this.intervalList = intervalList;
@@ -68,6 +72,10 @@ public class Workout extends PerformanceMeasure implements Parcelable {
 
     public GregorianCalendar getWorkoutTime() {
         return workoutTime;
+    }
+
+    public Interval getLastInterval(){
+        return intervalList.get(intervalList.size()-1);
     }
 
     public void setWorkoutTime(GregorianCalendar workoutTime) {
@@ -135,6 +143,49 @@ public class Workout extends PerformanceMeasure implements Parcelable {
     }
 
 
+    public WorkoutType getWorkoutType(){
+        WorkoutType result;
+        if(isDistance()) {
+            result = WorkoutType.Distance;
+        } else {
+            if(isJustRow()){
+                result = WorkoutType.JustRow;
+            } else{
+                result = WorkoutType.Time;
+            }
+        }
+        return result;
+    }
+
+    private boolean isTime(){
+        return totalTime.equals(Workout.totalTime(intervalList));
+    }
+
+    private boolean isDistance(){
+        return distance.equals(Workout.totalDistance(intervalList));
+    }
+
+    private boolean isJustRow(){
+        return !intervalList.get(0).getTime().equals(this.getLastInterval().getTime()) && isTime();
+    }
+
+    public double percentCorrect(Workout correctWorkout){
+        double a = totalTime.equals(correctWorkout.getTime())?1:0;
+        double b = distance.equals(correctWorkout.getDistance())?1:0;
+        double c = averageSPM.equals(correctWorkout.getSPM())?1:0;
+        List<Interval> correctIntervalList = correctWorkout.getIntervalList();
+
+        double sum=0;
+        int noOfInts;
+
+
+
+        for (noOfInts = 0; noOfInts < intervalList.size() && noOfInts < correctIntervalList.size(); noOfInts++) {
+            sum += intervalList.get(noOfInts).percentageCorrect(correctIntervalList.get(noOfInts));
+        }
+
+        return (sum*4 + a + b + c) / ((correctIntervalList.size()*4) + 3);
+    }
 
     // Parcelable code here
 

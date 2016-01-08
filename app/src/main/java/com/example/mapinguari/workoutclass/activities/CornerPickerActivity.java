@@ -47,7 +47,7 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class CornerPickerActivity extends ActionBarActivity {
+public class  CornerPickerActivity extends ActionBarActivity {
 
     ImageView ergoImageView;
     RelativeLayout relativeLayout;
@@ -81,6 +81,8 @@ public class CornerPickerActivity extends ActionBarActivity {
         startActivity(inspectWorkout);
 
     }
+
+
 
     private Workout OCR(){
         Bitmap fullBitmap = null;
