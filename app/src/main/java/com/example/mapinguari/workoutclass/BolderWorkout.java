@@ -128,7 +128,7 @@ public class BolderWorkout {
         try {
             result = workoutDecipher(result);
         }catch (CantDecipherWorkoutException e){
-
+            e.printStackTrace();
         }
         return result;
     }
@@ -171,6 +171,12 @@ public class BolderWorkout {
         Double workTime;
         Integer spm,distance;
 
+        Interval result = new Interval(0.0,0.0,0,0.0);
+
+        //Wrong number of columns.
+        //no data in some columns
+        //currently resort to null interval
+
         boolean empty1 = false;
         boolean emptyC;
         for(int i = 0; i < vs.size();i++){
@@ -180,19 +186,19 @@ public class BolderWorkout {
             empty1 = empty1 || emptyC;
         }
 
+        if(vs.size() != 4 || empty1){
 
-        distance =  getDistance(vs.get(1));
-        if(vs.size() > 3)
+        } else {
+            distance = getDistance(vs.get(1));
             spm = getSPM(vs.get(3));
-        else
-            spm = null;
+            workTime = getDoubleProto(vs.get(0));
 
-        workTime = getDoubleProto(vs.get(0));
+            spm = spm != null ? spm : 0;
+            distance = distance != null ? distance : 0;
+            workTime = workTime != null ? workTime : 0.0;
 
-        spm = spm != null ? spm: 0;
-        distance = distance != null?distance:0;
-
-        Interval result = new Interval(workTime,distance.doubleValue(),spm,0.0);
+            result = new Interval(workTime, distance.doubleValue(), spm, 0.0);
+        }
         return result;
     }
 
@@ -453,86 +459,19 @@ public class BolderWorkout {
 
     }
 
-    public Workout correctForJustRow(Workout workout){
-        Interval totals = new Interval(workout.getTime(),workout.getDistance(),workout.getSPM(),0.0);
-        List<Interval> intervalList = workout.getIntervalList();
-        correctForJustRow(totals, intervalList);
-        return new Workout(intervalList,totals.getSPM(),totals.getDistance(),totals.getTime(),workout.getWorkoutTime());
-    }
-
-    private void correctForJustRow(Interval totals,List<Interval> intervals) {
-        int size = intervals.size();
-        Interval last = intervals.get(size - 1);
-        Double totalTime = totals.getTime();
-        Interval current;
-
-        //set all non-final intervals time to 300s
-
-        for (int i = 0; i < size - 1; i++) {
-            current = intervals.get(i);
-            //Just Row time is 5mins for all sub inters
-            current.setWorkTime(300.0);
-        }
-        //get the total time from regular intervals
-        Double regularIntevalsTT = (size - 1) * 300.0;
-
-
-        //Check whether last time or totals time are obviously unreasonable
-        boolean totalTimeReasonable = Math.abs(totalTime - regularIntevalsTT) < 300.0;
-        boolean lastTimeReasonable = Math.abs(last.getTime() - regularIntevalsTT) < 300.0;
-        //Check if both times are equal and non zero
-        boolean timesEqual = totalTime != 0.0 && totalTime == last.getTime();
-        //Set the last time correctly and get out
-        if (timesEqual) {
-            last.setWorkTime(totalTime - regularIntevalsTT);
-            return;
-        }
-
-        /*Going to have to make a call about which to go with:
-        At this point:
-        xy, x is first, y is last
-        TT -> Do nothing, no way of knowing
-        TF -> Assume total is right
-        FT -> Assume final is right
-        FF -> Do nothing, no way of knowing
-         */
-
-        if (totalTimeReasonable) {
-            if (lastTimeReasonable) {
-                //TT
-                return;
-            } else {
-                //TF
-                last.setWorkTime(totalTime - regularIntevalsTT);
-                return;
-            }
-        } else {
-            if (lastTimeReasonable) {
-                //FT
-                totals.setWorkTime(last.getTime());
-                last.setWorkTime(last.getTime() - regularIntevalsTT);
-                return;
-            } else {
-                //FF
-                return;
-            }
-        }
-
-    }
 
 
 
 
     public Double getDoubleProto(String sS){
-        Double result;
+        Double result = null;
         String timeString = getTimeString(sS);
         try {
             result = ErgoFormatter.parseSeconds(timeString);
         }catch(NotHumanStringException e){
-            result = 0.0;
+            e.printStackTrace();
         }
         return result;
-        //[\d:][\d{1,2}:]\d{1,2}.\d
     }
 
 
@@ -602,5 +541,72 @@ public class BolderWorkout {
 
      */
 
+    //    public Workout correctForJustRow(Workout workout){
+//        Interval totals = new Interval(workout.getTime(),workout.getDistance(),workout.getSPM(),0.0);
+//        List<Interval> intervalList = workout.getIntervalList();
+//        correctForJustRow(totals, intervalList);
+//        return new Workout(intervalList,totals.getSPM(),totals.getDistance(),totals.getTime(),workout.getWorkoutTime());
+//    }
+//
+//    private void correctForJustRow(Interval totals,List<Interval> intervals) {
+//        int size = intervals.size();
+//        Interval last = intervals.get(size - 1);
+//        Double totalTime = totals.getTime();
+//        Interval current;
+//
+//        //set all non-final intervals time to 300s
+//
+//        for (int i = 0; i < size - 1; i++) {
+//            current = intervals.get(i);
+//            //Just Row time is 5mins for all sub inters
+//            current.setWorkTime(300.0);
+//        }
+//        //get the total time from regular intervals
+//        Double regularIntevalsTT = (size - 1) * 300.0;
+//
+//
+//        //Check whether last time or totals time are obviously unreasonable
+//        boolean totalTimeReasonable = Math.abs(totalTime - regularIntevalsTT) < 300.0;
+//        boolean lastTimeReasonable = Math.abs(last.getTime() - regularIntevalsTT) < 300.0;
+//        //Check if both times are equal and non zero
+//        boolean timesEqual = totalTime != 0.0 && totalTime == last.getTime();
+//        //Set the last time correctly and get out
+//        if (timesEqual) {
+//            last.setWorkTime(totalTime - regularIntevalsTT);
+//            return;
+//        }
+//
+//        /*Going to have to make a call about which to go with:
+//        At this point:
+//        xy, x is first, y is last
+//        TT -> Do nothing, no way of knowing
+//        TF -> Assume total is right
+//        FT -> Assume final is right
+//        FF -> Do nothing, no way of knowing
+//         */
+//
+//        if (totalTimeReasonable) {
+//            if (lastTimeReasonable) {
+//                //TT
+//                return;
+//            } else {
+//                //TF
+//                last.setWorkTime(totalTime - regularIntevalsTT);
+//                return;
+//            }
+//        } else {
+//            if (lastTimeReasonable) {
+//                //FT
+//                totals.setWorkTime(last.getTime());
+//                last.setWorkTime(last.getTime() - regularIntevalsTT);
+//                return;
+//            } else {
+//                //FF
+//                return;
+//            }
+//        }
+//
+//    }
+//
 
 }
