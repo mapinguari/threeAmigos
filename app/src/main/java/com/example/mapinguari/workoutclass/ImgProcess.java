@@ -74,6 +74,11 @@ public class ImgProcess {
     private static void avgfilter(int[] imageIN, int[] imageOUT, int height,
                                   int width, int filth, int filtw){
         int i,j,intensity,average;
+        if (filth==0 || filtw==0) {
+            for (i=0;i<width*height;i++)
+                imageOUT[i]=imageIN[i];
+            return;
+        }
 
         int[] cumulative=new int[width*height];
 
