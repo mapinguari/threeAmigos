@@ -4,12 +4,8 @@ import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.format.DateFormat;
-import android.util.Log;
 
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Vector;
@@ -85,6 +81,10 @@ public class Workout extends PerformanceMeasure implements Parcelable {
 
     public void setWorkoutTime(GregorianCalendar workoutTime) {
         this.workoutTime = workoutTime;
+    }
+
+    public void setIntervalList(List<Interval> lI){
+        intervalList = lI;
     }
 
 

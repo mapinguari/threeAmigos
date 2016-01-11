@@ -46,7 +46,7 @@ public class ErgoFormatter{
                     rem = hmr[0];
                     break;
                 case (2): //Parsed seconds
-                    if(hmr[0] != "") {
+                    if(!(hmr[0].isEmpty())) {
                         mins = Integer.parseInt(hmr[0]);
                         rem = hmr[1];
                         break;

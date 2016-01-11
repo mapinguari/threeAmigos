@@ -80,9 +80,18 @@ public class ErgoCapture extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         mCamera.release();
+        mCamera = null;
     }
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(mCamera == null){
+            mCamera = getCameraInstance();
+            mPreview = new CameraPreview(this,mCamera);
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

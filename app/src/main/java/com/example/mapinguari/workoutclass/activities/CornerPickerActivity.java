@@ -115,7 +115,7 @@ public class  CornerPickerActivity extends ActionBarActivity {
 
             BolderWorkout bw = new BolderWorkout();
 
-            gleanedWorkout = bw.bolderWorkout(ocrReturnedValues);
+            gleanedWorkout = bw.bolderWorkout(ocrReturnedValues,ImgProcess.workoutType);
 
             if (gleanedWorkout == null) {
                 Toast failed = Toast.makeText(this, "Couldn't get a workout out", Toast.LENGTH_SHORT);

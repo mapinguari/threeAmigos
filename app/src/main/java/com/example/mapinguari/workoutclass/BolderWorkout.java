@@ -34,8 +34,9 @@ public class BolderWorkout {
 
 
     //We can do some stuff with the digits here, for example, the first \d char will be less than 6
+    public Pattern prettyDesperateRegex = Pattern.compile("([0-9\\.:]{1,2}:)?([0-9\\.:]?[0-9\\.:])?:[0-9\\.:]{2}\\.[0-9\\.:]");
     public Pattern basicTimeRegex = Pattern.compile("(\\d{1,2}:)?(\\d{2})?:\\d{2}\\.\\d");
-    public Pattern betterTimeRegex = Pattern.compile("([0-9]{1,2}:)?([1-5]?[0-9])?:[0-5][0-9]\\.[0-9]");
+    public Pattern betterTimeRegex = Pattern.compile("([0-9]{1,2}:)?([0-5]?[0-9])?:[0-5][0-9]\\.[0-9]");
     public Pattern desperateTimeRegex = Pattern.compile(anyOCRRegex+"{9,10}|"+ anyOCRRegex + "{5,7}");
 
     public Pattern distanceRegex = Pattern.compile("[0-9]{1,6}");
@@ -71,8 +72,28 @@ public class BolderWorkout {
     private String length7(String string){
         String result;
         char min2 = string.charAt(0);
+        if(min2 == ':' || min2 == '.' )
+            min2 = fixChar(min2);
+        result = min2 + length6(string.substring(1));
+        return result;
+    }
 
-        return "";
+    private String length9(String string){
+        String result;
+        char h1 = string.charAt(0);
+        if(h1== ':' || h1 == '.' )
+            h1 = fixChar(h1);
+        result = h1 + ':' + length7(string.substring(2));
+        return result;
+    }
+
+    private String length10(String string){
+        String result;
+        char h2 = string.charAt(0);
+        if(h2== ':' || h2 == '.' )
+            h2 = fixChar(h2);
+        result = h2 + length9(string.substring(2));
+        return result;
     }
 
     private char fixChar(char c){
@@ -95,7 +116,7 @@ public class BolderWorkout {
         return c;
     }
 
-    public Workout bolderWorkout(Vector<Vector<String>> vvs){
+    public Workout bolderWorkout(Vector<Vector<String>> vvs,String workoutType){
 
         List<Interval> intervalListTemp = new ArrayList<Interval>(vvs.size() - 1);
         Interval totalsInterval,curInterval;
@@ -125,12 +146,34 @@ public class BolderWorkout {
 
         result = correctSPM(result);
 
-        try {
-            result = workoutDecipher(result);
-        }catch (CantDecipherWorkoutException e){
-            e.printStackTrace();
-        }
+        boolean isTime = getDoubleProto(workoutType) != null;
+        boolean isDistance = getDistance(workoutType) != null;
+
+
+        //HERE THIS IS GOING TO BE A NIGHTMARE. It is possible I have no information about the interval sizes, so I wont be able to determine if it is
+        //JustRow or a time workout. For the moment, I am not going to tackle this.
+//        if( isDistance){
+//            if(isDistance){
+//                result = distanceCorrect(result,getDistance(workoutType));
+//            }
+//            //This is where I need to decide how to deal with time and justRow
+//            if(isTime){
+//            }
+//
+//        } else {
+
+            try {
+                result = workoutDecipher(result);
+            } catch (CantDecipherWorkoutException e) {
+                e.printStackTrace();
+            }
+//        }
         return result;
+    }
+
+
+    public Workout bolderWorkout(Vector<Vector<String>> vvs){
+        return bolderWorkout(vvs,"");
     }
 
 
@@ -143,17 +186,20 @@ public class BolderWorkout {
     private Vector<Vector<String>> clearInappropriate(Vector<Vector<String>> vvs,int numRej){
         int noECells = 0;
         Vector<String> vs;
-        for(int i = 0; i<vvs.size();i++){
+
+        for(int i = 0; i<vvs.size();i++) {
             vs = vvs.get(i);
-            for(String s : vs)
-                if(!containsSomeData(s)){
-                    vs.remove(s);
-                    noECells +=1;
+            for (String s : vs) {
+                if (!containsSomeData(s)) {
+                    noECells += 1;
                 }
-            if(vs.size() != 4|| noECells >= numRej){
+            }
+            if (noECells >= numRej) {
                 vvs.remove(i);
             }
+
         }
+
         return vvs;
     }
 
@@ -189,9 +235,10 @@ public class BolderWorkout {
         if(vs.size() != 4 || empty1){
 
         } else {
+            workTime = getDoubleProto(vs.get(0));
             distance = getDistance(vs.get(1));
             spm = getSPM(vs.get(3));
-            workTime = getDoubleProto(vs.get(0));
+
 
             spm = spm != null ? spm : 0;
             distance = distance != null ? distance : 0;
@@ -268,6 +315,8 @@ public class BolderWorkout {
     }
 
 
+
+
     private List<Interval> justRowCorrect(List<Interval> intervals, Double total){
         int n = intervals.size();
         for(int i = 0; i <n-1;i++){
@@ -290,6 +339,24 @@ public class BolderWorkout {
             i.setDistance(distance);
         }
         return intervals;
+    }
+
+    private Workout distanceCorrect(Workout workout,Integer dist) {
+
+        List<Interval> lI = workout.getIntervalList();
+        int numOfIntervals = lI.size();
+        double intervalDist = dist / numOfIntervals;
+        workout.setIntervalList(distanceCorrect(lI,intervalDist));
+        return workout;
+    }
+
+    private Workout timeCorrect(Workout workout,Double time) {
+
+        List<Interval> lI = workout.getIntervalList();
+        int numOfIntervals = lI.size();
+        double intervalTime = time / numOfIntervals;
+        workout.setIntervalList(timeCorrect(lI,intervalTime));
+        return workout;
     }
 
     public Double mostFrequentTimeInterval(List<Interval> intervalList){
@@ -468,8 +535,9 @@ public class BolderWorkout {
         String timeString = getTimeString(sS);
         try {
             result = ErgoFormatter.parseSeconds(timeString);
-        }catch(NotHumanStringException e){
+        }catch(Exception e){
             e.printStackTrace();
+            Log.w("Couldn't get time", sS);
         }
         return result;
     }
@@ -482,6 +550,23 @@ public class BolderWorkout {
         if(matcher.find()){
             sS = matcher.group();
             result = sS;
+        } else {
+            matcher = prettyDesperateRegex.matcher(sS);
+            if (matcher.find()) {
+                sS = matcher.group();
+                switch (sS.length()){
+                    case 5 : result = length5(sS);
+                        break;
+                    case 6 : result = length6(sS);
+                        break;
+                    case 7 : result = length7(sS);
+                        break;
+                    case 9 : result = length9(sS);
+                        break;
+                    case 10 : result = length10(sS);
+                        break;
+                }
+            }
         }
         return result;
     }
