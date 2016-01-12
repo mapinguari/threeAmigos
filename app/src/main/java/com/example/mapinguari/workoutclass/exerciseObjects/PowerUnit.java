@@ -26,4 +26,31 @@ public class PowerUnit {
         currentUnit = nextOrd;
         return nextOrd;
     }
+    //s/m
+    public static Double pace(Double time,Double distance){
+        return (time/distance);
+    }
+
+    //s/500m
+    public static Double split(Double time, Double distance){
+        return pace(time,distance)*500;
+    }
+    //j/s
+    public static Double watts(Double time, Double distance){
+        return 2.8 / (Math.pow(pace(time,distance),3));
+    }
+
+    //kcal - This formula I took from a website as C2 do not publish thier acutal formula. We will
+    // presume it is correct until otherwise.
+    public static Double calories(Double time,Double distance){
+        return 300 + 1200000000/(Math.pow(pace(time,distance),3));
+    }
+
+    public static Double splitFromWatts(Double watts){
+        return 500 * Math.cbrt(2.80/watts);
+    }
+
+    public static Double splitFromCal(Double cal){
+        return 500*(Math.cbrt(1200000000)/(cal - 300));
+    }
 }

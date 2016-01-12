@@ -15,6 +15,7 @@ public abstract class PerformanceMeasure {
     abstract public Double getRest();
 
 
+
     public String showHumanTime(){
         return ErgoFormatter.formatSeconds(getTime());
     }

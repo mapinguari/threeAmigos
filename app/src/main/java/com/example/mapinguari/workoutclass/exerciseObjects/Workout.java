@@ -22,7 +22,7 @@ public class Workout extends PerformanceMeasure implements Parcelable {
     private Integer averageSPM;
     private List<Interval> intervalList;
 
-    private enum WorkoutType {
+    public enum WorkoutType {
         JustRow,Time,Distance;
     }
 

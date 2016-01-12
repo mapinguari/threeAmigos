@@ -240,6 +240,8 @@ public class BolderWorkout {
             spm = getSPM(vs.get(3));
 
 
+
+
             spm = spm != null ? spm : 0;
             distance = distance != null ? distance : 0;
             workTime = workTime != null ? workTime : 0.0;
@@ -248,6 +250,7 @@ public class BolderWorkout {
         }
         return result;
     }
+
 
     /*Bolder workout code begins here
 
@@ -614,11 +617,6 @@ public class BolderWorkout {
 
     private String replaceWhiteSpace(String sS){
         sS = sS.replaceAll("\\s", "");
-        return sS;
-    }
-
-    private String removeConcurrentWhiteSpace(String sS){
-        sS = sS.replaceAll("\\s{2,}","");
         return sS;
     }
 
