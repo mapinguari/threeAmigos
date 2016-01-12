@@ -80,7 +80,7 @@ public class Workout extends PerformanceMeasure implements Parcelable {
     }
 
     public Interval getLastInterval(){
-        return intervalList.get(intervalList.size()-1);
+        return intervalList.get(intervalList.size() - 1);
     }
 
     public void setWorkoutTime(GregorianCalendar workoutTime) {
@@ -224,8 +224,23 @@ public class Workout extends PerformanceMeasure implements Parcelable {
 
         List<Interval> intervals=this.getIntervalList();
 
-        boolean timeIncremental=false;
-        boolean distanceIncremental=false;
+        boolean timeIncremental, distanceIncremental;
+
+        switch(this.getWorkoutType()){
+            case Time:
+                timeIncremental=true;
+                distanceIncremental=false;
+                break;
+            case Distance:
+                timeIncremental=false;
+                distanceIncremental=true;
+                break;
+            case JustRow:
+            default:
+                timeIncremental=false;
+                distanceIncremental=false;
+                break;
+        }
 
         double thisTime=0;
         double thisDistance=0;
@@ -236,11 +251,26 @@ public class Workout extends PerformanceMeasure implements Parcelable {
             returned.add(valuesToVS(thisTime,thisDistance,type,i.getSPM()));
         }
 
-
         return returned;
     }
 
 
+    public double compToVVS(Vector<Vector<String>> comp1,thirdColumnType type){
+        double total=0.0;
+        double correct=0.0;
+
+        Vector<Vector<String>> comp2=this.toVVS(type);
+        for (int row=0;row<comp1.size();row++){
+            Vector<String> compRow1=comp1.get(row);
+            for (int column=0;column<compRow1.size();column++){
+                total+=1;
+                if (row<comp2.size()&&column<comp2.get(row).size()){
+                    correct+=(comp2.get(row).get(column).equals(compRow1.get(column)))?1:0;
+                }
+            }
+        }
+        return correct/total;
+    }
 
     // Parcelable code here
 
