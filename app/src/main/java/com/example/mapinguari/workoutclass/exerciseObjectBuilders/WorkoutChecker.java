@@ -1,4 +1,7 @@
-package com.example.mapinguari.workoutclass.ExerciseObjectBuilders;
+package com.example.mapinguari.workoutclass.exerciseObjectBuilders;
+
+import android.util.Log;
+import android.widget.Toast;
 
 import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
 import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
@@ -11,14 +14,22 @@ import java.util.Map;
 
 /**
  * Created by mapinguari on 1/11/16.
+ *
+ * STUFF TO DO:
+ * Probably need to build some form of sanity logic into the correction
+ * Combine deciphered workout and protoworkout types
+ * Keep check of consistent rows and columns
  */
 public class WorkoutChecker extends PerfomanceMeasureChecker {
 
     private GregorianCalendar protoGregCal;
     private List<IntervalChecker> protoIntervals;
+
     private Workout.WorkoutType protoWorkoutType = null;
     private Double workoutTypeValue = null;
-    private WorkoutTypeTriple decipheredWorkoutType;
+    private WorkoutTypeTriple decphieredWorkoutType = null;
+
+    private WorkoutTypeTriple decidedWorkoutType = null;
 
     private class WorkoutTypeTriple {
         public Workout.WorkoutType workoutType;
@@ -51,6 +62,62 @@ public class WorkoutChecker extends PerfomanceMeasureChecker {
     }
 
 
+    //THIS IS CURRENTLY INCOMPLETE
+    //We will be fed information about what type of workout we have from both the top left and
+    // the information in the table. Need to try to figure out which workout Type is most likely.
+    public void determineWorkout(){
+        if(decidedWorkoutType == null){
+            workoutDecipher();
+        }
+        if(decphieredWorkoutType != null){
+            decidedWorkoutType = decphieredWorkoutType;
+        }
+    }
+
+    public void performAllCorrection(int numberOfIterations, boolean horizontalFirst){
+        if(decidedWorkoutType ==null)
+            determineWorkout();
+
+        correctSPM();
+
+        int iteration = 0;
+        int numberOfZerosLast= 4*(protoIntervals.size() +1);
+        while(!fullWorkout() && numberOfZerosLast > numberOfZeros() && iteration < numberOfIterations){
+            if(horizontalFirst)
+                horizontalChecks();
+            //verticalCorrection
+            correctWorkoutTypeColumn();
+            correctNonCumulativeColumn();
+
+            if(!horizontalFirst)
+                horizontalChecks();
+
+            if(decidedWorkoutType ==null)
+                determineWorkout();
+
+            numberOfZerosLast = numberOfZeros();
+            Log.w("iteration Number",Integer.toString(iteration));
+            iteration++;
+        }
+
+
+    }
+
+    @Override
+    public int numberOfZeros(){
+        int sum = super.numberOfZeros();
+        for(IntervalChecker i:protoIntervals){
+            sum += i.numberOfZeros();
+        }
+        return sum;
+    }
+
+    public boolean fullWorkout(){
+        boolean full = fullPerformanceMeasure();
+        for(IntervalChecker i: protoIntervals)
+            full &= i.fullInterval();
+        return full;
+    }
 
     public Workout getWorkout(){
         List<Interval> intervalList = new ArrayList<>(protoIntervals.size());
@@ -61,22 +128,160 @@ public class WorkoutChecker extends PerfomanceMeasureChecker {
     }
 
 
-    //Vertical time
-    //Vertical Distance
-    //Vertical SPM
-    //Combine deciphered workout and protoworkout types
-    //Keep check of consistent rows and columns
 
+
+
+    //Code to repair the non cumulative Column of a work out.
+
+    public boolean correctNonCumulativeColumn(){
+        boolean repairedColumn = false;
+        if(decidedWorkoutType == null){
+            repairedColumn = false;
+        } else if(decidedWorkoutType.workoutType == Workout.WorkoutType.Distance){
+            repairedColumn = correctNCumTime();
+        } else if(decidedWorkoutType.workoutType == Workout.WorkoutType.JustRow
+                || decidedWorkoutType.workoutType == Workout.WorkoutType.Time){
+            repairedColumn = correctNCumDistance();
+        }
+        return repairedColumn;
+    }
+
+    private boolean correctNCumTime(){
+        boolean allNonZero = true;
+        Double x = protoTime;
+
+        Double psiSum = 0.0;
+        int numberOfZeros = 0;
+        Double cProtoTime;
+
+        for(IntervalChecker intervalChecker:protoIntervals){
+            cProtoTime = intervalChecker.protoTime;
+            if(cProtoTime == 0){
+                numberOfZeros++;
+            }
+            psiSum += cProtoTime;
+        }
+        Double psi;
+        if(x==0&&numberOfZeros>0){
+            allNonZero = false;
+        } else if(x==0){
+            protoTime = psiSum;
+            allNonZero = true;
+        } else if(numberOfZeros>0){
+            psi = x - psiSum / numberOfZeros;
+            for(IntervalChecker intervalChecker : protoIntervals){
+                if(intervalChecker.zeroTime){
+                    intervalChecker.fixExternalTime(psi);
+                }
+            }
+            allNonZero = true;
+        }
+        return allNonZero;
+    }
+
+    private boolean correctNCumDistance(){
+        boolean allNonZero = true;
+        Double x = protoDistance;
+
+        Double psiSum = 0.0;
+        int numberOfZeros = 0;
+        Double cProtoDistance;
+
+        for(IntervalChecker intervalChecker:protoIntervals){
+            cProtoDistance = intervalChecker.protoDistance;
+            if(cProtoDistance == 0){
+                numberOfZeros++;
+            }
+            psiSum += cProtoDistance;
+        }
+        Double psi;
+        if(x==0&&numberOfZeros>0){
+            allNonZero = false;
+        } else if(x==0){
+            protoDistance = psiSum;
+            allNonZero = true;
+        } else if(numberOfZeros>0){
+            psi = x - psiSum / numberOfZeros;
+            for(IntervalChecker intervalChecker : protoIntervals){
+                if(intervalChecker.zeroDistance){
+                    intervalChecker.fixExternalDistance(psi);
+                }
+            }
+            allNonZero = true;
+        }
+        return allNonZero;
+    }
+
+    // Non cumulative code ends here.
+
+
+    //WE can introduce an integer to denote how aggressively we wish to try and make data appear in
+    // the cells. here is a prime example where we could try too aggresively to fit data.
+
+    //WE also need to think about what to do about numbers that singularly seem horrifically out.
+    //Should we try and correct that?!
+
+    private void correctSPM(){
+        Integer spm = protoSPM;
+        IntervalChecker curInterval;
+
+        Integer curSPM;
+        int noOfZeros = 0,noOfRows = protoIntervals.size();
+        double intSum = 0;
+        double replacementSPM = 0;
+        int realreplacementSPM;
+
+
+
+        List<Integer> sspm = new ArrayList<Integer>(noOfRows);
+        List<Integer> zeros = new ArrayList();
+
+        for(int i = 0;i <noOfRows;i++){
+            curSPM = protoIntervals.get(i).protoSPM;
+            sspm.add(curSPM);
+            if(curSPM == 0) {
+                zeros.add(i);
+                noOfZeros++;
+            } else {
+                intSum +=curSPM;
+            }
+
+        }
+
+
+        if(spm == 0){
+            if(noOfZeros >0){
+                replacementSPM = intSum / (noOfRows - noOfZeros);
+            } else {
+                replacementSPM = intSum / noOfRows;
+            }
+        } else {
+            if(noOfZeros > 0){
+                replacementSPM = ((double) noOfRows / noOfZeros) * (spm - (intSum / noOfRows));
+            }
+        }
+
+        //HERE I AM NOT AT ALL CONSIDERING THE PROBLEM INVOLVING FLOAT -> INT CONVERSION!
+        realreplacementSPM = (int) replacementSPM;
+
+        if(spm == 0)
+            this.protoSPM = realreplacementSPM;
+
+        for(Integer i : zeros){
+            curInterval = protoIntervals.get(i);
+            curInterval.fixExternalSPM(realreplacementSPM);
+        }
+    }
 
     //Determine what type of workout we have and correct it, code.
     //Begins
-    public void CorrectForWorkoutType(WorkoutTypeTriple wtt){
-        switch(wtt.workoutType){
-            case JustRow: justRowCorrect(wtt.total);
+    public void correctWorkoutTypeColumn(){
+        switch(decidedWorkoutType.workoutType){
+            case JustRow: justRowCorrect(decidedWorkoutType.total);
                 break;
-            case Time: timeCorrect(wtt.average,wtt.total);
+            case Time: timeCorrect(decidedWorkoutType.average,decidedWorkoutType.total);
                 break;
-            case Distance: distanceCorrect(wtt.average,wtt.total);
+            case Distance: distanceCorrect(decidedWorkoutType.average,decidedWorkoutType.total);
                 break;
         }
     }
@@ -201,6 +406,7 @@ public class WorkoutChecker extends PerfomanceMeasureChecker {
             } else {
                 result = new WorkoutTypeTriple(Workout.WorkoutType.Distance,distanceTotal, distanceAVGI);
             }
+            decphieredWorkoutType = result;
             return result;
         }
 
@@ -228,6 +434,7 @@ public class WorkoutChecker extends PerfomanceMeasureChecker {
                     result = new WorkoutTypeTriple(Workout.WorkoutType.Time,timeTotal, timeAVGI);
                 }
             }
+            decphieredWorkoutType = result;
             return result;
         }
 
@@ -255,6 +462,7 @@ public class WorkoutChecker extends PerfomanceMeasureChecker {
                     result = new WorkoutTypeTriple(Workout.WorkoutType.Time,timeTotal, timeAVGI);
                 }
             }
+            decphieredWorkoutType = result;
             return result;
         }
 

@@ -1,9 +1,8 @@
-package com.example.mapinguari.workoutclass.ExerciseObjectParsers;
+package com.example.mapinguari.workoutclass.exerciseObjectParsers;
 
 import com.example.mapinguari.workoutclass.exerciseObjects.ErgoFormatter;
 import com.example.mapinguari.workoutclass.exerciseObjects.PowerUnit;
 
-import java.util.Collection;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,6 +12,7 @@ import java.util.regex.Pattern;
  */
 public abstract class PerformanceMeasureParser {
 
+    private static final Double THIRD_COLUMN_ERROR_MARGIN = 0.25;
     int NUMBER_OF_EMPTY_CELLS_ALLOWED_PER_ROW = 2;
 
     private String anyDigRegex = "[0-9]";
@@ -20,7 +20,7 @@ public abstract class PerformanceMeasureParser {
     private String minDecRegex = "[1-5]";
     private String secDecRegex = "[0-5]";
 
-    //We can do some stuff with the digits here, for example, the first \d char will be less than 6
+
     private Pattern prettyDesperateRegex = Pattern.compile("([0-9\\.:]{1,2}:)?([0-9\\.:]?[0-9\\.:])?:[0-9\\.:]{2}\\.[0-9\\.:]");
     private Pattern basicTimeRegex = Pattern.compile("(\\d{1,2}:)?(\\d{2})?:\\d{2}\\.\\d");
     private Pattern betterTimeRegex = Pattern.compile("([0-9]{1,2}:)?([0-5]?[0-9])?:[0-5][0-9]\\.[0-9]");
@@ -54,21 +54,32 @@ public abstract class PerformanceMeasureParser {
 
     public PerformanceMeasureParser(Vector<String> stringRow){
 
-        if(stringRow.size() > 4){
-            //maybe try and figure out what columns should be merged
-//            stringRow = reduceNumberofCols();
+        int emptyNum = 0;
+        for(String s: stringRow){
+            if(s.isEmpty())
+                emptyNum++;
         }
 
-        if(stringRow.size() < 4){
-            //try and figure out which columns to split.
-//            stringRow = increaseNumberofCols();
-        }
+//        if(stringRow.size() > 4){
+//            //maybe try and figure out what columns should be merged
+////            stringRow = reduceNumberofCols();
+//        }
+//
+//        if(stringRow.size() < 4){
+//            //try and figure out which columns to split.
+////            stringRow = increaseNumberofCols();
+//        }
 
-        if(stringRow.size() == 4){
+        if(stringRow.size() == 4 && emptyNum == 0){
             this.timeString = stringRow.get(0);
             this.distanceString = stringRow.get(1);
             this.column3String = stringRow.get(2);
             this.spmString = stringRow.get(3);
+        } else {
+            this.timeString = "";
+            this.distanceString = "";
+            this.column3String = "";
+            this.spmString = "";
         }
     }
 
@@ -84,7 +95,7 @@ public abstract class PerformanceMeasureParser {
     }
 
 
-
+    //These functions are just simple checks that the data is not essentially empty in each field
     public boolean gotTimeData(){
         return timeDouble != 0.0;
     }
@@ -105,6 +116,7 @@ public abstract class PerformanceMeasureParser {
         return spmInteger != 0;
     }
 
+    //Non null field checks end here
 
 
     //Managed to get all column Strings
@@ -125,6 +137,10 @@ public abstract class PerformanceMeasureParser {
     }
 
 
+    //Using the information at our disposal, will try to determine what the data in this column is
+    // namely it will be split, watts, or calories.
+    //It is possible that we will re write this function to only attempt to get the correct unit once
+    // so as to prevent the algorithm checking each individual row.
     public boolean decipherThirdColumn(){
         boolean result = false;
         if(gotTimeData() && gotDistanceData()){
@@ -142,13 +158,13 @@ public abstract class PerformanceMeasureParser {
             Double minDiff = Double.MAX_VALUE;
 
 
-            for(int i = 0;i <2; i++){
+            for(int i = 0;i <3; i++){
                 if(diffAr[i]<minDiff){
                     posOfMin = i;
                 }
             }
 
-            if(minDiff > diffAr[posOfMin]*0.25){
+            if(minDiff > diffAr[posOfMin]*THIRD_COLUMN_ERROR_MARGIN){
                 posOfMin = 100;
             }
 
@@ -173,7 +189,7 @@ public abstract class PerformanceMeasureParser {
     //Parsing functions other than time start here
 
     public Integer getIntProto(String sS,int n,int m){
-        sS = replaceWhiteSpace(sS);
+
         sS = colonPeriodConvert(sS);
         //catch digits
         String regex;
@@ -190,19 +206,22 @@ public abstract class PerformanceMeasureParser {
         if(matcher.find()) {
             sS = matcher.group();
             result = Integer.valueOf(sS);
-            return result;
         }
         return result;
     }
 
     public boolean getSPM(){
-        spmInteger = getIntProto(spmString, 1, 2);
-        return spmInteger != null;
+        Integer result =getIntProto(spmString, 1, 2);
+        if(result != null)
+            spmInteger = result;
+        return spmInteger != 0;
     }
 
     public boolean getDistance(){
-        distanceDouble = getIntProto(distanceString,1,0).doubleValue();
-        return distanceDouble != null;
+        Integer result = getIntProto(distanceString,1,0);
+        if(result != null)
+            distanceDouble = result.doubleValue();
+        return distanceDouble != 0.0;
     }
 
     public boolean getThirdColumn(){
@@ -212,9 +231,9 @@ public abstract class PerformanceMeasureParser {
             column3Double = value;
             result = true;
         } else {
-            value = getCaloriesAndWatts(column3String).doubleValue();
-            if(value != null){
-                column3Double = value;
+            Integer temp = getCaloriesAndWatts(column3String);
+            if(temp != null){
+                column3Double = temp.doubleValue();
                 result = true;
             }
         }
@@ -235,18 +254,15 @@ public abstract class PerformanceMeasureParser {
         return s;
     }
 
-    private String replaceWhiteSpace(String sS){
-        sS = sS.replaceAll("\\s", "");
-        return sS;
-    }
-
     //Non time parsing functions end here
 
 
     //Time Parsing functions start Here
 
     public boolean getTime(){
-        timeDouble = getTime(timeString);
+        Double result = getTime(timeString);
+        if(result != null)
+            timeDouble = result;
         return timeDouble != 0.0;
     }
 
@@ -331,6 +347,10 @@ public abstract class PerformanceMeasureParser {
         return result;
     }
 
+    /**
+     * @param c
+     * @return
+     */
     private char fixChar(char c){
         switch(c){
             case ':' : c = 1;

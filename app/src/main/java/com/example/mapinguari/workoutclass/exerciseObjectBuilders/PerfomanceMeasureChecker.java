@@ -1,4 +1,4 @@
-package com.example.mapinguari.workoutclass.ExerciseObjectBuilders;
+package com.example.mapinguari.workoutclass.exerciseObjectBuilders;
 
 /**
  * Created by mapinguari on 1/11/16.
@@ -19,6 +19,11 @@ public abstract class PerfomanceMeasureChecker {
         this.protoDistance = protoDistance;
         this.protoSplit = protoSplit;
         this.protoSPM = protoSPM;
+
+        this.zeroTime = protoTime == 0.0;
+        this.zeroDistance = protoDistance == 0.0;
+        this.zeroSplit = protoSplit == 0.0;
+        this.zeroSPM = protoSPM == 0;
     }
 
     //Ergo numbers are very inaccurate, need epsilon equality
@@ -33,6 +38,24 @@ public abstract class PerfomanceMeasureChecker {
             fixDistance();
         }
     }
+
+    protected int numberOfZeros(){
+        int sum = 0;
+        if(zeroTime)
+            sum++;
+        if(zeroDistance)
+            sum++;
+        if(zeroSplit)
+            sum++;
+        if(zeroSPM)
+            sum++;
+        return sum;
+    }
+
+    public boolean fullPerformanceMeasure(){
+        return !zeroTime && !zeroDistance && !zeroSPM;
+    }
+
 
 
     protected Double getSpeed(){
@@ -57,6 +80,23 @@ public abstract class PerfomanceMeasureChecker {
 //            protoSplit = (protoTime / protoDistance) * 500;
 //        }
 //    }
+
+    public void fixExternalTime(Double protoTime) {
+        this.protoTime = protoTime;
+    }
+
+    public void fixExternalDistance(Double protoDistance) {
+        this.protoDistance = protoDistance;
+    }
+
+    public void fixExternalSPM(Integer protoSPM) {
+        this.protoSPM = protoSPM;
+    }
+
+    public void fixExternalSplit(Double protoSplit){
+        this.protoSplit = protoSplit;
+    }
+
 
 
     protected boolean canFixTime(){

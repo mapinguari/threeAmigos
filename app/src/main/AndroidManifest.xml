@@ -39,7 +39,7 @@
             android:label="@string/title_activity_workout_view" >
         </activity>
         <activity
-            android:name=".activities.CornerPickerActivity"
+            android:name=".activities.PhotoInspection"
             android:label="@string/title_activity_corner_picker" >
         </activity>
 

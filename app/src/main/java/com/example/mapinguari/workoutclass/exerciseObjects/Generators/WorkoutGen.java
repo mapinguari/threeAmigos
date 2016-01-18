@@ -1,5 +1,6 @@
-package com.example.mapinguari.workoutclass;
+package com.example.mapinguari.workoutclass.exerciseObjects.Generators;
 
+import com.example.mapinguari.workoutclass.exerciseObjects.Generators.IntervalGen;
 import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
 import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
 

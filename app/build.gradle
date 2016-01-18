@@ -13,9 +13,9 @@ android {
 //        exclude 'bibliography.txt'
 //    }
 
-    dexOptions {
-        javaMaxHeapSize "4g"
-    }
+//    dexOptions {
+//        javaMaxHeapSize "4g"
+//    }
 
     defaultConfig {
         applicationId "com.example.mapinguari.workoutclass"
@@ -24,7 +24,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        multiDexEnabled=true
+        //multiDexEnabled=true
     }
     buildTypes {
 

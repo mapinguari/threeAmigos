@@ -1,11 +1,8 @@
 package com.example.mapinguari.workoutclass.activities;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -13,10 +10,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.mapinguari.workoutclass.R;
-
-
-
-import java.io.File;
 
 
 public class MainMenuActivity extends ActionBarActivity {
@@ -76,7 +69,7 @@ public class MainMenuActivity extends ActionBarActivity {
                 }
                 try {
 
-                    cornerPickerIntent = new Intent(this, CornerPickerActivity.class);
+                    cornerPickerIntent = new Intent(this, PhotoInspection.class);
                     cornerPickerIntent.putExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE), bitmapURI.toString());
                     startActivity(cornerPickerIntent);
                 }catch(Exception e){

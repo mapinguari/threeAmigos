@@ -1,6 +1,6 @@
-package com.example.mapinguari.workoutclass.ExerciseObjectParsers;
+package com.example.mapinguari.workoutclass.exerciseObjectParsers;
 
-import com.example.mapinguari.workoutclass.ExerciseObjectBuilders.IntervalChecker;
+import com.example.mapinguari.workoutclass.exerciseObjectBuilders.IntervalChecker;
 
 import java.util.Vector;
 
@@ -21,7 +21,7 @@ public class IntervalParser extends PerformanceMeasureParser {
         this.restTimeDouble = restTimeData;
     }
 
-    public IntervalChecker getIntervalChecker(){
+    private IntervalChecker getIntervalChecker(){
         return new IntervalChecker(timeDouble,distanceDouble,splitDouble,spmInteger,restTimeDouble);
     }
 

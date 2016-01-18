@@ -1,137 +1,26 @@
-package com.example.mapinguari.workoutclass.activities;
+package com.example.mapinguari.workoutclass;
 
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Paint;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.hardware.Camera;
-import android.net.Uri;
-import android.provider.MediaStore;
-import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.DragEvent;
-import android.view.GestureDetector;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
 
-import com.example.mapinguari.workoutclass.BolderWorkout;
-import com.example.mapinguari.workoutclass.ImageTransform;
-import com.example.mapinguari.workoutclass.ImgProcess;
-import com.example.mapinguari.workoutclass.R;
-import com.example.mapinguari.workoutclass.exceptions.CantDecipherWorkoutException;
 import com.example.mapinguari.workoutclass.exceptions.NotHumanStringException;
 import com.example.mapinguari.workoutclass.exerciseObjects.ErgoFormatter;
 import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
 import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class  CornerPickerActivity extends ActionBarActivity {
-
-    ImageView ergoImageView;
-    RelativeLayout relativeLayout;
-
-    Button saveButton;
-    Uri imgURI;
-
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_corner_picker);
-        ergoImageView = (ImageView) findViewById(R.id.ergo_image_view);
-        relativeLayout = (RelativeLayout) findViewById(R.id.corner_picker_frame);
-        saveButton = (Button) findViewById(R.id.corner_picker_saveButton);
-        Intent sIntent = getIntent();
-
-
-        imgURI = Uri.parse(sIntent.getStringExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE)));
-
-
-        ergoImageView.setImageURI(imgURI);
-    }
-
-
-    public void saveCorners(View v){
-        Workout gleanedWorkout = OCR();
-        Intent inspectWorkout = new Intent(getApplicationContext(),WorkoutViewActivity.class);
-        inspectWorkout.putExtra(getResources().getString(R.string.EXTRA_WORKOUT),gleanedWorkout);
-        inspectWorkout.putExtra(getResources().getString(R.string.EXTRA_WORKOUT_PASSED),true);
-        startActivity(inspectWorkout);
-
-    }
-
-
-
-    private Workout OCR(){
-        Bitmap fullBitmap = null;
-        try {
-            fullBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imgURI);
-        } catch(Exception e){
-            Toast failed = Toast.makeText(this, "Can't get a bitmap", Toast.LENGTH_SHORT);
-            failed.show();
-            return null;
-        }
-        Vector<Vector<String>> ocrReturnedValues = null;
-
-        ImgProcess.loadLanguage("lan", this.getApplicationContext());
-
-        try {
-            ocrReturnedValues= ImgProcess.ProcessImage(fullBitmap,
-                    this.getCacheDir().getCanonicalPath());
-            Bitmap bit = ImgProcess.linesImg;
-
-        } catch (Exception e) {
-            Log.e("LoadImage", e.toString());
-            e.printStackTrace();
-        }
-        Workout gleanedWorkout = null;
-        if(ocrReturnedValues != null) {
-            Log.w("OCR OUTPUT", ocrReturnedValues.toString());
-
-            //trying a bolder parse
-            //gleanedWorkout = conservativeWorkout(ocrReturnedValues);
-
-            BolderWorkout bw = new BolderWorkout();
-
-            gleanedWorkout = bw.bolderWorkout(ocrReturnedValues,ImgProcess.workoutType);
-
-            if (gleanedWorkout == null) {
-                Toast failed = Toast.makeText(this, "Couldn't get a workout out", Toast.LENGTH_SHORT);
-                failed.show();
-            }
-        } else {
-            Toast failed = Toast.makeText(this, "I tried, nothing to find", Toast.LENGTH_SHORT);
-            failed.show();
-        }
-        return gleanedWorkout;
-    }
-
-
+/**
+ * Created by mapinguari on 1/13/16.
+ *
+ * Code predominantly written by David
+ */
+public class ConservativeWorkout {
 
     public Workout conservativeWorkout(Vector<Vector<String>> vvs){
-        Log.v("PAR","parsing:"+(vvs.size())+" rows");
+        Log.v("PAR", "parsing:" + (vvs.size()) + " rows");
 
         Interval totalsInterval = null;
         Interval currentInterval;
@@ -389,31 +278,6 @@ public class  CornerPickerActivity extends ActionBarActivity {
             Log.w("SPM string parse fail", spmS);
         }
         return spm;
-    }
-
-
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_corner_picker, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
 }

@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
-import android.media.Image;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,7 +17,6 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -77,16 +75,16 @@ public class ErgoCapture extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
         mCamera.release();
         mCamera = null;
     }
 
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
         if(mCamera == null){
             mCamera = getCameraInstance();
             mPreview = new CameraPreview(this,mCamera);
@@ -311,7 +309,7 @@ public class ErgoCapture extends AppCompatActivity {
             mCamera.release();
 
 
-            Intent a = new Intent(ErgoCapture.this,CornerPickerActivity.class);
+            Intent a = new Intent(ErgoCapture.this,PhotoInspection.class);
             a.putExtra(getResources().getString(R.string.EXTRA_ERGO_IMAGE), (Uri.fromFile(outFile)).toString());
             startActivity(a);
         }

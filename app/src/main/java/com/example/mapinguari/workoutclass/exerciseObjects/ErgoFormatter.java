@@ -30,7 +30,7 @@ public class ErgoFormatter{
             formatter.format("%d:%02d.%d", mins, secs, centi);
         }
         else{
-            formatter.format("%d.%d", secs, centi);
+            formatter.format(":%02d.%d", secs, centi);
         }
         return formatter.out().toString();
     }

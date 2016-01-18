@@ -1,6 +1,5 @@
 package com.example.mapinguari.workoutclass.activities;
 
-import android.content.ComponentName;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -19,10 +18,8 @@ import com.example.mapinguari.workoutclass.database.DatabaseInterface;
 import com.example.mapinguari.workoutclass.database.DatabaseOpenTask;
 import com.example.mapinguari.workoutclass.R;
 import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
-import com.example.mapinguari.workoutclass.WorkoutGen;
 import com.example.mapinguari.workoutclass.WorkoutListAdapter;
 import com.example.mapinguari.workoutclass.WorkoutListItemLayout;
-import com.example.mapinguari.workoutclass.exerciseObjectsViews.WorkoutView;
 
 import java.util.List;
 
