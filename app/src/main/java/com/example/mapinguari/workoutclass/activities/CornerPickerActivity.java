@@ -86,6 +86,8 @@ public class  CornerPickerActivity extends ActionBarActivity {
 
     private Workout OCR(){
         Bitmap fullBitmap = null;
+        ImgProcess ImageFilterer=null;
+
         try {
             fullBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imgURI);
         } catch(Exception e){
@@ -98,9 +100,9 @@ public class  CornerPickerActivity extends ActionBarActivity {
         ImgProcess.loadLanguage("lan", this.getApplicationContext());
 
         try {
-            ocrReturnedValues= ImgProcess.ProcessImage(fullBitmap,
-                    this.getCacheDir().getCanonicalPath());
-            Bitmap bit = ImgProcess.linesImg;
+            ImageFilterer=new ImgProcess(fullBitmap,this.getCacheDir().getCanonicalPath());
+            ocrReturnedValues= ImageFilterer.ProcessImage();
+            Bitmap bit = ImageFilterer.linesImg;
 
         } catch (Exception e) {
             Log.e("LoadImage", e.toString());
@@ -115,7 +117,7 @@ public class  CornerPickerActivity extends ActionBarActivity {
 
             BolderWorkout bw = new BolderWorkout();
 
-            gleanedWorkout = bw.bolderWorkout(ocrReturnedValues,ImgProcess.workoutType);
+            gleanedWorkout = bw.bolderWorkout(ocrReturnedValues,ImageFilterer.workoutType);
 
             if (gleanedWorkout == null) {
                 Toast failed = Toast.makeText(this, "Couldn't get a workout out", Toast.LENGTH_SHORT);
