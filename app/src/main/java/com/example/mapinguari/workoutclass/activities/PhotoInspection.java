@@ -38,7 +38,6 @@ public class PhotoInspection extends ActionBarActivity {
 
     Button saveButton;
     Uri imgURI;
-    File logDir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
 
 
 
@@ -89,9 +88,9 @@ public class PhotoInspection extends ActionBarActivity {
         ImgProcess.loadLanguage("lan", this.getApplicationContext());
 
         try {
-            ocrReturnedValues= ImgProcess.ProcessImage(fullBitmap,
-                    this.getCacheDir().getCanonicalPath());
-            Bitmap bit = ImgProcess.linesImg;
+            ImgProcess imgProcess = new ImgProcess(fullBitmap,this.getCacheDir().getCanonicalPath());
+            ocrReturnedValues= imgProcess.ProcessImage();
+            Bitmap bit = imgProcess.linesImg;
 
         } catch (Exception e) {
             Log.e("LoadImage", e.toString());
@@ -103,56 +102,21 @@ public class PhotoInspection extends ActionBarActivity {
 
             //trying a bolder parse
             //gleanedWorkout = conservativeWorkout(ocrReturnedValues);
-            try {
-                Vector<String> totals = ocrReturnedValues.firstElement();
-                ocrReturnedValues.remove(0);
-                Vector<Vector<String>> subIntervals = ocrReturnedValues;
-                GregorianCalendar workoutTime = new GregorianCalendar();
+            Vector<String> totals = ocrReturnedValues.firstElement();
+            ocrReturnedValues.remove(0);
+            Vector<Vector<String>> subIntervals = ocrReturnedValues;
+            GregorianCalendar workoutTime = new GregorianCalendar();
 
-                WorkoutParser workoutParser = new WorkoutParser(totals, workoutTime, subIntervals);
+            WorkoutParser workoutParser = new WorkoutParser(totals, workoutTime, subIntervals);
 
-                WorkoutChecker workoutChecker = workoutParser.runForWorkoutChecker();
-                workoutChecker.performAllCorrection(MAX_CORRECTIVE_ITERATIONS, true);
+            WorkoutChecker workoutChecker = workoutParser.runForWorkoutChecker();
+            workoutChecker.performAllCorrection(MAX_CORRECTIVE_ITERATIONS, true);
 
-                Toast.makeText(this, "Yes I did the new stuff", Toast.LENGTH_LONG).show();
-
-
-                gleanedWorkout = workoutChecker.getWorkout();
-
-            } catch(Exception e){
-                String error = e.getMessage();
-                GregorianCalendar g = new GregorianCalendar();
-                String imgUriNameThing = Integer.toString(g.hashCode());
-                File logFile = new File(logDir,imgUriNameThing + ".txt");
-                File bitMapFile = new File(logDir,imgUriNameThing);
-                FileOutputStream logfileout = null;
-                FileOutputStream pictureLogOut = null;
-                PrintWriter printWriter;
-                try{
-                    logfileout = new FileOutputStream(logFile);
-                    printWriter = new PrintWriter(logfileout);
-
-                    pictureLogOut = new FileOutputStream(bitMapFile);
-
-                    printWriter.write(error);
-                    fullBitmap.compress(Bitmap.CompressFormat.JPEG,100,pictureLogOut);
+            Toast.makeText(this, "Yes I did the new stuff", Toast.LENGTH_LONG).show();
 
 
-                    logfileout.close();
-                    pictureLogOut.close();
-                } catch (Exception ex){
+            gleanedWorkout = workoutChecker.getWorkout();
 
-                } finally {
-                    try {
-                        if (logfileout != null)
-                            logfileout.close();
-                        if (pictureLogOut != null)
-                            pictureLogOut.close();
-                    } catch (Exception el){
-
-                    }
-                }
-            }
 //            BolderWorkout bw = new BolderWorkout();
 //
 //            gleanedWorkout = bw.bolderWorkout(ocrReturnedValues,ImgProcess.workoutType);
