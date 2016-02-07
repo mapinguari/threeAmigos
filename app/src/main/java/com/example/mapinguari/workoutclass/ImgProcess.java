@@ -18,19 +18,338 @@ public class ImgProcess {
     private static final int black = 0xFF000000;
     private static final int white = 0xFFFFFFFF;
 
-    public static Bitmap linesImg = null;
-    public static String workoutType=null;
+    public Bitmap linesImg = null;
+    public String workoutType=null;
+
+    private int imageHeight,imageWidth;
+
+    //actual edges to use
+    int leftMargin,rightMargin,topMargin,bottomMargin;
 
 
-    /**
-     * Returns the average value of the three colour components from a integer pixel
-     * @param value The pixels value
-     * @return The average of the components
-     */
-    private static int pixel_avg(int value) {
-        return (((value >> 16) & 0x000000FF)+
-                ((value >>8 ) & 0x000000FF)+
-                (value & 0x000000FF))/3;
+    private final int[] imageToProcess;
+    private int[] lightImage;
+    private int[] blobImage;
+    private int[] OCRImage;
+    private int[] linesImage;
+    private String cachePath;
+
+    private int[] textLines;
+    private int[] solidLines;
+
+    private int[][] columns;
+
+
+
+    public ImgProcess(Bitmap image, String languagePath) {
+        imageWidth  =image.getWidth();
+        imageHeight =image.getHeight();
+        imageToProcess=new int[imageWidth*imageHeight];
+
+        image.getPixels(imageToProcess, 0, imageWidth, 0, 0, imageWidth, imageHeight);
+        cachePath=languagePath;
+
+        lightImage=null;
+        blobImage=null;
+        OCRImage=null;
+
+        leftMargin=imageWidth/20;
+        rightMargin=(imageWidth*9)/10;
+        topMargin=0;
+        bottomMargin=(9*imageHeight)/10;
+
+        workoutType="";
+    }
+
+
+    public Vector<Vector<String>> ProcessImage() {
+        Log.d("ImgProcess", "Processing image; size:" + imageWidth + "x" + imageHeight);
+        //do stuff here
+        return doEverything();
+    }
+
+    private Vector<Vector<String>>  doEverything () {
+        //image processing
+        if (OCRImage==null)
+            filterImageOCR();
+        if (blobImage==null)
+            filterImageBlob();
+
+        findLines();
+        findColumns();
+
+        makeLinesImage();
+        linesImg=Bitmap.createBitmap(linesImage, imageWidth, imageHeight, Bitmap.Config.ARGB_8888);
+
+        //text recognition
+        Vector<Vector<String>> ret=recognise(OCRImage,imageWidth,imageHeight,leftMargin,rightMargin,
+                textLines,solidLines,columns,cachePath);
+
+        /*
+        saveImage(lightImage, imageWidth, imageHeight, "lights",cachePath);
+        saveImage(blobImage, imageWidth, imageHeight, "blobs",cachePath);
+        saveImage(linesImage, imageWidth, imageHeight, "textlines",cachePath);
+        */
+
+        return ret;
+
+    }
+
+    // filtered image creation functions
+    private void filterImageLight(){
+        int filtlh=imageWidth/40,filtlw=imageWidth/40;
+
+        lightImage=new int[imageWidth*imageHeight];
+        avgfilter(imageToProcess, lightImage, imageHeight, imageWidth, filtlh, filtlw);
+    }
+
+    private void filterImageBlob(){
+        int filtlh2=imageWidth/200,filtlw2=imageWidth/200;
+        if (lightImage==null)
+            filterImageLight();
+
+        blobImage=new int[imageWidth*imageHeight];
+        avgfilter(imageToProcess, blobImage, imageHeight, imageWidth, filtlh2, filtlw2);
+        threshold(blobImage, lightImage, blobImage, imageWidth * imageHeight, 19, 20);
+    }
+
+    private void filterImageOCR(){
+        int filthh=imageWidth/1000,filthw=imageWidth/1000;
+        if (lightImage==null)
+            filterImageLight();
+
+        OCRImage=new int[imageWidth*imageHeight];
+        avgfilter(imageToProcess, OCRImage, imageHeight, imageWidth, filthh, filthw);
+        threshold(OCRImage,lightImage,OCRImage,imageWidth*imageHeight,18,20);
+    }
+
+    //Word and line extraction functions
+
+    private void findLines(){
+
+        //horizontal detection parameters
+        int thres=imageWidth/2;		//black line threshold
+        int Tthres=imageWidth/40;		//Text line threshold
+        int minLineGap=imageHeight/20;	//minimum gap between solid lines
+        int minTextSize=imageHeight/50;
+
+        //horizontal detection variables
+        int LastSolidLine=0;	//last found solid line
+        int top=0;		//current text row top
+        int ntop=0;		//next text row top
+        int PixelCount;	//number of black pixels
+        int PreviousCount=0;	//number of black pixels in last row
+
+        Vector<Integer> HorizontalLines=new Vector<>(); 	//stored solid lines
+        Vector<Integer> TextLines=new Vector<>();		//stored text lines
+
+        HorizontalLines.add(0);
+
+        int i,j;
+        for (j=topMargin;j<bottomMargin;j++) {
+            PixelCount=0;
+
+            for (i=leftMargin;i<rightMargin;i++) {
+                if (blobImage[j*imageWidth+i]==black){
+                    PixelCount++;
+                }
+            }
+            //text rows
+            if ((PixelCount>Tthres&&PreviousCount<=Tthres)
+                    ||j==bottomMargin-1) {
+                if (top<HorizontalLines.lastElement()) {
+                    top=ntop;
+                } else if (minTextSize<j-top) {
+                    TextLines.add(top);
+
+                    if (j==bottomMargin-1&&j-ntop>30) {
+                        TextLines.add(ntop+1);
+                    } else {
+                        TextLines.add(j);
+                    }
+                    top=ntop;
+                }
+
+            } else if (PixelCount<=Tthres&&PreviousCount>Tthres) {
+                ntop=j;
+            }
+
+            PreviousCount=PixelCount;
+            //solid lines
+            if(PixelCount>thres&&((j-LastSolidLine)>minLineGap)) {
+
+                HorizontalLines.add(j);
+                HorizontalLines.add(j);
+                LastSolidLine=j;
+            } else if (PixelCount>thres) {
+                HorizontalLines.set(HorizontalLines.size()-1,j);
+                LastSolidLine=j;
+            }
+        }
+
+        //save found lines to object
+        textLines=new int[TextLines.size()];
+        solidLines=new int[HorizontalLines.size()];
+
+        for (i=0;i<textLines.length;i++)
+            textLines[i]=TextLines.get(i);
+
+        for (i=0;i<solidLines.length;i++)
+            solidLines[i]=HorizontalLines.get(i);
+
+        return;
+    }
+
+    void findColumns() {
+
+        int[] cumulative=new int[imageWidth*imageHeight];
+        Vector<Vector<Integer>> foundColumns=new Vector<Vector<Integer>>();
+
+
+        //vertical detection parameters
+        int spaceSize;		//size of spaces between words
+
+        //vertical detection variables
+        int nTextLines=textLines.length/2;		//number of text lines to process
+        int vthres;		                        //threshold for vertical detection
+        int RowHeight;		                    //height of current text row
+        int prev=0;		                        //previous word end
+        int firstUp;		                    //first white/black transition, ignore
+                                                //because will only be white space
+        int numWhiteCol;	                    //number of white columns in a row
+
+        int PixelCount;
+
+        //loop variables
+        int i,j;
+
+
+        //build cumulative array
+        for (j=topMargin;j<bottomMargin;j++) {
+            for (i = leftMargin; i < rightMargin; i++) {
+                if (blobImage[j * imageWidth + i] == black) {
+                    cumulative[j * imageWidth + i] = (j > 0) ? 1 + cumulative[(j - 1) * imageWidth + i] : 1;
+                } else {
+                    cumulative[j * imageWidth + i] = (j > 0) ? cumulative[(j - 1) * imageWidth + i] : 0;
+                }
+            }
+        }
+
+        for (i=0;i<nTextLines;i++) {
+
+            //skip everything before second black line, start of numbers
+            if (solidLines.length > 4 && textLines[i * 2] <= solidLines[4]) {
+                foundColumns.add(new Vector<Integer>());
+                continue; // Lines before intervals
+            } else if (i > 0 && solidLines.length > 4 && textLines[i * 2 - 1] <= solidLines[4] &&
+                    textLines[i * 2] >= solidLines[4]) {
+                ;//any actions for first text line after second solid line
+            }
+
+            RowHeight = textLines[i * 2 + 1] - textLines[i * 2];
+
+            vthres = 1 + RowHeight / 20;
+            spaceSize = imageWidth / 10;
+            boolean cont;
+            int upperBound = spaceSize;
+            int lowerBound = 0;
+            int noOfRows;
+            Vector<Integer> columnBreaks;
+
+            do {
+                Log.d("Col Space", "Row" + Integer.toString(i) + ": " + Integer.toString(spaceSize));
+                numWhiteCol = 0;
+                firstUp = 0;
+                columnBreaks=new Vector<Integer>();
+
+                for (j = leftMargin; j < rightMargin; j++) {
+                    PixelCount = cumulative[textLines[i * 2 + 1] * imageWidth + j] -
+                            cumulative[textLines[i * 2] * imageWidth + j];
+
+
+                    if ((numWhiteCol > spaceSize && PixelCount > vthres) ||
+                            j == (rightMargin - 1)) {
+
+                        if (firstUp == 0) {
+                            firstUp = 1;
+                        } else {
+                            columnBreaks.add(prev);
+                            columnBreaks.add(j);
+
+                            Log.d("ImgProcess",
+                                    "Found Rectangle: x:" + String.valueOf(prev + 1) +
+                                            " y:"+String.valueOf(textLines[i * 2]) +
+                                            " width:"+ String.valueOf(j - prev - 1) +
+                                            " height:" + String.valueOf(textLines[i * 2 + 1] - textLines[i * 2]));
+                        }
+                        prev = j - numWhiteCol;
+                    }
+
+                    if (PixelCount <= vthres)
+                        numWhiteCol++;
+                    else
+                        numWhiteCol = 0;
+
+                }
+
+                noOfRows = columnBreaks.size()/2;
+                //space size too big
+                if (noOfRows < 4) {
+                    if(spaceSize < upperBound)
+                        upperBound = spaceSize;
+                    //space size too small
+                } else if (noOfRows > 4) {
+                    if(spaceSize > lowerBound)
+                        lowerBound = spaceSize;
+                }
+
+                spaceSize = (upperBound + lowerBound) / 2;
+                cont = true;
+
+                if(upperBound - lowerBound < 2)
+                    cont = false;
+
+                if(noOfRows == 4)
+                    cont = false;
+
+            } while (cont);
+
+            foundColumns.add(columnBreaks);
+
+        }
+
+        columns=new int[foundColumns.size()][];
+        for (i=0;i<columns.length;i++){
+            columns[i]=new int[foundColumns.get(i).size()];
+            for(j=0;j<columns[i].length;j++){
+                columns[i][j]=foundColumns.get(i).get(j);
+            }
+        }
+
+        return;
+    }
+
+    private void makeLinesImage(){
+        int[] processedImage= Arrays.copyOf(OCRImage, OCRImage.length);
+        int i;
+
+        for(Integer line : solidLines){
+            for(i=0;i<imageWidth;i++)
+                processedImage[line*imageWidth+i]=0xFFFF0000;
+        }
+        for(Integer line : textLines){
+            for(i=0;i<imageWidth;i++)
+                processedImage[line*imageWidth+i]=0xFF0000FF;
+        }
+
+        for (i=0;i<textLines.length/2;i++) {
+            for (int line : columns[i]) {
+                for (int k = textLines[i * 2]; k < textLines[i * 2 + 1]; k++)
+                    processedImage[k * imageWidth + line] = 0xFF00FF00;
+            }
+        }
+
+        linesImage=processedImage;
     }
 
     /**
@@ -114,302 +433,83 @@ public class ImgProcess {
 
                 average/=(4*filth*filtw);
 
-                imageOUT[i*width+j]=(average<<16)
+                imageOUT[i*width+j]=0xFF000000+(average<<16)
                         +(average<<8)+average;
             }
         }
     }
 
-    private static Vector<Vector<String>> recognise(int[] sliceImage, int[] imageIN, int height,
-                                                    int width, String Cachepath) {
+    private Vector<Vector<String>> recognise(int[] image, int width, int height, int leftMargin, int rightMargin,
+                                             int[] textLines, int[] solidLines, int[][] columns, String cachePath) {
 
-        int[] cumulative=new int[width*height];
-        int[] processedImage= Arrays.copyOf(imageIN, imageIN.length);
-
-
-        //actual edges to use
-        int leftMargin=width/20;
-        int rightMargin=(width*9)/10;
-        int topMargin=0;
-        int bottomMargin=(9*height)/10;
-
-        //horizontal detection parameters
-        int thres=width/2;		//black line threshold
-        int Tthres=width/40;		//Text line threshold
-        int minLineGap=height/20;	//minimum gap between solid lines
-        int minTextSize=height/50;
-
-        //vertical detection parameters
-        int spaceSize;		//size of spaces between words
-
-
-        //horizontal detection variables
-        int LastSolidLine=0;	//last found solid line
-        int top=0;		//current text row top
-        int ntop=0;		//next text row top
-        int PixelCount;	//number of black pixels
-        int PreviousCount=0;	//number of black pixels in last row
-
-        Vector<Integer> HorizontalLines=new Vector<>(); 	//stored solid lines
-        Vector<Integer> TextLines=new Vector<>();		//stored text lines
-
-        HorizontalLines.add(0);
-
-        //vertical detection variables
-        int nTextLines;		//number of text lines to process
-        int vthres;		//threshold for vertical detection
-        int RowHeight;		//height of current text row
-        int prev=0;		//previous word end
-        int firstUp;		//first white/black transition, ignore
-        //because will only be white space
-        int numWhiteCol;	//number of white columns in a row
-
-        //loop variables
-        int i,j;
-
-        Vector<Vector<String>> ret=new Vector<>();
-
-
+        Vector<Vector<String>> ret=new Vector<Vector<String>>();
         //tesseract variables
         String outText;
+        boolean typeline=false;
+
         byte [] img;
         {
-            ByteBuffer buff=ByteBuffer.allocate(4*imageIN.length);
-            for (int tint:imageIN)buff.putInt(tint);
+            ByteBuffer buff=ByteBuffer.allocate(4*image.length);
+            for (int tint:image)buff.putInt(tint);
             img=buff.array();
         }
 
         //set up tesseract
         TessBaseAPI api = new TessBaseAPI();
-        api.init(Cachepath, "lan");
-        api.setImage(img, width, height,4,4*width);
-
-        for (j=topMargin;j<bottomMargin;j++) {
-            PixelCount=0;
-
-            for (i=leftMargin;i<rightMargin;i++) {
-                if (sliceImage[j*width+i]==black){
-                    PixelCount++;
-                    cumulative[j*width+i]= (j>0)?1 +cumulative[(j-1)*width+i]:1;
-                } else {
-                    cumulative[j*width+i]=(j>0)?cumulative[(j-1)*width+i]:0;
-                }
-            }
-            //text rows
-            if ((PixelCount>Tthres&&PreviousCount<=Tthres)
-                    ||j==bottomMargin-1) {
-                if (top<HorizontalLines.lastElement()) {
-                    top=ntop;
-                } else if (minTextSize<j-top) {
-                    TextLines.add(top);
-
-                    if (j==bottomMargin-1&&j-ntop>30) {
-                        TextLines.add(ntop+1);
-                    } else {
-                        TextLines.add(j);
-                    }
-                    top=ntop;
-                }
-
-            } else if (PixelCount<=Tthres&&PreviousCount>Tthres) {
-                ntop=j;
-            }
-
-            PreviousCount=PixelCount;
-            //solid lines
-            if(PixelCount>thres&&((j-LastSolidLine)>minLineGap)) {
-
-                HorizontalLines.add(j);
-                HorizontalLines.add(j);
-                LastSolidLine=j;
-            } else if (PixelCount>thres) {
-                HorizontalLines.set(HorizontalLines.size()-1,j);
-                LastSolidLine=j;
-            }
-
-        }
+        api.init(cachePath, "lan");
+        api.setImage(img, width, height, 4, 4 * width);
 
         //split horizontally into words
+        //OCR strings in found rectangles
+        for(int i=0;i<columns.length;i++) {
+            //get type line
+            if (solidLines.length > 4 && textLines[i * 2] > solidLines[2] &&
+                    textLines[i * 2] <= solidLines[3] && !typeline) {
 
-        nTextLines=TextLines.size()/2;
-        boolean typeLine=false;
+                api.setRectangle(leftMargin, textLines[i * 2],
+                        rightMargin - leftMargin, textLines[i * 2 + 1] - textLines[i * 2]);
 
-        for (i=0;i<nTextLines;i++) {
-
-            //skip everything before second black line, start of numbers
-            if (HorizontalLines.size() > 4 && TextLines.get(i * 2) > HorizontalLines.get(2) &&
-                    TextLines.get(i * 2) <= HorizontalLines.get(3) && !typeLine){
-
-                api.setRectangle(
-                        leftMargin,
-                        TextLines.get(i * 2),
-                        rightMargin-leftMargin,
-                        TextLines.get(i * 2 + 1) - TextLines.get(i * 2));
-
-                workoutType=api.getUTF8Text();
+                workoutType = api.getUTF8Text();
                 Log.d("ImgProcess", "Type Line: " + workoutType);
-                typeLine=true;
+                typeline=true;
                 continue;
-            } else if (HorizontalLines.size() > 4 &&
-                    TextLines.get(i * 2) <= HorizontalLines.get(4)) {
-                continue;
-            } else if (i > 0 && HorizontalLines.size() > 4 && TextLines.get(i * 2 - 1) <= HorizontalLines.get(4) &&
-                    TextLines.get(i * 2) >= HorizontalLines.get(4)) {
-                ;
+            } else if (columns[i].length==0){
+                continue; //skip empty lines;
             }
 
-            RowHeight = TextLines.get(i * 2 + 1) - TextLines.get(i * 2);
-
-            vthres = 1 + RowHeight / 20;
-            spaceSize = width / 10;
-            boolean cont;
-            int upperBound = spaceSize;
-            int lowerBound = 0;
-            int noOfRows;
-            Vector<Integer> columnBreaks;
-
-            do {
-                Log.d("Col Space", "Row" + Integer.toString(i) + ": " + Integer.toString(spaceSize));
-                numWhiteCol = 0;
-                firstUp = 0;
-                columnBreaks=new Vector<Integer>();
-
-                for (j = leftMargin; j < rightMargin; j++) {
-                    PixelCount = cumulative[TextLines.get(i * 2 + 1) * width + j] -
-                            cumulative[TextLines.get(i * 2) * width + j];
-
-
-                    if ((numWhiteCol > spaceSize && PixelCount > vthres) ||
-                            j == (rightMargin - 1)) {
-
-                        if (firstUp == 0) {
-                            firstUp = 1;
-                        } else {
-                            columnBreaks.add(prev);
-                            columnBreaks.add(j);
-
-                            Log.d("ImgProcess",
-                                    "Found Rectangle: x:" + String.valueOf(prev + 1) +
-                                            " y:"+String.valueOf(TextLines.get(i * 2)) +
-                                            " width:"+ String.valueOf(j - prev - 1) +
-                                            " height:" + String.valueOf(TextLines.get(i * 2 + 1) - TextLines.get(i * 2)));
-                        }
-                        prev = j - numWhiteCol;
-                    }
-
-                    if (PixelCount <= vthres)
-                        numWhiteCol++;
-                    else
-                        numWhiteCol = 0;
-
-                }
-
-                noOfRows = columnBreaks.size()/2;
-                //space size too big
-                if (noOfRows < 4) {
-                    if(spaceSize < upperBound)
-                        upperBound = spaceSize;
-                //space size too small
-                } else if (noOfRows > 4) {
-                    if(spaceSize > lowerBound)
-                        lowerBound = spaceSize;
-                }
-
-                spaceSize = (upperBound + lowerBound) / 2;
-                cont = true;
-
-                if(upperBound - lowerBound < 2)
-                    cont = false;
-
-                if(noOfRows == 4)
-                    cont = false;
-
-            } while (cont);
-
-            //OCR strings in found rectangles
             ret.add(new Vector<String>());
-            for (j=0;j<columnBreaks.size()/2;j++) {
+            for (int j = 0; j < columns[i].length / 2; j++) {
                 api.setRectangle(
-                        columnBreaks.get(2*j)+1,
-                        TextLines.get(i * 2),
-                        columnBreaks.get(2*j+1) - columnBreaks.get(2*j) - 1,
-                        TextLines.get(i * 2 + 1) - TextLines.get(i * 2));
+                        columns[i][2 * j] + 1,
+                        textLines[i * 2],
+                        columns[i][2 * j + 1] - columns[i][2 * j] - 1,
+                        textLines[i * 2 + 1] - textLines[i * 2]);
 
                 outText = api.getUTF8Text();
                 ret.lastElement().add(outText);
                 Log.d("ImgProcess", "Found:" + String.valueOf(i) + "-" +
                         String.valueOf(ret.lastElement().size()) + " " + outText);
             }
-
-            for(Integer line : columnBreaks){
-                for(int k= TextLines.get(i * 2);k<TextLines.get(i * 2 + 1);k++)
-                    processedImage[k*width+line]=0xFF00FF00;
-            }
-
         }
+
         api.end();
-
-        for(Integer line : HorizontalLines){
-            for(i=0;i<width;i++)
-                processedImage[line*width+i]=0xFFFF0000;
-        }
-        for(Integer line : TextLines){
-            for(i=0;i<width;i++)
-                processedImage[line*width+i]=0xFF0000FF;
-        }
-
-        saveImage(processedImage, width, height, "textlines",Cachepath);
 
         return ret;
     }
 
-    private static Vector<Vector<String> >  doEverything (int[] imageIN, int height,
-                                                          int width, String Cachepath ) {
 
-        //filter parameters
-        int filthh=width/400,filthw=width/400;//high filter
-        int filtlh=width/40,filtlw=width/40;  //low filter 1
-        int filtlh2=width/40,filtlw2=width/40;  //low filter 2
-
-        int[] LowArray=new int[width*height];		//Array for low pass filtered image
-        int[] HighArray=new int[width*height];
-
-        //recognised strings
-        Vector<Vector<String>>  recognised;
-
-        //check input parameters are OK?
-        if ((width*height)==0 ||filtlh<filthh||filtlw<filthw||
-                width<2*filtlw||height<2*filtlh) {
-            return null;
-        }
-
-        //image processing
-        avgfilter(imageIN,HighArray,height,width,filthh,filthw);
-        avgfilter(imageIN,LowArray,height,width,filtlh,filtlw);
-        threshold(HighArray,LowArray,HighArray,width*height,19,20);
-
-        avgfilter(imageIN,LowArray,height,width,filtlh2,filtlw2);
-        threshold(imageIN,LowArray,imageIN,width*height,18,20);
-
-        //text recognition
-        recognised=recognise(HighArray,imageIN,height,width,Cachepath);
-
-        //probably need to do some formatting stuff here?
-
-        return recognised;
+    /**
+     * Returns the average value of the three colour components from a integer pixel
+     * @param value The pixels value
+     * @return The average of the components
+     */
+    private static int pixel_avg(int value) {
+        return (((value >> 16) & 0x000000FF)+
+                ((value >>8 ) & 0x000000FF)+
+                (value & 0x000000FF))/3;
     }
 
 
-    public static Vector<Vector<String>> ProcessImage(Bitmap image, String Cachepath) {
-        int width = image.getWidth(),height=image.getHeight();
-        int[] array=new int[width*height];
-        image.getPixels(array, 0, width, 0, 0, width, height);
-
-        Log.d("ImgProcess", "Processing image; size:" + width + "x" + height);
-
-        //do stuff here
-        return doEverything(array,height,width,Cachepath);
-    }
 
     /**
      * Copies a tesseract traineddata file from the packaged assets to a regular file in the cache
@@ -451,7 +551,6 @@ public class ImgProcess {
     private static void saveImage(int[] image, int width, int height, String name, String Cachepath){
         FileOutputStream cacheFile=null;
         Bitmap bmp = Bitmap.createBitmap(image, width, height, Bitmap.Config.ARGB_8888);
-        linesImg = bmp;
 
         try {
             cacheFile = new FileOutputStream(Cachepath+"/" + name + ".png");
