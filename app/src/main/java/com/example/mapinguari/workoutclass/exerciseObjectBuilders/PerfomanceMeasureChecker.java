@@ -1,5 +1,7 @@
 package com.example.mapinguari.workoutclass.exerciseObjectBuilders;
 
+import java.util.Vector;
+
 /**
  * Created by mapinguari on 1/11/16.
  */
@@ -37,6 +39,15 @@ public abstract class PerfomanceMeasureChecker {
         } else if(zeroDistance && canFixDistance()){
             fixDistance();
         }
+    }
+
+    public Vector<String> getVS(){
+        Vector<String> result = new Vector<>();
+        result.add(protoTime.toString());
+        result.add(protoDistance.toString());
+        result.add(protoSplit.toString());
+        result.add(protoSPM.toString());
+        return result;
     }
 
     protected int numberOfZeros(){

@@ -45,6 +45,15 @@ public abstract class PerformanceMeasureParser {
     protected Double splitDouble = 0.0;
     protected Integer spmInteger = 0;
 
+    public Vector<String> getVS(){
+        Vector<String> result = new Vector<String>();
+        result.add(timeDouble.toString());
+        result.add(distanceDouble.toString());
+        result.add(column3Double.toString());
+        result.add(spmInteger.toString());
+        return result;
+    }
+
     public PerformanceMeasureParser(String timeString, String distanceString, String column3String, String spmString) {
         this.timeString = timeString;
         this.distanceString = distanceString;

@@ -79,15 +79,20 @@ public class ErgoCapture extends AppCompatActivity {
         super.onStop();
         mCamera.release();
         mCamera = null;
+        previewHolder.removeView(mPreview);
     }
 
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
+
         if(mCamera == null){
+
             mCamera = getCameraInstance();
             mPreview = new CameraPreview(this,mCamera);
+            setCameraDisplayOrientation(this,0,mCamera);
+            previewHolder.addView(mPreview);
         }
     }
 
@@ -144,6 +149,7 @@ public class ErgoCapture extends AppCompatActivity {
         try {
             c = Camera.open(); // attempt to get a Camera instance
             Camera.Parameters p = c.getParameters();
+            p.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
             p.setRotation(90);
             c.setParameters(p);
         }
@@ -215,6 +221,10 @@ public class ErgoCapture extends AppCompatActivity {
         public void surfaceCreated(SurfaceHolder holder) {
             // The Surface has been created, now tell the camera where to draw the preview.
             try {
+                if(mCamera == null){
+                    mCamera = getCameraInstance();
+
+                }
                 biggest(mCamera);
                 Toast a = Toast.makeText(ErgoCapture.this,Double.toString(biggest), Toast.LENGTH_LONG);
                 a.show();

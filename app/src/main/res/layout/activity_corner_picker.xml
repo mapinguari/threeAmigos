@@ -14,15 +14,28 @@
         android:id="@+id/ergo_image_view"
         android:layout_centerInParent="true"/>
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/corner_picker_saveButton"
-        android:onClick="saveCorners"
-        android:text="@string/corner_picker_save_button_text"
-        android:layout_centerHorizontal="true"
-        android:layout_alignBottom="@+id/ergo_image_view"/>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal"
+        android:layout_alignBottom="@+id/ergo_image_view"
+        android:layout_centerHorizontal="true">
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/corner_picker_saveButton"
+            android:onClick="saveCorners"
+            android:text="@string/corner_picker_save_button_text"
+            />
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/corner_picker_debugger_button"
+            android:onClick="debug"
+            android:text="@string/corner_picker_debug_button"/>
+
+    </LinearLayout>
 
 </RelativeLayout>

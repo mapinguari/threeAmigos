@@ -11,6 +11,7 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 /**
  * Created by mapinguari on 1/11/16.
@@ -59,6 +60,16 @@ public class WorkoutChecker extends PerfomanceMeasureChecker {
         this.protoIntervals = protoIntervals;
         this.protoWorkoutType = protoWorkoutType;
         this.workoutTypeValue = workoutTypeValue;
+    }
+
+    public Vector<Vector<String>> getVVS(){
+        Vector<Vector<String>> vvsWorkout = new Vector<>();
+        Vector<String> totals = this.getVS();
+        vvsWorkout.add(totals);
+        for(IntervalChecker ic : protoIntervals){
+            vvsWorkout.add(ic.getVS());
+        }
+        return vvsWorkout;
     }
 
 

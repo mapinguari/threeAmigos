@@ -93,4 +93,5 @@
     <string name="corner_picker_save_button_text">Get Workout</string>
     <string name="title_activity_ergo_capture">ErgoCapture</string>
     <string name="title_activity_debug">Debug</string>
+    <string name="corner_picker_debug_button">Debug</string>
 </resources>

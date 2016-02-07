@@ -26,7 +26,9 @@ import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Vector;
@@ -38,6 +40,13 @@ public class PhotoInspection extends ActionBarActivity {
 
     Button saveButton;
     Uri imgURI;
+
+    Intent debugIntent;
+
+    Workout workout = null;
+
+    String crashNoString = "CrashNo";
+    String crashErrorMsg = "CrashMsg";
 
 
 
@@ -61,19 +70,39 @@ public class PhotoInspection extends ActionBarActivity {
 
 
     public void saveCorners(View v){
-        Workout gleanedWorkout = OCR();
+        if(workout == null) {
+            workout = OCR();
+        }
         Intent inspectWorkout = new Intent(getApplicationContext(),WorkoutViewActivity.class);
-        inspectWorkout.putExtra(getResources().getString(R.string.EXTRA_WORKOUT),gleanedWorkout);
+        inspectWorkout.putExtra(getResources().getString(R.string.EXTRA_WORKOUT),workout);
         inspectWorkout.putExtra(getResources().getString(R.string.EXTRA_WORKOUT_PASSED),true);
         startActivity(inspectWorkout);
 
     }
 
+    public void debug(View v){
+        workout = OCR();
+        startActivity(debugIntent);
+    }
 
+    private void intentDrop(String intentTag, Bitmap bitmap){
+        File outFile = new File(this.getFilesDir(),intentTag + ".jpg");
+        Uri uri = Uri.fromFile(outFile);
+        try {
+            OutputStream os = new FileOutputStream(outFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100,os);
+            debugIntent.putExtra(intentTag,uri);
+        }catch(Exception e){
+
+        }
+
+        }
 
     private Workout OCR(){
 
         int MAX_CORRECTIVE_ITERATIONS = 3;
+
+        debugIntent = new Intent(getApplicationContext(),Debug.class);
 
         Bitmap fullBitmap = null;
         try {
@@ -83,6 +112,9 @@ public class PhotoInspection extends ActionBarActivity {
             failed.show();
             return null;
         }
+
+        intentDrop("originalImage", fullBitmap);
+
         Vector<Vector<String>> ocrReturnedValues = null;
 
         ImgProcess.loadLanguage("lan", this.getApplicationContext());
@@ -90,36 +122,60 @@ public class PhotoInspection extends ActionBarActivity {
         try {
             ImgProcess imgProcess = new ImgProcess(fullBitmap,this.getCacheDir().getCanonicalPath());
             ocrReturnedValues= imgProcess.ProcessImage();
-            Bitmap bit = imgProcess.linesImg;
+            Bitmap linesBit = imgProcess.linesImg;
+            Bitmap ocrBit = imgProcess.getOCRImg();
 
+            intentDrop("linesImage", linesBit);
+            intentDrop("ocrImage", ocrBit);
+
+            Vector<Vector<String>> tmp = new Vector<Vector<String>>(ocrReturnedValues);
+
+            debugIntent.putExtra("ocrOutput", tmp);
         } catch (Exception e) {
             Log.e("LoadImage", e.toString());
             e.printStackTrace();
+            debugIntent.putExtra(crashNoString, 0);
+            debugIntent.putExtra(crashErrorMsg,e.getMessage());
         }
         Workout gleanedWorkout = null;
-        if(ocrReturnedValues != null) {
+        if(ocrReturnedValues != null && ocrReturnedValues.size() > 0) {
             Log.w("OCR OUTPUT", ocrReturnedValues.toString());
 
-            //trying a bolder parse
-            //gleanedWorkout = conservativeWorkout(ocrReturnedValues);
             Vector<String> totals = ocrReturnedValues.firstElement();
             ocrReturnedValues.remove(0);
             Vector<Vector<String>> subIntervals = ocrReturnedValues;
             GregorianCalendar workoutTime = new GregorianCalendar();
 
-            WorkoutParser workoutParser = new WorkoutParser(totals, workoutTime, subIntervals);
+            WorkoutParser workoutParser = null;
+            WorkoutChecker workoutChecker = null;
 
-            WorkoutChecker workoutChecker = workoutParser.runForWorkoutChecker();
-            workoutChecker.performAllCorrection(MAX_CORRECTIVE_ITERATIONS, true);
+            try {
+                workoutParser = new WorkoutParser(totals, workoutTime, subIntervals);
+                workoutChecker = workoutParser.runForWorkoutChecker();
+                debugIntent.putExtra("parserOutput",workoutParser.getVVS());
+            }catch(Exception e){
+                debugIntent.putExtra(crashNoString,1);
+                debugIntent.putExtra(crashErrorMsg,e.getMessage());
+            }
 
-            Toast.makeText(this, "Yes I did the new stuff", Toast.LENGTH_LONG).show();
+            try {
+                if(workoutParser !=null) {
 
+                    workoutChecker.performAllCorrection(MAX_CORRECTIVE_ITERATIONS, true);
 
-            gleanedWorkout = workoutChecker.getWorkout();
+                    gleanedWorkout = workoutChecker.getWorkout();
+                    debugIntent.putExtra("checkerOutput", workoutChecker.getVVS());
 
+                }
+            }catch(Exception e){
+                debugIntent.putExtra(crashNoString,2);
+                debugIntent.putExtra(crashErrorMsg,e.getMessage());
+            }
 //            BolderWorkout bw = new BolderWorkout();
 //
 //            gleanedWorkout = bw.bolderWorkout(ocrReturnedValues,ImgProcess.workoutType);
+
+            debugIntent.putExtra(crashNoString,4);
 
             if (gleanedWorkout == null) {
                 Toast failed = Toast.makeText(this, "Couldn't get a workout out", Toast.LENGTH_SHORT);

@@ -107,7 +107,15 @@ public class WorkoutParser extends PerformanceMeasureParser {
             return new WorkoutChecker(timeDouble,distanceDouble,splitDouble,spmInteger,workoutTime,intervalCheckers,workoutType,workoutTypeValue);
     }
 
-
+    public Vector<Vector<String>> getVVS(){
+        Vector<Vector<String>> vvsWorkout = new Vector<>();
+        Vector<String> totals = this.getVS();
+        vvsWorkout.add(totals);
+        for(IntervalParser ip : subIntervalParsers){
+            vvsWorkout.add(ip.getVS());
+        }
+        return vvsWorkout;
+    }
 
 
     //Not sure how best to do this. Does just dumping the seconds in the seconds field update others?

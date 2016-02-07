@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.googlecode.tesseract.android.*;
@@ -19,6 +20,7 @@ public class ImgProcess {
     private static final int white = 0xFFFFFFFF;
 
     public Bitmap linesImg = null;
+    public Bitmap ocrImg = null;
     public String workoutType=null;
 
     private int imageHeight,imageWidth;
@@ -39,7 +41,10 @@ public class ImgProcess {
 
     private int[][] columns;
 
-
+    public Bitmap getOCRImg() {
+        ocrImg = Bitmap.createBitmap(OCRImage,imageWidth,imageHeight, Bitmap.Config.ARGB_8888);
+        return ocrImg;
+    }
 
     public ImgProcess(Bitmap image, String languagePath) {
         imageWidth  =image.getWidth();
