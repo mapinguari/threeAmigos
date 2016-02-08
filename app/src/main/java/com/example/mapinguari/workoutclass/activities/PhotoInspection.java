@@ -3,7 +3,6 @@ package com.example.mapinguari.workoutclass.activities;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -17,19 +16,15 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.example.mapinguari.workoutclass.ImgProcess;
+import com.example.mapinguari.workoutclass.OCRProcess;
 import com.example.mapinguari.workoutclass.R;
 import com.example.mapinguari.workoutclass.exerciseObjectBuilders.WorkoutChecker;
 import com.example.mapinguari.workoutclass.exerciseObjectParsers.WorkoutParser;
-import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
 import com.example.mapinguari.workoutclass.exerciseObjects.Workout;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Vector;
 
@@ -117,12 +112,14 @@ public class PhotoInspection extends ActionBarActivity {
 
         Vector<Vector<String>> ocrReturnedValues = null;
 
-        ImgProcess.loadLanguage("lan", this.getApplicationContext());
+        OCRProcess.loadLanguage("lan", this.getApplicationContext());
 
         try {
-            ImgProcess imgProcess = new ImgProcess(fullBitmap,this.getCacheDir().getCanonicalPath());
-            ocrReturnedValues= imgProcess.ProcessImage();
-            Bitmap linesBit = imgProcess.linesImg;
+            ImgProcess imgProcess = new ImgProcess(fullBitmap);
+            OCRProcess OCR=new OCRProcess(this.getCacheDir().getCanonicalPath(),imgProcess);
+            ocrReturnedValues=OCR.getStrings();
+
+            Bitmap linesBit = imgProcess.getLinesImg();
             Bitmap ocrBit = imgProcess.getOCRImg();
             Bitmap blobBit = imgProcess.getBlobImg();
 

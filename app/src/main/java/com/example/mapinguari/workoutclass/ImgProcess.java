@@ -1,116 +1,87 @@
 package com.example.mapinguari.workoutclass;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Vector;
-import java.nio.ByteBuffer;
 
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
-
-import com.googlecode.tesseract.android.*;
 
 public class ImgProcess {
     private static final int black = 0xFF000000;
     private static final int white = 0xFFFFFFFF;
 
-    public Bitmap linesImg = null;
-    public Bitmap ocrImg = null;
-    public Bitmap blobImg = null;
-    public String workoutType=null;
-
     private int imageHeight,imageWidth;
-
-    //actual edges to use
-    int leftMargin,rightMargin,topMargin,bottomMargin;
-
-
     private final int[] imageToProcess;
     private int[] lightImage;
     private int[] blobImage;
     private int[] OCRImage;
-    private int[] linesImage;
-    private String cachePath;
 
+    private int leftMargin,rightMargin,topMargin,bottomMargin;
     private int[] textLines;
     private int[] solidLines;
-
     private int[][] columns;
 
-    public Bitmap getOCRImg() {
-        ocrImg = Bitmap.createBitmap(OCRImage,imageWidth,imageHeight, Bitmap.Config.ARGB_8888);
-        return ocrImg;
+
+    public class LineSpecifier {
+        public final int leftMargin,rightMargin;
+        public final int[] textLines;
+        public final int[] solidLines;
+
+        public final int[][] columns;
+
+        LineSpecifier(int lMargin, int rMargin, int[] tLines, int[] sLines, int[][] cols){
+            leftMargin=lMargin;
+            rightMargin=rMargin;
+            textLines=tLines;
+            solidLines=sLines;
+            columns=cols;
+        }
+
     }
 
-    public Bitmap getBlobImg(){
-        blobImg = Bitmap.createBitmap(OCRImage,imageWidth,imageHeight, Bitmap.Config.ARGB_8888);
-        return blobImg;
+
+    public Bitmap getLinesImg() {
+        return Bitmap.createBitmap(makeLinesImage(OCRImage),
+                imageWidth, imageHeight, Bitmap.Config.ARGB_8888);
     }
 
-    public ImgProcess(Bitmap image, String languagePath) {
+    public Bitmap getOCRImg(){
+        return Bitmap.createBitmap(OCRImage, imageWidth, imageHeight, Bitmap.Config.ARGB_8888);
+    }
+
+    public LineSpecifier getLines() {
+        return new LineSpecifier(leftMargin,rightMargin,textLines,solidLines,columns);
+    }
+
+    public ImgProcess(Bitmap image) {
         imageWidth  =image.getWidth();
         imageHeight =image.getHeight();
         imageToProcess=new int[imageWidth*imageHeight];
-
         image.getPixels(imageToProcess, 0, imageWidth, 0, 0, imageWidth, imageHeight);
-        cachePath=languagePath;
-
-        lightImage=null;
-        blobImage=null;
-        OCRImage=null;
 
         leftMargin=imageWidth/20;
         rightMargin=(imageWidth*9)/10;
         topMargin=0;
         bottomMargin=(9*imageHeight)/10;
 
-        workoutType="";
-    }
-
-
-    public Vector<Vector<String>> ProcessImage() {
         Log.d("ImgProcess", "Processing image; size:" + imageWidth + "x" + imageHeight);
-        //do stuff here
-        return doEverything();
-    }
+        lightImage=new int[imageWidth*imageHeight];
+        blobImage=new int[imageWidth*imageHeight];
+        OCRImage=new int[imageWidth*imageHeight];
 
-    private Vector<Vector<String>>  doEverything () {
-        //image processing
-        if (OCRImage==null)
-            filterImageOCR();
-        if (blobImage==null)
-            filterImageBlob();
+        filterImageLight();
+        filterImageBlob();
+        filterImageOCR();
 
         findLines();
         findColumns();
-
-        makeLinesImage();
-        linesImg=Bitmap.createBitmap(linesImage, imageWidth, imageHeight, Bitmap.Config.ARGB_8888);
-
-        //text recognition
-        Vector<Vector<String>> ret=recognise(OCRImage,imageWidth,imageHeight,leftMargin,rightMargin,
-                textLines,solidLines,columns,cachePath);
-
-        /*
-        saveImage(lightImage, imageWidth, imageHeight, "lights",cachePath);
-        saveImage(blobImage, imageWidth, imageHeight, "blobs",cachePath);
-        saveImage(linesImage, imageWidth, imageHeight, "textlines",cachePath);
-        */
-
-        return ret;
-
     }
 
-    // filtered image creation functions
+    //functions for producing processed images
     private void filterImageLight(){
         int filtlh=imageWidth/40,filtlw=imageWidth/40;
-
-        lightImage=new int[imageWidth*imageHeight];
         avgfilter(imageToProcess, lightImage, imageHeight, imageWidth, filtlh, filtlw);
     }
 
@@ -119,7 +90,6 @@ public class ImgProcess {
         if (lightImage==null)
             filterImageLight();
 
-        blobImage=new int[imageWidth*imageHeight];
         avgfilter(imageToProcess, blobImage, imageHeight, imageWidth, filtlh2, filtlw2);
         threshold(blobImage, lightImage, blobImage, imageWidth * imageHeight, 19, 20);
     }
@@ -129,9 +99,31 @@ public class ImgProcess {
         if (lightImage==null)
             filterImageLight();
 
-        OCRImage=new int[imageWidth*imageHeight];
         avgfilter(imageToProcess, OCRImage, imageHeight, imageWidth, filthh, filthw);
         threshold(OCRImage,lightImage,OCRImage,imageWidth*imageHeight,18,20);
+    }
+
+    private int[] makeLinesImage(int[] input){
+        int[] linesImage= Arrays.copyOf(input, input.length);
+        int i;
+
+        for(Integer line : solidLines){
+            for(i=0;i<imageWidth;i++)
+                linesImage[line*imageWidth+i]=0xFFFF0000;
+        }
+        for(Integer line : textLines){
+            for(i=0;i<imageWidth;i++)
+                linesImage[line*imageWidth+i]=0xFF0000FF;
+        }
+
+        for (i=0;i<textLines.length/2;i++) {
+            for (int line : columns[i]) {
+                for (int k = textLines[i * 2]; k < textLines[i * 2 + 1]; k++)
+                    linesImage[k * imageWidth + line] = 0xFF00FF00;
+            }
+        }
+
+        return linesImage;
     }
 
     //Word and line extraction functions
@@ -208,7 +200,6 @@ public class ImgProcess {
         for (i=0;i<solidLines.length;i++)
             solidLines[i]=HorizontalLines.get(i);
 
-        return;
     }
 
     void findColumns() {
@@ -221,7 +212,7 @@ public class ImgProcess {
         int spaceSize;		//size of spaces between words
 
         //vertical detection variables
-        int nTextLines=textLines.length/2;		//number of text lines to process
+        int nTextLines=textLines.length/2;//number of text lines to process
         int vthres;		                        //threshold for vertical detection
         int RowHeight;		                    //height of current text row
         int prev=0;		                        //previous word end
@@ -340,29 +331,6 @@ public class ImgProcess {
         return;
     }
 
-    private void makeLinesImage(){
-        int[] processedImage= Arrays.copyOf(OCRImage, OCRImage.length);
-        int i;
-
-        for(Integer line : solidLines){
-            for(i=0;i<imageWidth;i++)
-                processedImage[line*imageWidth+i]=0xFFFF0000;
-        }
-        for(Integer line : textLines){
-            for(i=0;i<imageWidth;i++)
-                processedImage[line*imageWidth+i]=0xFF0000FF;
-        }
-
-        for (i=0;i<textLines.length/2;i++) {
-            for (int line : columns[i]) {
-                for (int k = textLines[i * 2]; k < textLines[i * 2 + 1]; k++)
-                    processedImage[k * imageWidth + line] = 0xFF00FF00;
-            }
-        }
-
-        linesImage=processedImage;
-    }
-
     /**
      *  Compares every value in imageIN to every value in thresArr, writing the white value to
      *  imageOUT if the imageIN value is greater than the value in thresArr or the black value
@@ -450,65 +418,6 @@ public class ImgProcess {
         }
     }
 
-    private Vector<Vector<String>> recognise(int[] image, int width, int height, int leftMargin, int rightMargin,
-                                             int[] textLines, int[] solidLines, int[][] columns, String cachePath) {
-
-        Vector<Vector<String>> ret=new Vector<Vector<String>>();
-        //tesseract variables
-        String outText;
-        boolean typeline=false;
-
-        byte [] img;
-        {
-            ByteBuffer buff=ByteBuffer.allocate(4*image.length);
-            for (int tint:image)buff.putInt(tint);
-            img=buff.array();
-        }
-
-        //set up tesseract
-        TessBaseAPI api = new TessBaseAPI();
-        api.init(cachePath, "lan");
-        api.setImage(img, width, height, 4, 4 * width);
-
-        //split horizontally into words
-        //OCR strings in found rectangles
-        for(int i=0;i<columns.length;i++) {
-            //get type line
-            if (solidLines.length > 4 && textLines[i * 2] > solidLines[2] &&
-                    textLines[i * 2] <= solidLines[3] && !typeline) {
-
-                api.setRectangle(leftMargin, textLines[i * 2],
-                        rightMargin - leftMargin, textLines[i * 2 + 1] - textLines[i * 2]);
-
-                workoutType = api.getUTF8Text();
-                Log.d("ImgProcess", "Type Line: " + workoutType);
-                typeline=true;
-                continue;
-            } else if (columns[i].length==0){
-                continue; //skip empty lines;
-            }
-
-            ret.add(new Vector<String>());
-            for (int j = 0; j < columns[i].length / 2; j++) {
-                api.setRectangle(
-                        columns[i][2 * j] + 1,
-                        textLines[i * 2],
-                        columns[i][2 * j + 1] - columns[i][2 * j] - 1,
-                        textLines[i * 2 + 1] - textLines[i * 2]);
-
-                outText = api.getUTF8Text();
-                ret.lastElement().add(outText);
-                Log.d("ImgProcess", "Found:" + String.valueOf(i) + "-" +
-                        String.valueOf(ret.lastElement().size()) + " " + outText);
-            }
-        }
-
-        api.end();
-
-        return ret;
-    }
-
-
     /**
      * Returns the average value of the three colour components from a integer pixel
      * @param value The pixels value
@@ -520,48 +429,8 @@ public class ImgProcess {
                 (value & 0x000000FF))/3;
     }
 
-
-
-    /**
-     * Copies a tesseract traineddata file from the packaged assets to a regular file in the cache
-     * so tesseract can find it
-     * @param language The name of the language to be loaded
-     * @param context Application context to access assets and cache directory
-     * @return Whether the traineddata file is now in the cache
-     */
-    public static boolean loadLanguage(String language, Context context) {
-        String directory="tessdata";
-        String lpath="tessdata/"+language+".traineddata";
-        try {
-            File cacheDir=new File(context.getCacheDir(),directory);
-            if (!cacheDir.exists()) {
-                cacheDir.mkdir();
-                Log.d("ImgProcess","wrote "+cacheDir.getAbsolutePath());
-            }
-            File cachefile=new File(context.getCacheDir(),lpath);
-            if (!cachefile.exists()) {
-                Log.d("ImgProcess","wrote "+cachefile.getAbsolutePath());
-                InputStream i = context.getAssets().open(lpath);
-                byte[] buffer = new byte[i.available()];
-                i.read(buffer);
-                i.close();
-
-                cachefile.createNewFile();
-                FileOutputStream o = new FileOutputStream(cachefile);
-                o.write(buffer);
-                o.close();
-            }
-        } catch (IOException e) {
-            Log.e("ImgProcess", e.toString());
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-    private static void saveImage(int[] image, int width, int height, String name, String Cachepath){
+    private static void saveImage(Bitmap bmp, String name, String Cachepath){
         FileOutputStream cacheFile=null;
-        Bitmap bmp = Bitmap.createBitmap(image, width, height, Bitmap.Config.ARGB_8888);
 
         try {
             cacheFile = new FileOutputStream(Cachepath+"/" + name + ".png");
