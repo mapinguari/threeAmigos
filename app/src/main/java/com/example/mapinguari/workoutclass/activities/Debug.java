@@ -42,7 +42,7 @@ public class Debug extends AppCompatActivity {
             blobImageView.setImageURI(((Uri) startingIntent.getParcelableExtra("linesImage")));
 
             ImageView ocrImageView = (ImageView) findViewById(R.id.debug_ocr_imageview);
-            ocrImageView.setImageURI(((Uri) startingIntent.getParcelableExtra("blobImage")));
+            ocrImageView.setImageURI(((Uri) startingIntent.getParcelableExtra("ocrImage")));
 
             checkSet(R.id.debug_ocr_output_textview, "ocrOutput");
         }

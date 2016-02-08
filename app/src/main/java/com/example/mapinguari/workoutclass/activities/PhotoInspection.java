@@ -121,11 +121,10 @@ public class PhotoInspection extends ActionBarActivity {
 
             Bitmap linesBit = imgProcess.getLinesImg();
             Bitmap ocrBit = imgProcess.getOCRImg();
-            Bitmap blobBit = imgProcess.getBlobImg();
+
 
             intentDrop("linesImage", linesBit);
             intentDrop("ocrImage", ocrBit);
-            intentDrop("blobImage", blobBit);
 
             Vector<Vector<String>> tmp = new Vector<Vector<String>>(ocrReturnedValues);
 
