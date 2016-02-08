@@ -21,6 +21,7 @@ public class ImgProcess {
 
     public Bitmap linesImg = null;
     public Bitmap ocrImg = null;
+    public Bitmap blobImg = null;
     public String workoutType=null;
 
     private int imageHeight,imageWidth;
@@ -44,6 +45,11 @@ public class ImgProcess {
     public Bitmap getOCRImg() {
         ocrImg = Bitmap.createBitmap(OCRImage,imageWidth,imageHeight, Bitmap.Config.ARGB_8888);
         return ocrImg;
+    }
+
+    public Bitmap getBlobImg(){
+        blobImg = Bitmap.createBitmap(OCRImage,imageWidth,imageHeight, Bitmap.Config.ARGB_8888);
+        return blobImg;
     }
 
     public ImgProcess(Bitmap image, String languagePath) {
