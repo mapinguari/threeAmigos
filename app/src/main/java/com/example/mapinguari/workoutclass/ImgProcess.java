@@ -136,6 +136,8 @@ public class ImgProcess {
         int minLineGap=imageHeight/20;	//minimum gap between solid lines
         int minTextSize=imageHeight/50;
 
+        int OCRSpace = (imageWidth/50)+1;
+
         //horizontal detection variables
         int LastSolidLine=0;	//last found solid line
         int top=0;		//current text row top
@@ -165,8 +167,8 @@ public class ImgProcess {
                 } else if (minTextSize<j-top) {
                     TextLines.add(top);
 
-                    if (j==bottomMargin-1&&j-ntop>30) {
-                        TextLines.add(ntop+1);
+                    if (j==bottomMargin-1&&j-ntop>OCRSpace) {
+                        TextLines.add(ntop+OCRSpace);
                     } else {
                         TextLines.add(j);
                     }
@@ -210,6 +212,7 @@ public class ImgProcess {
 
         //vertical detection parameters
         int spaceSize;		//size of spaces between words
+        int OCRSpace = (imageWidth/50)+1;
 
         //vertical detection variables
         int nTextLines=textLines.length/2;//number of text lines to process
@@ -276,15 +279,15 @@ public class ImgProcess {
                             firstUp = 1;
                         } else {
                             columnBreaks.add(prev);
-                            columnBreaks.add(j);
+                            columnBreaks.add(j - numWhiteCol + OCRSpace);
 
                             Log.d("ImgProcess",
                                     "Found Rectangle: x:" + String.valueOf(prev + 1) +
                                             " y:"+String.valueOf(textLines[i * 2]) +
-                                            " width:"+ String.valueOf(j - prev - 1) +
+                                            " width:"+ String.valueOf(j - numWhiteCol + OCRSpace - prev - 1) +
                                             " height:" + String.valueOf(textLines[i * 2 + 1] - textLines[i * 2]));
                         }
-                        prev = j - numWhiteCol;
+                        prev = j - OCRSpace;
                     }
 
                     if (PixelCount <= vthres)
