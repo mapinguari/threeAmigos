@@ -22,8 +22,10 @@ public abstract class PerformanceMeasureParser {
 
 
     private Pattern prettyDesperateRegex = Pattern.compile("([0-9\\.:]{1,2}:)?([0-9\\.:]?[0-9\\.:])?:[0-9\\.:]{2}\\.[0-9\\.:]");
+    private Pattern spacedPrettyDesperateRegex = Pattern.compile("([0-9\\.:]?\\s?[0-9\\.:]\\s?:\\s?)?([0-9\\.:]?\\s?[0-9\\.:]\\s?)?:\\s?[0-9\\.:]\\s?[0-9\\.:]\\s?\\.\\s?[0-9\\.:]");
     private Pattern basicTimeRegex = Pattern.compile("(\\d{1,2}:)?(\\d{2})?:\\d{2}\\.\\d");
     private Pattern betterTimeRegex = Pattern.compile("([0-9]{1,2}:)?([0-5]?[0-9])?:[0-5][0-9]\\.[0-9]");
+    private Pattern spacedBetterRegex = Pattern.compile("([0-9]?\\s?[0-9]\\s?:\\s?)?([0-5]?\\s?[0-9]\\s?)?\\s?:\\s?[0-5]\\s?[0-9]\\s?\\.\\s?[0-9]");
     private Pattern desperateTimeRegex = Pattern.compile(anyOCRRegex+"{9,10}|"+ anyOCRRegex + "{5,7}");
 
     private Pattern distanceRegex = Pattern.compile("[0-9]{1,6}");
@@ -290,26 +292,41 @@ public abstract class PerformanceMeasureParser {
     public String getTimeString(String sS){
         String result = null;
         Matcher matcher = betterTimeRegex.matcher(sS);
+        Matcher matcher1 = spacedBetterRegex.matcher(sS);
         if(matcher.find()){
             sS = matcher.group();
             result = sS;
-        } else {
-            matcher = prettyDesperateRegex.matcher(sS);
-            if (matcher.find()) {
-                sS = matcher.group();
-                switch (sS.length()){
-                    case 5 : result = length5(sS);
-                        break;
-                    case 6 : result = length6(sS);
-                        break;
-                    case 7 : result = length7(sS);
-                        break;
-                    case 9 : result = length9(sS);
-                        break;
-                    case 10 : result = length10(sS);
-                        break;
+        } else if(matcher1.find()) {
+            sS = matcher1.group();
+            sS = removeWhiteSpace(sS);
+            result = sS;
+        }else {
+                matcher = spacedPrettyDesperateRegex.matcher(sS);
+                if (matcher.find()) {
+                    sS = matcher.group();
+                    sS = removeWhiteSpace(sS);
+                    switch (sS.length()){
+                        case 5 : result = length5(sS);
+                            break;
+                        case 6 : result = length6(sS);
+                            break;
+                        case 7 : result = length7(sS);
+                            break;
+                        case 9 : result = length9(sS);
+                            break;
+                        case 10 : result = length10(sS);
+                            break;
+                    }
                 }
             }
+        return result;
+    }
+
+    public String removeWhiteSpace(String string){
+        String[] a = string.split("\\s");
+        String result= "";
+        for(int i = 0; i <a.length;i++){
+            result = result.concat(a[i]);
         }
         return result;
     }
