@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.example.mapinguari.workoutclass.exerciseObjects.Interval;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -80,6 +81,10 @@ public abstract class PM3plus {
 
         }
 
+    }
+
+    public ArrayList<Rect> notHR(ArrayList<Rect> rectArrayList){
+        return (ArrayList<Rect>) rectArrayList.subList(0,3);
     }
 
     public Rect getBoundingRect() {

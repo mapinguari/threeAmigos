@@ -2,8 +2,11 @@ package com.example.mapinguari.workoutclass;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.util.Log;
 
+import com.example.mapinguari.workoutclass.ergoGridView.PM3PlusView;
+import com.example.mapinguari.workoutclass.ergoGrids.PM3;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.File;
@@ -11,10 +14,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Vector;
 
 public class OCRProcess {
     private String workoutType=null;
+    private String col3Header=null;
     Vector<Vector<String>> strings;
 
     public Vector<Vector<String>> getStrings(){
@@ -43,11 +48,8 @@ public class OCRProcess {
         int[] image=new int[width*height];
         OCRImage.getPixels(image, 0, width, 0, 0, width, height);
 
-        int leftMargin=lines.leftMargin;
-        int rightMargin=lines.rightMargin;
-        int[] solidLines=lines.solidLines;
-        int[] textLines=lines.textLines;
-        int[][] columns=lines.columns;
+        //Assumed that the complete image is the ergo screen
+        PM3 grid = new PM3(width,height);
 
         byte [] img;
         {
@@ -61,42 +63,43 @@ public class OCRProcess {
         api.init(cachePath, "lan");
         api.setImage(img, width, height, 4, 4 * width);
 
-        //split horizontally into words
-        //OCR strings in found rectangles
-        for(int i=0;i<columns.length;i++) {
-            //get type line
-            if (solidLines.length > 4 && textLines[i * 2] > solidLines[2] &&
-                    textLines[i * 2] <= solidLines[3] && !typeline) {
 
-                api.setRectangle(leftMargin, textLines[i * 2],
-                        rightMargin - leftMargin, textLines[i * 2 + 1] - textLines[i * 2]);
+        //Extract data from rects
+        workoutType = ocrRect(api, grid.getOverView());
+        typeline = workoutType != null;
+        Log.d("OCRProcess", "Type Line: " + workoutType);
 
-                workoutType = api.getUTF8Text();
-                Log.d("OCRProcess", "Type Line: " + workoutType);
-                typeline=true;
-                continue;
-            } else if (columns[i].length==0){
-                continue; //skip empty lines;
-            }
+        col3Header = ocrRect(api,grid.col3Header());
 
-            ret.add(new Vector<String>());
-            for (int j = 0; j < columns[i].length / 2; j++) {
-                api.setRectangle(
-                        columns[i][2 * j] + 1,
-                        textLines[i * 2],
-                        columns[i][2 * j + 1] - columns[i][2 * j] - 1,
-                        textLines[i * 2 + 1] - textLines[i * 2]);
-
-                outText = api.getUTF8Text();
-                ret.lastElement().add(outText);
-                Log.d("OCRProcess", "Found:" + String.valueOf(i) + "-" +
-                        String.valueOf(ret.lastElement().size()) + " " + outText);
-            }
+        ret.add(ocrRow(api,grid.notHR(grid.getSummaryRects())));
+        for(ArrayList<Rect> arrayList : grid.getIntervalRects()){
+            ret.add(ocrRow(api,grid.notHR(arrayList)));
         }
+
+        //OLD CODE AT BOTTOM OF CLASS IN COMMENT
+
+
 
         api.end();
 
         return ret;
+    }
+
+    public String ocrRect(TessBaseAPI api, Rect rectangle){
+        String result;
+        api.setRectangle(rectangle.left,rectangle.top,rectangle.width(),rectangle.height());
+        result = api.getUTF8Text();
+        return result;
+    }
+
+    public Vector<String> ocrRow(TessBaseAPI api,ArrayList<Rect> rectArrayList){
+        Vector<String> result = new Vector<>(rectArrayList.size());
+        for(Rect r : rectArrayList){
+            result.add(ocrRect(api,r));
+            Log.d("OCRProcess", "Found:"
+                    + String.valueOf(result.size()) + " " + result);
+        }
+        return result;
     }
 
     /**
@@ -135,5 +138,49 @@ public class OCRProcess {
         }
         return true;
     }
+
+
+
+//        int leftMargin=lines.leftMargin;
+//        int rightMargin=lines.rightMargin;
+//        int[] solidLines=lines.solidLines;
+//        int[] textLines=lines.textLines;
+//        int[][] columns=lines.columns;
+
+
+    //        //split horizontally into words
+//        //OCR strings in found rectangles
+//        for(int i=0;i<columns.length;i++) {
+//            //get type line
+//            if (solidLines.length > 4 && textLines[i * 2] > solidLines[2] &&
+//                    textLines[i * 2] <= solidLines[3] && !typeline) {
+//
+//                api.setRectangle(leftMargin, textLines[i * 2],
+//                        rightMargin - leftMargin, textLines[i * 2 + 1] - textLines[i * 2]);
+//
+//                workoutType = api.getUTF8Text();
+//                Log.d("OCRProcess", "Type Line: " + workoutType);
+//                typeline=true;
+//                continue;
+//            } else if (columns[i].length==0){
+//                continue; //skip empty lines;
+//            }
+//
+//            ret.add(new Vector<String>());
+//            for (int j = 0; j < columns[i].length / 2; j++) {
+//                api.setRectangle(
+//                        columns[i][2 * j] + 1,
+//                        textLines[i * 2],
+//                        columns[i][2 * j + 1] - columns[i][2 * j] - 1,
+//                        textLines[i * 2 + 1] - textLines[i * 2]);
+//
+//                outText = api.getUTF8Text();
+//                ret.lastElement().add(outText);
+//                Log.d("OCRProcess", "Found:" + String.valueOf(i) + "-" +
+//                        String.valueOf(ret.lastElement().size()) + " " + outText);
+//            }
+//        }
+
+
 
 }
