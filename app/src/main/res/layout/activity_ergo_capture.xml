@@ -18,11 +18,10 @@
             android:layout_height="fill_parent"
             />
 
-        <ImageView
+        <com.example.mapinguari.workoutclass.ergoGridView.PM3PlusView
             android:id="@+id/view_finder_rect"
             android:layout_width="200dp"
             android:layout_height="200dp"
-            android:background="@drawable/rectangle"
             android:layout_centerInParent="true"/>
 
 

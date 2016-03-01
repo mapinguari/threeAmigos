@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.mapinguari.workoutclass.R;
+import com.example.mapinguari.workoutclass.ergoGridView.PM3PlusView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,7 +36,7 @@ public class ErgoCapture extends AppCompatActivity {
     private Camera mCamera;
     private CameraPreview mPreview;
     private String TAG = "Camera thing";
-    private ImageView rectangle;
+    private PM3PlusView rectangle;
     private FrameLayout previewHolder;
     private File outFile;
 
@@ -49,7 +50,7 @@ public class ErgoCapture extends AppCompatActivity {
         // Create an instance of Camera
         mCamera = getCameraInstance();
         setCameraDisplayOrientation(this,0,mCamera);
-        rectangle = (ImageView) findViewById(R.id.view_finder_rect);
+        rectangle = (PM3PlusView) findViewById(R.id.view_finder_rect);
 
         // Create our Preview view and set it as the content of our activity.
         mPreview = new CameraPreview(this, mCamera);
