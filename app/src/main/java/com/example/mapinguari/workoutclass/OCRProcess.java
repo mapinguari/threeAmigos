@@ -78,8 +78,6 @@ public class OCRProcess {
 
         //OLD CODE AT BOTTOM OF CLASS IN COMMENT
 
-
-
         api.end();
 
         return ret;
