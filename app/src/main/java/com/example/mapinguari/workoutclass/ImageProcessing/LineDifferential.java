@@ -3,7 +3,7 @@ package com.example.mapinguari.workoutclass.ImageProcessing;
 
 
 
-import com.example.mapinguari.workoutclass.mObjects.Line;
+import com.example.mapinguari.workoutclass.mObjects.LineSeg;
 import com.example.mapinguari.workoutclass.mObjects.Point;
 
 import java.util.ArrayList;
@@ -56,8 +56,8 @@ public class LineDifferential {
             result = null;
         } else {
             Point<Double> prior = pointList.get(pointIndex - 1);
-            Line line = new Line(prior,pointList.get(pointIndex));
-            result = line.midpoint().snapToGrid();
+            LineSeg lineSeg = new LineSeg(prior,pointList.get(pointIndex));
+            result = lineSeg.midpoint().snapToGrid();
         }
         return result;
     }
@@ -68,8 +68,8 @@ public class LineDifferential {
             result = null;
         } else {
             Point<Double> posterior = pointList.get(pointIndex + 1);
-            Line line = new Line(pointList.get(pointIndex),posterior);
-            result = line.midpoint().snapToGrid();
+            LineSeg lineSeg = new LineSeg(pointList.get(pointIndex),posterior);
+            result = lineSeg.midpoint().snapToGrid();
         }
         return result;
     }
@@ -77,7 +77,7 @@ public class LineDifferential {
 
     public ArrayList<Point<Double>> gridPointsInOrder(Point<Integer> p, Point<Integer> q){
         ArrayList<Point<Double>> result = new ArrayList();
-        Line line = new Line(p,q);
+        LineSeg lineSeg = new LineSeg(p,q);
 
         ArrayList<Point> xPoints = new ArrayList<>();
         int[] xints = lofInt(p.x,q.x);
@@ -87,12 +87,12 @@ public class LineDifferential {
         int current;
         for(int i = 1;i<xints.length;i++){
             current = xints[i];
-            xPoints.add(new Point(Double.valueOf(current), line.getYFromX(current)));
+            xPoints.add(new Point(Double.valueOf(current), lineSeg.getYFromX(current)));
         }
 
         for(int i = 1;i<yints.length;i++){
             current = yints[i];
-            yPoints.add(new Point(Double.valueOf(current), line.getXFromY(current)));
+            yPoints.add(new Point(Double.valueOf(current), lineSeg.getXFromY(current)));
         }
 
         int xp=0,yp=0;

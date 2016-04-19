@@ -1,29 +1,29 @@
 package com.example.mapinguari.workoutclass.mObjects;
 
 /**
- * Created by mapinguari on 2/28/16.
+ * Created by mapinguari on 4/18/16.
  */
 public class Line {
 
-    private Point start;
-    private Point finish;
-    private double gradient;
+    double gradient;
+    double constant;
 
-    public Line(Point start, Point finish) {
-        this.start = start;
-        this.finish = finish;
-        this.gradient = (finish.y.doubleValue() - start.y.doubleValue()) / (finish.x.doubleValue() - start.x.doubleValue());
+    public Line(double gradient, double constant) {
+        this.gradient = gradient;
+        this.constant = constant;
     }
 
-    public double getYFromX(double x){
-        return start.y.doubleValue() + gradient*(x - start.x.doubleValue());
-    }
+    public Point intersection(Line l2){
+        Point<Integer> result;
+        if(gradient - l2.gradient != 0) {
 
-    public double getXFromY(double y){
-        return start.x.doubleValue() + (1/gradient)*(y-start.y.doubleValue());
-    }
+            double x = (constant - l2.constant) / (gradient - l2.gradient);
+            double y = gradient * x + constant;
+            result = new Point(x,y);
+        } else {
+            result = null;
+        }
+        return result;
 
-    public Point midpoint(){
-        return new Point((start.x.doubleValue() + finish.x.doubleValue()) / 2,(start.y.doubleValue() + finish.y.doubleValue()) /2);
     }
 }

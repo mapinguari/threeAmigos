@@ -14,6 +14,4 @@ public class GapDetection {
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;
     }
-
-    public int[] row
 }

@@ -18,11 +18,16 @@
             android:layout_height="fill_parent"
             />
 
-        <com.example.mapinguari.workoutclass.ergoGridView.PM3PlusView
+        <com.example.mapinguari.workoutclass.captureRectanglesView.CaptureRectangles
             android:id="@+id/view_finder_rect"
             android:layout_width="200dp"
             android:layout_height="200dp"
             android:layout_centerInParent="true"/>
+
+        <SurfaceView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/point_and_rectangle_drawing_view"/>
 
 
     </RelativeLayout>

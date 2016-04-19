@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
@@ -167,6 +168,8 @@ public class ErgoCapture extends AppCompatActivity {
         private double biggest;
 
 
+
+
         public CameraPreview(Context context, Camera camera) {
             super(context);
             mCamera = camera;
@@ -230,6 +233,7 @@ public class ErgoCapture extends AppCompatActivity {
                 Toast a = Toast.makeText(ErgoCapture.this,Double.toString(biggest), Toast.LENGTH_LONG);
                 a.show();
                 mCamera.setPreviewDisplay(holder);
+                mCamera.setPreviewCallback();
                 mCamera.startPreview();
             } catch (IOException e) {
                 Log.d(TAG, "Error setting camera preview: " + e.getMessage());

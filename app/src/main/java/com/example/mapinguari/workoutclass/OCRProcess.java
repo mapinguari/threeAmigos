@@ -67,7 +67,7 @@ public class OCRProcess {
         //Extract data from rects
         workoutType = ocrRect(api, grid.getOverView());
         typeline = workoutType != null;
-        Log.d("OCRProcess", "Type Line: " + workoutType);
+        Log.d("OCRProcess", "Type LineSeg: " + workoutType);
 
         col3Header = ocrRect(api,grid.col3Header());
 
@@ -157,7 +157,7 @@ public class OCRProcess {
 //                        rightMargin - leftMargin, textLines[i * 2 + 1] - textLines[i * 2]);
 //
 //                workoutType = api.getUTF8Text();
-//                Log.d("OCRProcess", "Type Line: " + workoutType);
+//                Log.d("OCRProcess", "Type LineSeg: " + workoutType);
 //                typeline=true;
 //                continue;
 //            } else if (columns[i].length==0){
